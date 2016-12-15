@@ -31,7 +31,7 @@ require('./nodelib/handlers-sockets')(ERDS);
 
 if(ERDS.isTest) {
 	trace("process.env.RUN_TEST: " + process.env.IS_TEST);
-	require('./test');
+	require('./nodelib/test');
 }
 
 server.listen(app.get("port"), function(err) {

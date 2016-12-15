@@ -36,7 +36,11 @@ module.exports = function(ERDS) {
 
 			//vuePartials += "<!-- " + _.now() + " -->";
 			
-			cb(indexHTML.rep({vuePartials: vuePartials}));
+			cb(indexHTML.rep({
+				vuePartials: vuePartials,
+				gitBranch: ERDS.git.branch,
+				gitTag: ERDS.git.tag
+			}));
 		});
 	}
 	

@@ -1,15 +1,24 @@
 /**
  * Created by Chamberlain on 14/12/2016.
  */
-var app, server, express, __rootpath, __public;
+var app, server, express, __rootpath, __public, __projects, __private;
+const mkdirp = require('mkdirp');
+const sockets = require('./sockets');
 
-module.exports = function(NS) {
-	app = NS.app;
-	server = NS.server;
-	express = NS.express;
+module.exports = function(ERDS) {
+	app = ERDS.app;
+	server = ERDS.server;
+	express = ERDS.express;
 	__rootpath = app.get('__rootpath');
 	__public = app.get('__public');
-
+	__projects = app.get('__projects');
+	__private = app.get('__private');
+	
+	
+	//Create the /projects and /.private folder in case it doesn't exists!
+	mkdirp(__projects);
+	mkdirp(__private);
+	
 	var vuePartialTemplate = '\n<!-- #$templateName -->\n<template id="$templateName-tmp">$code</template> \n';
 	var __vuePartials = __public + '/vue-partials';
 	var indexHTML;
@@ -31,10 +40,19 @@ module.exports = function(NS) {
 		});
 	}
 	
+	var prodIndexHTML;
+	cacheVueTemplates(newIndexHTML => { prodIndexHTML = newIndexHTML; });
+	
 	//At the very root, serve the pages & resources from the /dashboard-public/ folder.
 	app.use('/', function (req, res, next) {
 		if(req.url=='/') {
-			return cacheVueTemplates(newIndexHTML => res.send(newIndexHTML));
+			if(ERDS.isDev) {
+				//This can be cached later on production, but for testing let's recache it:
+				trace("Using DEV refreshed index.html...");
+				return cacheVueTemplates(newIndexHTML => res.send(newIndexHTML));
+			} else {
+				return res.send(prodIndexHTML);
+			}
 		}
 		//traceObj(req);
 		

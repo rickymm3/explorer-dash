@@ -5,14 +5,14 @@ const fs = require('fs');
 const path = require('path');
 const FILE_ENCODING = {encoding: 'utf8'};
 
-module.exports = function(NS) {
+module.exports = function(ERDS) {
 
-	NS.isDir = function isDir(path) {
+	ERDS.isDir = function isDir(path) {
 		var stat = fs.statSync(path);
 		return stat.isDirectory();
 	};
 	
-	NS.filesFilter = function(dir, filterFunc, isRecursive) {
+	ERDS.filesFilter = function(dir, filterFunc, isRecursive) {
 		if(!dir || !filterFunc) return [];
 		if(isRecursive==null) isRecursive = true;
 		
@@ -26,7 +26,7 @@ module.exports = function(NS) {
 			files.forEach(file => {
 				var fullpath = path.resolve(subdir + '/' + file).fixSlashes();
 				
-				if(NS.isDir(fullpath)) {
+				if(ERDS.isDir(fullpath)) {
 					isRecursive && _readDir(fullpath);
 					return;
 				}
@@ -41,7 +41,7 @@ module.exports = function(NS) {
 		return found;
 	};
 	
-	NS.filesCollect = function(dir, filterFunc, cb, isRecursive) {
+	ERDS.filesCollect = function(dir, filterFunc, cb, isRecursive) {
 		if(!cb) throw new Error("filesCollect needs a callback function!");
 
 		//filterFunc could also be an *.extension
@@ -51,7 +51,7 @@ module.exports = function(NS) {
 		}
 		
 		
-		var files = NS.filesFilter(dir, filterFunc, isRecursive);
+		var files = ERDS.filesFilter(dir, filterFunc, isRecursive);
 		var obj = {};
 		var f = files.length;
 		
@@ -65,10 +65,10 @@ module.exports = function(NS) {
 			}
 		}
 		
-		files.forEach(fullpath => NS.fileRead(fullpath, mergeFileContent));
+		files.forEach(fullpath => ERDS.fileRead(fullpath, mergeFileContent));
 	};
 	
-	NS.fileRead = function(file, cb) {
+	ERDS.fileRead = function(file, cb) {
 		if(cb==null) return fs.readFileSync(file, FILE_ENCODING);
 
 		fs.readFile(file, FILE_ENCODING, (err, content) => {

@@ -4,10 +4,10 @@ const colorNames = "green,blue,red,black,pink,orange,teal,gray,maroon".split(','
 
 var app;
 
-module.exports = function(NS) {
-	if(!NS.isTest) return;
+module.exports = function(ERDS) {
+	if(!ERDS.isTest) return;
 	trace("OK testing routes...".cyan);
-	app = NS.app;
+	app = ERDS.app;
 	
 	app.use('/test', function (req, res, next) {
 		var id = (Math.random() * colorNames.length) >> 0; //Converts to int

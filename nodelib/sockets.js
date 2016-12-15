@@ -10,6 +10,6 @@ module.exports = function(ERDS) {
 	io = ERDS.io;
 
 	io.on('connection', function(client) {
-		trace(' >>>>  Connected: ' + trace(client));
+		trace(' >>>>  Connected: ' + client);
 	});
 };

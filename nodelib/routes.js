@@ -3,10 +3,10 @@
  */
 var app, server, express, __rootpath;
 
-module.exports = function(ERDS) {
-	app = ERDS.app;
-	server = ERDS.server;
-	express = ERDS.express;
+module.exports = function(NS) {
+	app = NS.app;
+	server = NS.server;
+	express = NS.express;
 	
 	__rootpath = app.get('__rootpath');
 	

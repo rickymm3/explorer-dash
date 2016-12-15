@@ -4,8 +4,8 @@ const colorNames = "green,blue,red,black,pink,orange,teal,gray,maroon".split(','
 
 var app;
 
-module.exports = function(ERDS) {
-	app = ERDS.app;
+module.exports = function(NS) {
+	app = NS.app;
 	
 	app.use('/test', function (req, res, next) {
 		var id = (Math.random() * colorNames.length) >> 0; //Converts to int

@@ -1,11 +1,12 @@
 {
-  "name": "eggroll-nodedev",
+  "name": "erds-web-dashboard",
   "version": "1.0.0",
-  "description": "General Eggroll Digital Studios NodeJS Development",
-  "main": "express-test.js",
+  "description": "General Eggroll Digital Studios Web Dashboard",
+  "main": "app.js",
   "dependencies": {
     "colors": "^1.1.2",
     "csv": "^1.1.0",
+    "dotenv": "^2.0.0",
     "express": "^4.14.0",
     "lodash": "^4.17.2",
     "redis": "^2.6.3",

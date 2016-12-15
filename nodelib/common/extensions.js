@@ -41,8 +41,8 @@ String.prototype.fixSlashes = function() {
 })();
 
 Function.prototype.defer = function() {
-	//var _func = this;
-	setTimeout( this, 0 );
+	var _this = this, args = arguments;
+	_.defer(function() { _this.apply(null, args); });
 };
 
 //////////////////////////////////////////////////////////////

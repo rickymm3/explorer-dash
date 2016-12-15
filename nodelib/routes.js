@@ -10,7 +10,7 @@ module.exports = function(NS) {
 	__rootpath = app.get('__rootpath');
 	__public = app.get('__public');
 
-	var vuePartialTemplate = '\n<!-- #$templateName -->\n<template id="tmp-$templateName">$code</template> \n';
+	var vuePartialTemplate = '\n<!-- #$templateName -->\n<template id="$templateName-tmp">$code</template> \n';
 	var __vuePartials = __public + '/vue-partials';
 	var indexHTML;
 	

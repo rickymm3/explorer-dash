@@ -2,13 +2,8 @@
  * Created by Chamberlain on 15/12/2016.
  */
 
-function createVue() {
-	return new Vue({
-		el: '#app',
-		data: {
-			//timerCount: 0
-		}
-	});
+function createVue(data) {
+	return new Vue(_.assign({el: '#app'}, data));
 }
 
 /*
@@ -51,5 +46,6 @@ function makeVueComponent(name, params) {
 
 //Register a bunch of Vue Components:
 makeVueComponent("dragdropfile", {props:['action','filecolor']});
+makeVueComponent("project", {props:['project']});
 
 

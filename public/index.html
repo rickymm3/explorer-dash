@@ -26,12 +26,16 @@
 
   <div id="container">
     <div id="app">
-        <dragdropfile id="csv-importer" action="helloAction!" filecolor="#337ab7">
-          Have an existing CSV file<br/>
-          to import? <b>Drop it here!</b>
-        </dragdropfile>
+        <project v-for="project in projects" :project="project"></project>
     </div>
   </div>
+  
+  <!--
+  <dragdropfile id="csv-importer" action="helloAction!" filecolor="#337ab7">
+    Have an existing CSV file<br/>
+    to import? <b>Drop it here!</b>
+  </dragdropfile>
+  -->
   
   <!-- All Vue Component templates are merged into this <div> on server-side -->
   <div id="my-vue-templates"> $vuePartials </div>

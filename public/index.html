@@ -7,41 +7,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ERDS - Web Dashboard</title>
 
+  <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/main.css">
+  <script>
+    var ERDS = window.ERDS || {};
+  </script>
 </head>
 
 <body>
   <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
       <div class="navbar-header">
-        <a class="navbar-brand" href="/">Web Dashboard<span class="coligo"> | ERDSGAMES.COM</span></a>
+        <a class="navbar-brand" href="/">ERDS | Web Dashboard</a>
       </div>
     </div>
   </nav>
 
-  <div class="container">
+  <div id="container">
     <div id="app">
-      <h1 class="dash-red">{{ timerCount }} <i class="glyphicon glyphicon-user"></i></h1>
-      <h3 class="text-muted">Active Users</h3>
+      <h1 class="dash-red">{{ timerCount }} </h1>
+      <my-dragdropfile></my-dragdropfile>
     </div>
   </div>
   
-  <!--
-  <tr v-for="(referringSite, count) in referrers">
+  <div id="my-vue-templates">
+    <!--
+    <tr v-for="(referringSite, count) in referrers">
 	  <td>{{ referringSite }}</td>
 	  <td>{{ count }}</td>
 	</tr>
 	-->
 
+    $vuePartials
+  </div>
+  
+  
+  <!-- Fun Glyphs Icons:
+  
+  <i class="glyphicon glyphicon-user"></i>
+  
+  -->
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/EaselJS/0.8.0/easeljs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.1/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.17/vue.js"></script>
-  <!-- <script src="/socket.io/socket.io.js"></script> -->
   <script src="js/extensions.js"></script>
-  <script src="js/vue-test.js"></script>
+  <script src="js/vue-components.js"></script>
   <script src="js/main.js"></script>
 
 </body>

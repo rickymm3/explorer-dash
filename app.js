@@ -6,23 +6,31 @@ const express = ERDS.express = require('express');
 const app = ERDS.app = express();
 const server = ERDS.server = require('http').createServer(app);
 const io = ERDS.io = require('socket.io')(server);
-const __ = global.__ = require('lodash');
+const _ = global._ = require('underscore');
 const colors = require('colors');
 const port = process.env.PORT || 9999;
+const extensions = require('./nodelib/common/extensions');
+const __rootpath = __dirname.fixSlashes();
 
-app.set("__rootpath", __dirname);
+traceClear();
+
+ERDS.isTest = _.isTruthy(process.env.IS_TEST);
+
+app.set("__rootpath", __rootpath);
+app.set("__public", __rootpath + "/public");
+app.set("__projects", __rootpath + "/projects");
 app.set("port", port);
 
 //Require a bunch of homemade modules for each parts of this web-app: 
-require('./nodelib/common/extensions');
+
 require('./nodelib/helpers')(ERDS);
 require('./nodelib/routes-tester')(ERDS);
 require('./nodelib/routes')(ERDS);
 require('./nodelib/handlers-errors')(ERDS);
 require('./nodelib/handlers-sockets')(ERDS);
 
-if(__.isTrue(process.env.RUN_TEST)) {
-	trace("process.env.RUN_TEST: " + process.env.RUN_TEST);
+if(ERDS.isTest) {
+	trace("process.env.RUN_TEST: " + process.env.IS_TEST);
 	require('./test');
 }
 

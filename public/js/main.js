@@ -1,5 +1,8 @@
 window.addEventListener('load', function() {
 	//MAIN ENTRY:
 	
-	trace(vueApp);
 });
+
+ERDS.vue = createVue();
+
+

@@ -3,9 +3,14 @@
  */
 Vue.component("my-dragdropfile", {
 	template: "#tmp-dragdropfile",
-	created: function() {
-		
-	}
+	props:['action','filecolor'],
+	/*created: function() {
+		var _this = this;
+		(function() {
+			trace(_this.$el);
+			//var myDropzone = new Dropzone(_this.$el, { url: "/file/post"});
+		}).defer();
+	}*/
 });
 
 function createVue() {
@@ -16,12 +21,13 @@ function createVue() {
 		},
 		created: function () {
 			var _this = this;
-			return;
 			
+			/*
 			setInterval(function () {
 				var isEven = ((_this.timerCount += Math.random() * 3 >> 0) % 2)==0;
 				//trace(isEven ? "tick" : "tock");
 			}, 1000)
+			*/
 		}
 	});
 }

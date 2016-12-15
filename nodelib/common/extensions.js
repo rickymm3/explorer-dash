@@ -40,6 +40,11 @@ String.prototype.fixSlashes = function() {
 	};
 })();
 
+Function.prototype.defer = function() {
+	//var _func = this;
+	setTimeout( this, 0 );
+};
+
 //////////////////////////////////////////////////////////////
 
 _.isTruthy = function(bool) {

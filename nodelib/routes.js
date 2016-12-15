@@ -12,11 +12,11 @@ module.exports = function(NS) {
 
 	var vuePartialTemplate = '\n<!-- #$templateName -->\n<template id="tmp-$templateName">$code</template> \n';
 	var __vuePartials = __public + '/vue-partials';
-	var indexHTML = ERDS.fileRead(__public + '/index.html');
+	var indexHTML;
 	
 	function cacheVueTemplates(cb) {
 		var vuePartials = "";
-
+		indexHTML = ERDS.fileRead(__public + '/index.html');
 		ERDS.filesCollect(__vuePartials, ".html", (vueFiles) => {
 			vueFiles = _.mapRename(vueFiles, fullpath => fullpath.split('/').pop().split('.')[0]);
 

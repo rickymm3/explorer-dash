@@ -8,8 +8,10 @@ module.exports = function(ERDS) {
 	app = ERDS.app;
 	server = ERDS.server;
 	io = ERDS.io;
-
+	
 	io.on('connection', function(client) {
-		trace(' >>>>  Connected: ' + client);
+		ERDS.getProjectsList && ERDS.getProjectsList((data) => {
+			client.emit('projectsUpdated', data);
+		});
 	});
 };

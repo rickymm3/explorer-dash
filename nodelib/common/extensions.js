@@ -13,15 +13,32 @@ String.prototype.contains = function contains(str) {
 	return this.indexOf(str)>-1;
 };
 
-String.prototype.rep = function rep(obj) {
-	var str = this.toString();
-	for(var o in obj) {
-		var regex = new RegExp("\\$"+o, "g");
-		str = str.replace(regex, obj[o]);
+
+String.prototype.rep = function rep(obj, isCleaningUnusedProperties) {
+	var regex, str = this.toString();
+	
+	if(isCleaningUnusedProperties) {
+		regex = _.isRegExp(isCleaningUnusedProperties) ? isCleaningUnusedProperties : /\[\[([a-z0-9_\-]*)\]\]/gi;
+		
+		do {
+			var found = false;
+			str = str.replace(regex, function(match, text) {
+				ERDS.isTest && trace("text: " + text);
+				found = true;
+				return obj[text] || "";
+			});
+		} while(found);
+		
+	} else {
+		for(var o in obj) {
+			regex = new RegExp("\\$"+o, "g");
+			str = str.replace(regex, obj[o]);
+		}
 	}
 	
 	return str;
 };
+/**/
 
 String.prototype.fixSlashes = function() {
 	var str = this.toString().replace(/\\/g, "/");

@@ -2,8 +2,10 @@
  * Created by Chamberlain on 15/12/2016.
  */
 
-function createVue(data) {
-	return new Vue(_.assign({el: '#app'}, data));
+function createVue(cbSetter, data) {
+	_.defer(function() {
+		cbSetter( new Vue(_.assign({el: '#vue'}, data)) );
+	});
 }
 
 /*
@@ -44,8 +46,50 @@ function makeVueComponent(name, params) {
 	Vue.component(name, params);
 }
 
+//Create a socket connection:
+ERDS.io = io();
+
 //Register a bunch of Vue Components:
 makeVueComponent("dragdropfile", {props:['action','filecolor']});
 makeVueComponent("project", {props:['project']});
+makeVueComponent("project-index", {});
 
+createVue(function(vue) { ERDS.vue = vue; }, {
+	data: function() {
+		return {projects: []};
+	},
+	methods: {
+		projectsUpdated: function(data) {
+			this.projects = data;
+		},
+		testing: function() {
+			trace("TESTING!");
+		}
+	}
+});
 
+bindVueMethodsToSocketIO(ERDS.vue, ERDS.io);
+
+function bindVueMethodsToSocketIO(vue, io) {
+	_.keys(vue).forEach(function(propName) {
+		var firstChar = propName.substr(0,1);
+		if("_$".contains(firstChar)) return;
+
+		if(_.isFunction(vue[propName])) {
+			bindSocketEvent(vue, vue[propName], propName);
+		}
+	});
+
+	function bindSocketEvent(vue, method, propName) {
+		io.on(propName, method);
+	}
+}
+
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
+function createProject() {
+	var projectName = prompt('What is your project name?');
+
+	ERDS.io.emit("createProject", projectName);
+}

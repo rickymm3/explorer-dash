@@ -1,0 +1,7 @@
+<div>
+	<button onclick="addLightSequence">
+		<img src="/images/icon-light-bulb.png" width="16" />
+	</button> <u scale>Add Light Sequence</u>
+	
+	<light-sequence v-for="light in lightSequences" :light="light"></light-sequence>
+</div>

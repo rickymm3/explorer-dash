@@ -14,9 +14,10 @@ module.exports = function(ERDS) {
 		var colorName = colorNames[id];
 
 		res.send(
-			'<h1>This is a test! (From NodeJS)</h1>' +
-			'<p>The random color is.... <span style="color: $color;"><b>$upper</b></span></p>'
-				.rep({color: colorName, upper: colorName.toUpperCase()})
+			'<h1>This is a test! (From NodeJS)</h1>\
+			 <p>The random color is.... \
+			 <span style="color: $0;"><b>$1</b></span>\
+			 </p>'.rep([colorName, colorName])
 		);
 		
 		next();

@@ -92,7 +92,6 @@ module.exports = function(ERDS) {
 	};
 	
 	ERDS.createScriptTags = function(scriptsURLs) {
-		var scriptTemplate = '<script src="$url"></script>';
-		return scriptsURLs.map(url => scriptTemplate.rep({url: url}));
+		return scriptsURLs.map(url => '<script src="$0"></script>'.rep([url]));
 	}
 };

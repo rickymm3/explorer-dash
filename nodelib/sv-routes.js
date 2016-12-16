@@ -4,7 +4,7 @@
 var app, server, express, __rootpath, __public, __projects, __private;
 const fs = require('fs');
 const mkdirp = require('mkdirp');
-const sockets = require('./sockets');
+const sockets = require('./sv-sockets');
 
 module.exports = function(ERDS) {
 	app = ERDS.app;

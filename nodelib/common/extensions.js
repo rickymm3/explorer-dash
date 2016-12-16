@@ -14,29 +14,35 @@ String.prototype.contains = function contains(str) {
 };
 
 
-String.prototype.rep = function rep(obj, isCleaningUnusedProperties) {
+String.prototype.rep = function rep(obj) {
 	var regex, str = this.toString();
 	
-	if(isCleaningUnusedProperties) {
-		regex = _.isRegExp(isCleaningUnusedProperties) ? isCleaningUnusedProperties : /\[\[([a-z0-9_\-]*)\]\]/gi;
-		
-		do {
-			var found = false;
-			str = str.replace(regex, function(match, text) {
-				ERDS.isTest && trace("text: " + text);
-				found = true;
-				return obj[text] || "";
-			});
-		} while(found);
-		
+	if(_.isArray(obj)) {
+		for(var i=obj.length; --i>=0;) {
+			regex = new RegExp("\\$"+i, "g");
+			str = str.replace(regex, obj[i]);
+		}
 	} else {
 		for(var o in obj) {
 			regex = new RegExp("\\$"+o, "g");
 			str = str.replace(regex, obj[o]);
 		}
 	}
-	
+
 	return str;
+};
+
+String.prototype.repPattern = function(obj, wipeMissingTags) {
+	regex = _.isRegExp(isCleaningUnusedProperties) ? isCleaningUnusedProperties : /\[\[([a-z0-9_\-]*)\]\]/gi;
+	
+	do {
+		var found = false;
+		str = str.replace(regex, function(match, text) {
+			ERDS.isTest && trace("text: " + text);
+			found = true;
+			return obj[text] || (wipeMissingTags ? "" : match);
+		});
+	} while(found);
 };
 /**/
 

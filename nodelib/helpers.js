@@ -16,6 +16,12 @@ module.exports = function(ERDS) {
 		if(!dir || !filterFunc) return [];
 		if(isRecursive==null) isRecursive = true;
 		
+		//filterFunc could also be an *.extension
+		if(_.isString(filterFunc)) {
+			var str = filterFunc;
+			filterFunc = file => file.endsWith(str);
+		}
+		
 		dir = dir.fixSlashes();
 
 		var found = [];
@@ -41,6 +47,15 @@ module.exports = function(ERDS) {
 		return found;
 	};
 	
+	ERDS.getDirs = function(dir, cb) {
+		dir = dir.fixSlashes();
+		
+		fs.readdir(dir, (err, files) => {
+			var dirs = files.filter(file => ERDS.isDir(dir+'/'+file));
+			cb(dirs);
+		});
+	};
+	
 	ERDS.filesCollect = function(dir, filterFunc, cb, isRecursive) {
 		if(!cb) throw new Error("filesCollect needs a callback function!");
 
@@ -54,6 +69,8 @@ module.exports = function(ERDS) {
 		var files = ERDS.filesFilter(dir, filterFunc, isRecursive);
 		var obj = {};
 		var f = files.length;
+
+		files.forEach(fullpath => ERDS.fileRead(fullpath, mergeFileContent));
 		
 		function mergeFileContent(err, content, fullpath) {
 			if(err) throw err;
@@ -64,8 +81,6 @@ module.exports = function(ERDS) {
 				cb(obj);
 			}
 		}
-		
-		files.forEach(fullpath => ERDS.fileRead(fullpath, mergeFileContent));
 	};
 	
 	ERDS.fileRead = function(file, cb) {
@@ -75,4 +90,9 @@ module.exports = function(ERDS) {
 			cb(err, content, file);
 		});
 	};
+	
+	ERDS.createScriptTags = function(scriptsURLs) {
+		var scriptTemplate = '<script src="$url"></script>';
+		return scriptsURLs.map(url => scriptTemplate.rep({url: url}));
+	}
 };

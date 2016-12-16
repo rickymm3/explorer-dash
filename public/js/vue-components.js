@@ -49,10 +49,14 @@ function makeVueComponent(name, params) {
 //Create a socket connection:
 ERDS.io = io();
 
+//TODO is this an issue?
+
 //Register a bunch of Vue Components:
 makeVueComponent("dragdropfile", {props:['action','filecolor']});
 makeVueComponent("project", {props:['project']});
 makeVueComponent("project-index", {});
+
+//TODO is this an issue?
 
 createVue(function(vue) { ERDS.vue = vue; }, {
 	data: function() {

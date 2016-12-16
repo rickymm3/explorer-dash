@@ -1,3 +1,4 @@
+//TODO is this an issue?
 makeVueComponent("light-sequence", {props:['none']});
 
 /**

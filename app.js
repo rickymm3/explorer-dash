@@ -43,6 +43,7 @@ function onReady() {
 	
 	//Finally, start the server and listen for incoming connections:
 	server.listen(app.get("port"), function (err) {
+		if(err) throw err;
 		trace("Started Express on localhost:$0".rep([port]).yellow);
 	});
 }

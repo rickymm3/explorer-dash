@@ -1,7 +1,7 @@
 /**
  * Created by Chamberlain on 14/12/2016.
  */
-var app, server, express, __rootpath, __public, __projects, __private;
+var app, server, express, __rootpath, __public, __projects, __private, __vuePartials;
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 const sockets = require('./sv-sockets');
@@ -15,15 +15,20 @@ module.exports = function(ERDS) {
 	__projects = app.get('__projects');
 	__private = app.get('__private');
 	
-	var defaultIndexPath = __public + '/index.html';
-	
-	//Create the /projects and /.private folder in case it doesn't exists!
+	//Create the /projects, /public and /.private folder in case it doesn't exists!
 	mkdirp(__projects);
+	mkdirp(__public);
 	mkdirp(__private);
 	
-	var vuePartialTemplate = '\n<!-- #$templateName -->\n<template id="$templateName-tmp">$code</template> \n';
-	var __vuePartials = __public + '/vue-partials';
-	
+	var vuePartialTemplate = [
+		'<!-- #$templateName -->',
+		'<template id="$templateName-tmp">$code</template> '
+	].join('\n');
+
+	__vuePartials = __public + '/vue-partials';
+
+	var defaultIndexPath = __public + '/index.html';
+
 	function fetchVuePartials(params, cb) {
 		if(!params) params = {};
 		var indexPath = params.indexPath || defaultIndexPath;

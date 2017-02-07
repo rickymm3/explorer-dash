@@ -1,9 +1,9 @@
 ERDS.Project = (function () {
     function Project() {
         ERDS.io.emit("echo", { foo: 'bar' });
-        setTimeout(function () {
-            ERDS.io.emit("echo", "Hello World");
-        }, 2000);
+        ERDS.io.emit("echo", "Hello World 1");
+        ERDS.io.emit("echo", "Hello World 2");
+        ERDS.io.emit("echo", "Hello World 3");
         ERDS.vue = new Vue({
             el: '#details',
             data: {}

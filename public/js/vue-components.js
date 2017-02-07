@@ -1,6 +1,3 @@
-/**
- * Created by Chamberlain on 15/12/2016.
- */
 
 function createVue(cbSetter, data) {
 	_.defer(function() {

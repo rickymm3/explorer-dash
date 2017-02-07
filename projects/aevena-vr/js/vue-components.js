@@ -1,9 +1,6 @@
 //TODO is this an issue?
 makeVueComponent("light-sequence", {props:['none']});
 
-/**
- * Created by Chamberlain on 15/12/2016.
- */
 createVue(function(vue) { ERDS.vueProject = vue; }, {
 	el: "#vue-project",
 	data: function() {

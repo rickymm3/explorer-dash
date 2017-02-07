@@ -10,68 +10,50 @@
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
   <link rel="stylesheet" href="/css/main.css">
+    $pageCSS
   <script>
-    var ERDS = window.ERDS || {};
+    var ERDS = {projectName: "$projectName"};
   </script>
 </head>
 
 <body>
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-inverse">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">ERDS Web Dashboard</a>
+                <a class="navbar-brand" href="/">ERDS Web Dashboard</a>
             </div>
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Home</a></li>
-                <!--<li><a href="#page-1">Page 1</a></li>
-                <li><a href="#page-2">Page 2</a></li>
-                <li><a href="#page-3">Page 3</a></li>-->
+                <li class="active"><a href="/">Home</a></li>
             </ul>
         </div>
     </nav>
 
     <div id="container">
-    <div id="vue" class="[[projectClass]]">
-      <!-- Things only visible on the Home page -->
-      <div class="home-view">
-        <!-- <button onclick="createProject()">Create Project</button> -->
-        <!-- TODO is this an issue? (HTML) -->
-        <project v-for="project in projects" :project="project"></project>
-      </div>
-
-      <!-- Things only visible on the Project page -->
-      <div class="project-view">
-        <h1>[[projectName]]</h1>
-
-        <project-index id="vue-project"></project-index>
-      </div>
+        <div id="app">
+            <div class="box box-error" v-html="errors"></div>
+            <div class="box box-info" v-html="infos"></div>
+            $pageHTML
+        </div>
     </div>
+
+    <div class="git-info">
+        $gitInfo
     </div>
-  
-  [[git-info]]
 
-  <!--
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-  -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.4.7/bluebird.core.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.4.7/bluebird.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/EaselJS/0.8.0/easeljs.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.1/socket.io.js"></script>
-  <!--
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.17/vue.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.common.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.runtime.common.min.js"></script>
-  -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.runtime.min.js"></script>
+    <div id="scripts">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.4.7/bluebird.core.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.4.7/bluebird.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/EaselJS/0.8.0/easeljs.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.1/socket.io.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>
 
-  <script src="/js/extensions.js"></script>
-  <script src="/js/vue-components.js"></script>
-  <script src="/js/main.js"></script>
+      <script src="/js/extensions.js"></script>
+      <script src="/js/main.js"></script>
+        $pageJS
+    </div>
 </body>
 
 </html>

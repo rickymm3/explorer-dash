@@ -1,4 +1,6 @@
-var $$$ = {};
+declare var ERDS, Vue, TweenMax, trace;
+
+var $$$:any = {};
 
 window.addEventListener('load', function() {
 	$$$.boxError = $('.box-error');
@@ -12,10 +14,8 @@ window.addEventListener('load', function() {
 		ERDS.project.init();
 	}
 
+	ERDS.io.on("echo", data => showInfo(data));
 	ERDS.io.emit('fetch-project', ERDS.projectName);
-	ERDS.io.on("echo", function(data) {
-		showInfo(data);
-	});
 
 	window.addEventListener('click', function() {
 		[$$$.boxError, $$$.boxInfo].forEach(box => box.hide());

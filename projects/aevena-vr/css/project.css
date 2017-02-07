@@ -1,0 +1,40 @@
+body {
+  background: #dde;
+}
+.sidebar {
+  display: block;
+  position: relative;
+  width: 200px;
+  font-size: 0.9em;
+  background: #080;
+  padding: 2px;
+}
+.sidebar .button {
+  width: auto;
+  left: 0px;
+  right: 0px;
+  margin: 2px;
+}
+.button {
+  display: block;
+  background: #aaa;
+  padding: 3px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.button:hover {
+  background: #ccc;
+}
+.button:active {
+  background: #444;
+  color: #fff;
+}
+#details {
+  display: block;
+  position: absolute;
+  border: solid 1px #f0f;
+  top: 5px;
+  left: 220px;
+  right: 5px;
+}

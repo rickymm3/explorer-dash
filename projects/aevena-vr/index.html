@@ -1,12 +1,11 @@
-<div>
-    <h1 v-html="proj.name"></h1>
-</div>
+<div class="header">
+    <h1 class="title" v-html="proj.name">&nbsp;</h1>
 
-<!-- v-on: -->
-<div class="sidebar">
-    <div class="button" click="onDefinableValues">DefinableValues</div>
-    <div class="button" click="onLightSequence">LightSequence</div>
-    <div class="button" click="onActionSequence">ActionSequence</div>
+    <div class="sidebar">
+        <div class="button" v-on:click="onDefinableValues">DefinableValues</div>
+        <div class="button" v-on:click="onLightSequence">LightSequence</div>
+        <div class="button" v-on:click="onActionSequence">ActionSequence</div>
+    </div>
 </div>
 
 <div id="details">

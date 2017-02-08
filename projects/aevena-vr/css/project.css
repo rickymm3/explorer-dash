@@ -1,18 +1,32 @@
 body {
   background: #dde;
 }
+.header {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap;
+  user-select: none;
+}
+.title {
+  width: 180px;
+}
 .sidebar {
-  display: block;
+  display: inline-block;
   position: relative;
-  width: 200px;
+  max-height: 50px;
   font-size: 0.9em;
+  vertical-align: bottom;
+  margin-left: 10px;
+  padding: 5px;
+  overflow-x: scroll;
+  white-space: nowrap;
   background: #080;
-  padding: 2px;
 }
 .sidebar .button {
-  width: auto;
-  left: 0px;
-  right: 0px;
+  position: relative;
+  display: inline-block;
+  white-space: normal;
+  width: 120px;
   margin: 2px;
 }
 .button {
@@ -22,6 +36,7 @@ body {
   text-align: center;
   cursor: pointer;
   border-radius: 5px;
+  text-shadow: #fff 0px 1px 0px;
 }
 .button:hover {
   background: #ccc;
@@ -32,9 +47,10 @@ body {
 }
 #details {
   display: block;
-  position: absolute;
+  position: relative;
   border: solid 1px #f0f;
   top: 5px;
-  left: 220px;
-  right: 5px;
+  left: 0px;
+  right: 0px;
+  min-height: 30px;
 }

@@ -13,9 +13,7 @@ h3,
 h4,
 h5 {
   margin: 0;
-}
-#my-vue-templates {
-  display: none;
+  display: inline-block;
 }
 #container {
   position: relative;
@@ -24,22 +22,22 @@ h5 {
 .navbar {
   margin: 0;
 }
-.box {
-  display: none;
-  position: fixed;
-  top: 5px;
-  left: 5px;
-  right: 5px;
-  z-index: 9999;
-  color: #fff;
-  border-radius: 10px;
-  padding: 10px;
-}
 .box-error {
   background: #f00;
 }
 .box-info {
   background: #8af;
+}
+.box {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px;
 }
 .float-left {
   float: left;
@@ -89,35 +87,4 @@ h5 {
 }
 .git-info a {
   color: #fff;
-}
-.project-view {
-  display: none;
-}
-.project .home-view {
-  display: none;
-}
-.project .project-view {
-  display: block;
-}
-u[scale] {
-  display: inline-block;
-  color: rgba(0, 0, 0, 0);
-  padding: 3px;
-  position: absolute;
-  transition: all 0.2s ease-in-out;
-  text-decoration: none;
-  -webkit-transform-origin: 0 center;
-  -moz-transform-origin: 0 center;
-  -ms-transform-origin: 0 center;
-  -o-transform-origin: 0 center;
-}
-button:hover + u[scale] {
-  -webkit-transform: scale(1.2);
-  -moz-transform: scale(1.2);
-  -o-transform: scale(1.2);
-  -ms-transform: scale(1.2);
-  transform: scale(1.2);
-  color: #000000;
-  font-weight: bold;
-  text-decoration: none;
 }

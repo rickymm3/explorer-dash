@@ -3,30 +3,12 @@ declare var ERDS, Vue, trace, traceError, io, $, _, TweenMax, Back;
 var $$$:any = {};
 
 window.addEventListener('load', function() {
-	$$$.boxError = $('.box-error');
-	$$$.boxInfo = $('.box-info');
-
-	//makeQueueBox($$$.boxInfo, (obj) => {
-	//	if(!ERDS.vue) return traceError("No Vue :(");
-	//	ERDS.vue.infos = !_.isString(obj) && _.isObject(obj) ? JSON.stringify(obj) : obj;
-	//});
-	//
-	//makeQueueBox($$$.boxError, (err) => {
-	//	if(!ERDS.vue) return traceError("No Vue :(");
-	//	ERDS.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
-	//});
-
-	ERDS.io = io(); //Create a socket connection:
-	ERDS.io.on("echo", data => $$$.boxInfo.showBox && $$$.boxInfo.showBox(data));
-
 	Vue.config.debug = true;
 
+	ERDS.io = io(); //Create a socket connection:
+	ERDS.io.on("echo", data => $$$.boxInfo.showBox(data));
 	ERDS.io.on('fetch-project', onFetchProject);
 	ERDS.io.emit('fetch-project', ERDS.projectName);
-
-	window.addEventListener('click', function() {
-		[$$$.boxError, $$$.boxInfo].forEach(box => box.hide());
-	});
 });
 
 function onFetchProject(proj) {
@@ -45,34 +27,63 @@ function onFetchProject(proj) {
 		methods: {}
 	};
 
-	//if(project.extendVue) {
-	//	ERDS.vueConfig = project.extendVue(ERDS.vueConfig);
-	//}
-
-	trace(ERDS.vueConfig);
+	if(project.extendVue) {
+		ERDS.vueConfig = project.extendVue(ERDS.vueConfig);
+	}
 
 	ERDS.vue = new Vue(ERDS.vueConfig);
 
-	/////////
+	initializeUI();
 
 	project.init && project.init();
 }
 
-function makeQueueBox(box, cb) {
+function initializeUI() {
+	$$$.boxError = $('.box-error');
+	$$$.boxInfo = $('.box-info');
+
+	makeQueueBox($$$.boxInfo, (obj) => {
+		ERDS.vue.infos = !_.isString(obj) && _.isObject(obj) ? JSON.stringify(obj) : obj;
+	});
+
+	makeQueueBox($$$.boxError, (err) => {
+		ERDS.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
+	});
+}
+
+function registerComponents(compList) {
+	_.keys(compList).forEach( function(compName) {
+		var compData = compList[compName];
+
+		//Assume a default template ID naming convention if no raw HTML is used:
+		if(!compData.template) compData.template = '#'+compName+'-tmp';
+
+		Vue.component(compName, compData);
+	});
+}
+
+function makeQueueBox(box, cbSetInnerHTML) {
 	box._queueObj = [];
 	box._queueBusy = false;
+	box._cbSetInnerHTML = cbSetInnerHTML;
+	box.show();
 
 	_initTransforms(box);
-	_animateBoxOut(box).progress(1.0);
 
-	box.showBox = function(obj) {
-		this._queueObj.push({obj: obj});
+	window.addEventListener('click', function() {
+		TweenMax.killTweensOf(box);
+		TweenMax.set(box, {alpha: 0});
+	});
+
+	box.showBox = function(msg) {
+		this._queueObj.push({obj: msg});
 
 		this._showBox();
 	};
 
 	box._showBox = function() {
 		var _this = this;
+
 		if(_this._queueBusy || !_this._queueObj.length) return;
 
 		_this._queueBusy = true;
@@ -86,34 +97,31 @@ function makeQueueBox(box, cb) {
 
 		_animateBoxIn(_this, () => _animateBoxOut(_this, notBusy));
 
-		cb(obj);
+		_this._cbSetInnerHTML && _this._cbSetInnerHTML(obj);
 	};
+}
 
-	function _initTransforms(obj) {
-		const nil = "+=0";
+function _initTransforms(obj) {
+	const nil = "+=0";
 
-		TweenMax.set(obj, {x: nil, y: nil, alpha: nil, rotation: nil, scaleX: nil, scaleY: nil});
+	TweenMax.set(obj, {x: nil, y: nil, alpha: nil, rotation: nil, scaleX: nil, scaleY: nil});
 
-		var gs = (!obj.length  ? obj : obj[0])._gsTransform;
-		obj._initX = gs.x;
-		obj._initY = gs.y;
-	}
+	var gs = (!obj.length ? obj : obj[0])._gsTransform || {};
+	obj._initX = gs.x;
+	obj._initY = gs.y;
 
-	function _animateBoxIn(box, onComplete=null) {
-		box.show();
+	TweenMax.set(obj, {alpha: 0});
+}
 
-		trace('_animateBoxIn');
+function _animateBoxIn(box, cb=null) {
+	return TweenMax.to(box, 0.3, {y: box._initY, alpha: 1, ease: Back.easeIn, onComplete: () => {
+		cb && _.delay(cb, 1000); //1000 / (box._queueObj.length+1))
+	}});
+}
 
-		return TweenMax.to(box, 0.3, {y: box._initY, alpha: 1, ease: Back.easeIn, onComplete: () => onComplete && _.delay(onComplete, 1000 / (box._queueObj.length+1))});
-	}
-
-	function _animateBoxOut(box, onComplete=null) {
-		trace('_animateBoxOut');
-
-		return TweenMax.to(box, 0.3, {y: box._initY - 10, alpha: 0, ease: Back.easeOut, onComplete: () => {
-			box.hide();
-
-			onComplete && onComplete();
-		}});
-	}
+function _animateBoxOut(box, cb=null) {
+	trace(box);
+	return TweenMax.to(box, 0.3, {y: box._initY - 10, alpha: 0, ease: Back.easeOut, onComplete: () => {
+		cb && cb();
+	}});
 }

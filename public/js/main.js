@@ -1,6 +1,6 @@
 var $$$ = {};
 window.addEventListener('load', function () {
-    Vue.config.debug = true;
+    //Vue.config.debug = true;
     ERDS.io = io(); //Create a socket connection:
     ERDS.io.on("echo", function (data) { return $$$.boxInfo.showBox(data); });
     ERDS.io.on('fetch-project', onFetchProject);
@@ -41,11 +41,17 @@ function initializeUI() {
 }
 function registerComponents(compList) {
     _.keys(compList).forEach(function (compName) {
-        var compData = compList[compName];
+        var tag = compList[compName];
         //Assume a default template ID naming convention if no raw HTML is used:
-        if (!compData.template)
-            compData.template = '#' + compName + '-tmp';
-        Vue.component(compName, compData);
+        if (!tag.template || !tag.template.length) {
+            tag.template = '#' + compName + '-tmp';
+            var $tmp = $(tag.template);
+            if (!$tmp || !$tmp.length) {
+                return traceError("VUEJS ERROR: Cannot find template: " + tag.template);
+            }
+            trace("Registering tag: " + tag.template);
+        }
+        Vue.component(compName, tag);
     });
 }
 function makeQueueBox(box, cbSetInnerHTML) {
@@ -87,13 +93,18 @@ function _initTransforms(obj) {
 function _animateBoxIn(box, cb) {
     if (cb === void 0) { cb = null; }
     return TweenMax.to(box, 0.3, { y: box._initY, alpha: 1, ease: Back.easeIn, onComplete: function () {
-            cb && _.delay(cb, 1000); //1000 / (box._queueObj.length+1))
+            cb && _.delay(cb, 2000 / (box._queueObj.length + 1));
         } });
 }
 function _animateBoxOut(box, cb) {
     if (cb === void 0) { cb = null; }
-    trace(box);
     return TweenMax.to(box, 0.3, { y: box._initY - 10, alpha: 0, ease: Back.easeOut, onComplete: function () {
             cb && cb();
         } });
+}
+function fadeIn(el, time, cb) {
+    if (time === void 0) { time = 0.5; }
+    if (cb === void 0) { cb = null; }
+    el.show && el.show();
+    TweenMax.fromTo(el, time, { alpha: 0 }, { alpha: 1, onComplete: cb });
 }

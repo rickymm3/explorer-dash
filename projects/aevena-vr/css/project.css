@@ -46,11 +46,23 @@ body {
   color: #fff;
 }
 #details {
-  display: block;
+  display: none;
   position: relative;
   border: solid 1px #f0f;
   top: 5px;
   left: 0px;
   right: 0px;
+  padding: 5px;
   min-height: 30px;
+}
+.numeric-prop {
+  border: solid 1px #888;
+}
+.numeric-prop .col-1,
+.numeric-prop .col-2 {
+  display: inline-block;
+}
+.numeric-prop .col-1 {
+  width: 200px;
+  text-align: right;
 }

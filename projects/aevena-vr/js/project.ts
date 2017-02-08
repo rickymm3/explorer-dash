@@ -1,36 +1,89 @@
-declare var ERDS, $, $$$, Vue, trace, traceError, traceClear;
+declare var ERDS, _, $, $$$, Vue,
+	trace, traceError, traceClear,
+	registerComponents, fadeIn;
+
+registerComponents({
+	comp: {
+		props: ['obj'],
+		template:
+			'<div class="v-comp" v-bind:is="obj.type" v-bind:obj="obj"></div>'
+	},
+
+	'numeric-prop': {
+		props: ['obj'],
+		template:
+			'<div class="numeric-prop">\
+				<div class="col-1">\
+					<i v-html="obj.name.camelToTitleCase()"></i>:\
+				</div>\
+				<div class="col-2">\
+					<input type="text" v-model:value="obj.value" />\
+				</div>\
+			</div>'
+	},
+
+
+});
 
 ERDS.Project = class Project {
-	constructor() {
-		$$$.details = $('#details');
-		$$$.views = $$$.details.find('.view');
-	}
-
 	extendVue(vueConfig) {
 		var projConfig = {
+			data: {
+				view: 0,
+				jsonData: {
+					definableValues: [
+
+					],
+					lightSequence: [
+
+					],
+					actionSequence: [
+
+					]
+				}
+			},
+
 			methods: {
-				onDefinableValues() {
-					trace("1");
-				},
-				onLightSequence() {
-					trace("1");
-				},
-				onActionSequence() {
-					trace("1");
-				},
+				// ???
 			}
 		};
 
-		return _.merge(vueConfig, projConfig);
+		var temp = _.merge(vueConfig, projConfig);
+		ERDS.data = temp.data;
+
+		return temp;
 	}
 
 	init() {
-		ERDS.io.emit('echo', {bla: 1});
-		ERDS.io.emit('echo', {bla: 2});
-		ERDS.io.emit('echo', {bla: 3});
+		$$$.details = $('#details');
+		$$$.views = $$$.details.find('.view');
+
+		fadeIn($$$.details);
+
+		ERDS.data.jsonData.definableValues.push(
+			{type: 'numeric-prop', name: 'photoDistance', value: 5},
+			{type: 'numeric-prop', name: 'elevationHeight', value: 1},
+			{type: 'numeric-prop', name: 'elevationSpeed', value: 5},
+			{type: 'numeric-prop', name: 'descentSpeed', value: 1},
+			{type: 'numeric-prop', name: 'movementSpeed', value: 5},
+			{type: 'numeric-prop', name: 'yawSpeed', value: 1},
+			{type: 'numeric-prop', name: 'timeToStart', value: 5},
+			{type: 'numeric-prop', name: 'timeToStop', value: 1},
+			{type: 'numeric-prop', name: 'maxTiltRange', value: 5},
+			{type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1}
+		);
+
+		ERDS.vue.$forceUpdate();
+
+		//ERDS.io.emit('echo', JSON.stringify(ERDS.data.jsonData));
+
 		//trace($$$.views);
 
 		//Will need "".camelToTitleCase() to convert JSON props to displayable UI fields.
 	}
 
 };
+
+function traceJSON() {
+	trace(JSON.stringify(ERDS.data.jsonData, null, ' '));
+}

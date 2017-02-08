@@ -75,6 +75,9 @@ h5 {
 .shadow-dark {
   text-shadow: #222 1px 1px 1px;
 }
+.hidden {
+  display: none;
+}
 .git-info {
   position: fixed;
   display: inline-block;

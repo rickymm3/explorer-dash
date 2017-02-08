@@ -2,22 +2,23 @@
     <h1 class="title" v-html="proj.name">&nbsp;</h1>
 
     <div class="sidebar">
-        <div class="button" v-on:click="onDefinableValues">DefinableValues</div>
-        <div class="button" v-on:click="onLightSequence">LightSequence</div>
-        <div class="button" v-on:click="onActionSequence">ActionSequence</div>
+        <div class="button" v-on:click="view = 0">DefinableValues</div>
+        <div class="button" v-on:click="view = 1">LightSequence</div>
+        <div class="button" v-on:click="view = 2">ActionSequence</div>
     </div>
 </div>
 
 <div id="details">
-    <div class="view definable-values">
-
+    <div v-if="view==0" class="view definable-values">
+        <comp v-for="def in jsonData.definableValues" v-bind:obj="def"></comp>
     </div>
 
-    <div class="view light-sequence">
-
+    <div v-if="view==1" class="view light-sequence">
+        light-sequence
     </div>
 
-    <div class="view action-sequence">
-
+    <div v-if="view==2" class="view action-sequence">
+        action-sequence
     </div>
 </div>
+

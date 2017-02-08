@@ -9,7 +9,7 @@ function isNode() {
 	return typeof module !== 'undefined' && module.exports;
 }
 
-String.prototype.contains = function contains(str) {
+String.prototype.has = function has(str) {
 	return this.indexOf(str)>-1;
 };
 
@@ -32,18 +32,18 @@ String.prototype.rep = function rep(obj) {
 	return str;
 };
 
-String.prototype.repPattern = function(obj, wipeMissingTags) {
-	regex = _.isRegExp(isCleaningUnusedProperties) ? isCleaningUnusedProperties : /\[\[([a-z0-9_\-]*)\]\]/gi;
-	
-	do {
-		var found = false;
-		str = str.replace(regex, function(match, text) {
-			ERDS.isTest && trace("text: " + text);
-			found = true;
-			return obj[text] || (wipeMissingTags ? "" : match);
-		});
-	} while(found);
-};
+//String.prototype.repPattern = function(obj, wipeMissingTags, isCleaningUnusedProperties) {
+//	regex = _.isRegExp(isCleaningUnusedProperties) ? isCleaningUnusedProperties : /\[\[([a-z0-9_\-]*)\]\]/gi;
+//
+//	do {
+//		var found = false;
+//		str = str.replace(regex, function(match, text) {
+//			ERDS.isTest && trace("text: " + text);
+//			found = true;
+//			return obj[text] || (wipeMissingTags ? "" : match);
+//		});
+//	} while(found);
+//};
 /**/
 
 String.prototype.fixSlashes = function() {
@@ -63,6 +63,12 @@ String.prototype.fixSlashes = function() {
 	};
 })();
 
+String.prototype.camelToTitleCase = function() {
+	var text = this.toString();
+	var result = text.replace( /([A-Z])/g, " $1" );
+	return result.charAt(0).toUpperCase() + result.slice(1);
+};
+
 Function.prototype.defer = function() {
 	var _this = this, args = arguments;
 	_.defer(function() { _this.apply(null, args); });
@@ -71,7 +77,7 @@ Function.prototype.defer = function() {
 //////////////////////////////////////////////////////////////
 
 _.isTruthy = function(bool) {
-	return bool===true || "true,1,on,yes".contains(bool);
+	return bool===true || "true,1,on,yes".has(bool);
 };
 
 _.mapRename = function(obj, filter) {
@@ -90,8 +96,11 @@ GLOBALS.traceObj = function(o) {
 	trace(output);
 	return output;
 };
+
 if(isNode()) {
-	GLOBALS.traceClear = function() { process.stdout.write('\033c'); }
+	GLOBALS.traceClear = function() { process.stdout.write('\033c'); };
+	GLOBALS.traceError = function(err) { trace(err.toString().red); };
 } else {
-	GLOBALS.traceClear = function() { console.clear && console.clear(); }
+	GLOBALS.traceClear = function() { console.clear && console.clear(); };
+	GLOBALS.traceError = function(err) { console.error(err); };
 }

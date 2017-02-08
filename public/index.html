@@ -10,48 +10,50 @@
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
   <link rel="stylesheet" href="/css/main.css">
+    $pageCSS
   <script>
-    var ERDS = window.ERDS || {};
+    var ERDS = {projectName: "$projectName"};
   </script>
 </head>
 
 <body>
-  [[header]]
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">ERDS Web Dashboard</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/">Home</a></li>
+            </ul>
+        </div>
+    </nav>
 
-  <div id="container">
-    <div id="vue" class="[[projectClass]]">
-      <!-- Things only visible on the Home page -->
-      <div class="home-view">
-        <!-- <button onclick="createProject()">Create Project</button> -->
-        <!-- TODO is this an issue? (HTML) -->
-        <project v-for="project in projects" :project="project"></project>
-      </div>
-      
-      <!-- Things only visible on the Project page -->
-      <div class="project-view">
-        <h1>[[projectName]]</h1>
-        
-        <project-index id="vue-project"></project-index>
-      </div>
+    <div id="container">
+        <div id="app">
+            <div class="box box-error"><span v-html="errors"></span></div>
+            <div class="box box-info"><span v-html="infos"></span></div>
+            $pageHTML
+        </div>
     </div>
-  </div>
-  
-  [[git-info]]
 
-  <!--
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-  -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/EaselJS/0.8.0/easeljs.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.1/socket.io.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.17/vue.js"></script>
-  
-  <script src="/js/extensions.js"></script>
-  <script src="/js/vue-components.js"></script>
-  <script src="/js/main.js"></script>
+    <div class="git-info">
+        $gitInfo
+    </div>
+
+    <div id="scripts">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.4.7/bluebird.core.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.4.7/bluebird.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/EaselJS/0.8.0/easeljs.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.1/socket.io.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.js"></script>
+
+      <script src="/js/extensions.js"></script>
+      <script src="/js/main.js"></script>
+        $pageJS
+    </div>
 </body>
 
 </html>

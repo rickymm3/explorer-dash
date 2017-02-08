@@ -3,21 +3,29 @@
 /////////////////////////////////////// COMMON HTML TAGS
 
 body { background: #ececef; }
+h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
 
-dragdropfile {
-  font-size: 20px;
-}
+/////////////////////////////////////// TOP-LEVEL CLASSES & IDs
 
-/////////////////////////////////////// COMMON HTML TAGS
-
-#my-vue-templates { display: none; }
 #container {
   position: relative;
-  top: 50px;
-  //left: 0px;
   padding: 10px;
 }
 
+.navbar { margin: 0; }
+.box-error { background: #f00; }
+.box-info { background: #8af; }
+.box {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px;
+}
 
 /////////////////////////////////////// CLASSES for margin / position / floats / font styling.
 
@@ -37,28 +45,9 @@ dragdropfile {
 .shadow-lite { text-shadow: #fff 1px 1px 1px; }
 .shadow-dark { text-shadow: #222 1px 1px 1px; }
 
+.hidden { display: none; }
+
 /////////////////////////////////////// CLASSES for EVERYTHING ELSE!
-
-//Dropzone UI (nice large boxes! :)
-.dz-default {
-  display: inline-block;
-  max-width: 100vw;
-  text-align: center;
-  border-radius: 10px;
-  border: solid 4px #fff;
-  outline: dashed 2px #222;
-  outline-offset: -10px;
-  background-color: rgba(200, 200, 200, 0.2);
-  padding: 30px;
-
-  &:hover {
-    background-color: rgba(200, 200, 200, 0.5);
-  }
-}
-
-.dragdropfile {
-  border: solid 2px #f00;
-}
 
 .git-info {
   position: fixed;
@@ -70,35 +59,4 @@ dragdropfile {
   border-radius: 10px;
   background-color: #888;
   a { color: #fff; }
-}
-
-.project-view {
-  display: none;
-}
-
-.project {
-  .home-view {
-    display: none;
-  }
-  
-  .project-view {
-    display: block;
-  }
-}
-
-u[scale] {
-  display: inline-block;
-  color: rgba(0,0,0,0);
-  padding: 3px;
-  position: absolute;
-  transition: all .2s ease-in-out;
-  text-decoration: none;
-  .transform-origin(0, center);
-}
-
-button:hover + u[scale] {
-  .scale(1.2);
-  color: rgba(0,0,0,1);
-  font-weight: bold;
-  text-decoration: none;
 }

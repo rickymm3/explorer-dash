@@ -1,0 +1,68 @@
+body {
+  background: #dde;
+}
+.header {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap;
+  user-select: none;
+}
+.title {
+  width: 180px;
+}
+.sidebar {
+  display: inline-block;
+  position: relative;
+  max-height: 50px;
+  font-size: 0.9em;
+  vertical-align: bottom;
+  margin-left: 10px;
+  padding: 5px;
+  overflow-x: scroll;
+  white-space: nowrap;
+  background: #080;
+}
+.sidebar .button {
+  position: relative;
+  display: inline-block;
+  white-space: normal;
+  width: 120px;
+  margin: 2px;
+}
+.button {
+  display: block;
+  background: #aaa;
+  padding: 3px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 5px;
+  text-shadow: #fff 0px 1px 0px;
+}
+.button:hover {
+  background: #ccc;
+}
+.button:active {
+  background: #444;
+  color: #fff;
+}
+#details {
+  display: none;
+  position: relative;
+  border: solid 1px #f0f;
+  top: 5px;
+  left: 0px;
+  right: 0px;
+  padding: 5px;
+  min-height: 30px;
+}
+.numeric-prop {
+  border: solid 1px #888;
+}
+.numeric-prop .col-1,
+.numeric-prop .col-2 {
+  display: inline-block;
+}
+.numeric-prop .col-1 {
+  width: 200px;
+  text-align: right;
+}

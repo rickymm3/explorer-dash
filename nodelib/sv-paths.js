@@ -8,6 +8,7 @@ module.exports = function(ERDS) {
 
 	//Local Filesystem Addresses:
 	app.set('__rootpath', ERDS.__rootpath = __rootpath);
+	app.set('__test', ERDS.__test = __rootpath + '/test');
 	app.set('__public', ERDS.__public = __rootpath + '/public');
 	app.set('__indexhtml', ERDS.__indexhtml = __rootpath + '/public/index.html');
 	app.set('__projects', ERDS.__projects = __rootpath + '/projects');

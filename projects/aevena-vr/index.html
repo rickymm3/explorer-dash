@@ -1,13 +1,24 @@
 <div>
-    <h1>$projectName</h1>
+    <h1 v-html="proj.name"></h1>
 </div>
 
+<!-- v-on: -->
 <div class="sidebar">
-    <div class="button">DefinableValues</div>
-    <div class="button">LightSequence</div>
-    <div class="button">ActionSequence</div>
+    <div class="button" click="onDefinableValues">DefinableValues</div>
+    <div class="button" click="onLightSequence">LightSequence</div>
+    <div class="button" click="onActionSequence">ActionSequence</div>
 </div>
 
 <div id="details">
- Details show up here.
+    <div class="view definable-values">
+
+    </div>
+
+    <div class="view light-sequence">
+
+    </div>
+
+    <div class="view action-sequence">
+
+    </div>
 </div>

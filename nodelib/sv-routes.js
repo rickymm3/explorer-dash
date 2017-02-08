@@ -8,6 +8,7 @@ module.exports = function(ERDS) {
 	const app = ERDS.app;
 	const express = ERDS.express;
 
+	app.use('/test', express.static(ERDS.__test));
 	app.use('/', preprocessIndexHTML);
 	app.use('/', express.static(ERDS.__public));
 	app.use('/js', express.static(ERDS.__common));
@@ -101,27 +102,18 @@ module.exports = function(ERDS) {
 		if(!proj) return next();
 
 		var url = req.originalUrl;
-		var foundType = false;
+		var matches = url.match(/\/(js|css)\//);
 
-		['js','css'].forEach(type => {
-			if(foundType) return;
-			var typeDelim = '/' + type + '/';
-			if(!url.has(typeDelim)) return;
+		if(matches && matches.index>-1) {
+			var urlEnd = url.substr(matches.index);
+			var urlFile = proj.__path + urlEnd;
 
-			foundType = true;
-
-			var urlRest = url.split(typeDelim).pop();
-			var __type = proj['__'+type];
-			var __file = __type + '/' + urlRest;
-
-			if(!ERDS.fileExists(__file)) {
-				return res.status(500).send('Missing File: ' + urlRest);
+			if(!ERDS.fileExists(urlFile)) {
+				return res.status(500).send('Missing File: ' + urlEnd);
 			}
 
-			res.sendFile(__file);
-		});
-
-		if(foundType) return;
+			return res.sendFile(urlFile);
+		}
 
 		next();
 	}

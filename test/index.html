@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test HTML</title>
+</head>
+<body>
+
+<div id="app">
+    Hello World
+
+    <button v-on:click="changeDeepObject">Try Me ;)</button>
+
+    <div v-for="deep in deepObj">
+        <comp v-bind:type="deep.type" v-bind:data="deep"></comp>
+    </div>
+</div>
+
+<div id="scripts">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.4.7/bluebird.core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.4.7/bluebird.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/EaselJS/0.8.0/easeljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.js"></script>
+
+    <script src="/js/extensions.js"></script>
+    <script>
+        trace("Hello!");
+
+
+        Vue.component('comp', {
+            props: ['type', 'data'],
+            template: '<div v-bind:is="type" v-bind:data="data"></div>'
+        });
+
+        Vue.component('apple', {
+            props: ['data'],
+            template: '<span class="apple" :style="{color: data.color}">Apple!</span>'
+        });
+
+        Vue.component('dog', {
+            props: ['data'],
+            template: '<span class="dog">Dog! <b v-if="data.bark">BARK!</b></span>'
+        });
+
+        Vue.component('nerd', {
+            props: ['data'],
+            template: '<span class="nerd" v-on:click="data.someFunc()">Nerd, click me</span>'
+        });
+
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                deepObj: []
+            },
+
+            methods: {
+                changeDeepObject: function() {
+                    vm.deepObj = [
+                        {type: "apple", color: '#f00'},
+                        {type: "dog", bark: true},
+                        {type: "nerd", someFunc: function() {
+                            alert("Yes, I am a nerd!");
+                        }}
+                    ]
+                }
+            }
+        });
+
+
+    </script>
+</div>
+
+</body>
+</html>

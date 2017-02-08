@@ -11,6 +11,8 @@ module.exports = function(ERDS) {
 	app = ERDS.app;
 	io = ERDS.io;
 	clients = ERDS.clients = [];
+
+	ERDS.projects = {};
 	
 	io.on('connection', onConnect);
 
@@ -28,20 +30,28 @@ module.exports = function(ERDS) {
 	}
 
 	function onEcho(data) {
+		trace("Echoing: " + data);
 		this.emit("echo", data);
 	}
 
 	function onFetchProject(projectName) {
 		if(!projectName || !projectName.length) return;
 
+		var client = this;
 		var proj = projectsUtils.getProjectObj(projectName);
 		if(!proj) return traceError("Project does not exists: " + proj);
 
+		//Set circular reference (for sub-modules to find ERDS or the Project):
 		proj.ERDS = ERDS;
-		ERDS[proj.name] = proj;
+		ERDS.projects[proj.name] = proj;
 
 		ERDS.loadModules(proj.__nodelib, proj, true);
 
-		//this.emit()
+		ERDS.fileRead(proj.__indexhtml, (err, file) => {
+			client.emit('fetch-project', {
+				//projectHTML: file,
+				name: proj.name
+			});
+		});
 	}
 };

@@ -1,25 +1,36 @@
-declare var ERDS, Vue, trace, traceError, traceClear;
+declare var ERDS, $, $$$, Vue, trace, traceError, traceClear;
 
 ERDS.Project = class Project {
-
 	constructor() {
-		ERDS.io.emit("echo", {foo: 'bar'});
-		ERDS.io.emit("echo", "Hello World 1");
-		ERDS.io.emit("echo", "Hello World 2");
-		ERDS.io.emit("echo", "Hello World 3");
+		$$$.details = $('#details');
+		$$$.views = $$$.details.find('.view');
+	}
 
-		ERDS.vue = new Vue({
-			el: '#details',
-			data: {
-
+	extendVue(vueConfig) {
+		var projConfig = {
+			methods: {
+				onDefinableValues() {
+					trace("1");
+				},
+				onLightSequence() {
+					trace("1");
+				},
+				onActionSequence() {
+					trace("1");
+				},
 			}
-		});
+		};
 
-		//Will need "".camelToTitleCase() to convert JSON props to displayable UI fields.
+		return _.merge(vueConfig, projConfig);
 	}
 
 	init() {
-		trace("Init this...");
+		ERDS.io.emit('echo', {bla: 1});
+		ERDS.io.emit('echo', {bla: 2});
+		ERDS.io.emit('echo', {bla: 3});
+		//trace($$$.views);
+
+		//Will need "".camelToTitleCase() to convert JSON props to displayable UI fields.
 	}
 
 };

@@ -1,48 +1,62 @@
-declare var ERDS,
-	Vue,
-	trace,
-	io,
-	$, _,
-	TweenMax, Back;
+declare var ERDS, Vue, trace, traceError, io, $, _, TweenMax, Back;
 
 var $$$:any = {};
-
-ERDS.appVue = new Vue({
-	el: '#app',
-	data: {
-		message: 'Test VueJS Message!',
-		errors: '',
-		infos: ''
-	}
-});
 
 window.addEventListener('load', function() {
 	$$$.boxError = $('.box-error');
 	$$$.boxInfo = $('.box-info');
 
-	makeQueueBox($$$.boxInfo, (obj) => {
-		ERDS.appVue.infos = !_.isString(obj) && _.isObject(obj) ? JSON.stringify(obj) : obj;
-	});
+	//makeQueueBox($$$.boxInfo, (obj) => {
+	//	if(!ERDS.vue) return traceError("No Vue :(");
+	//	ERDS.vue.infos = !_.isString(obj) && _.isObject(obj) ? JSON.stringify(obj) : obj;
+	//});
+	//
+	//makeQueueBox($$$.boxError, (err) => {
+	//	if(!ERDS.vue) return traceError("No Vue :(");
+	//	ERDS.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
+	//});
 
-	makeQueueBox($$$.boxError, (err) => {
-		ERDS.appVue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
-	});
+	ERDS.io = io(); //Create a socket connection:
+	ERDS.io.on("echo", data => $$$.boxInfo.showBox && $$$.boxInfo.showBox(data));
 
-	//Create a socket connection:
-	ERDS.io = io();
+	Vue.config.debug = true;
 
-	if(ERDS.Project) {
-		ERDS.project = new ERDS.Project();
-		ERDS.project.init();
-	}
-
-	ERDS.io.on("echo", data => $$$.boxInfo.showBox(data));
+	ERDS.io.on('fetch-project', onFetchProject);
 	ERDS.io.emit('fetch-project', ERDS.projectName);
 
 	window.addEventListener('click', function() {
 		[$$$.boxError, $$$.boxInfo].forEach(box => box.hide());
-	})
+	});
 });
+
+function onFetchProject(proj) {
+	if(!ERDS.Project) return traceError("Missing ERDS.Project");
+	if(ERDS.vue) return traceError("Vue already created!");
+
+	var project = ERDS.project = new ERDS.Project();
+	ERDS.vueConfig = {
+		el: '#app',
+		data: {
+			message: 'Test VueJS Message!',
+			errors: '',
+			infos: '',
+			proj: proj
+		},
+		methods: {}
+	};
+
+	//if(project.extendVue) {
+	//	ERDS.vueConfig = project.extendVue(ERDS.vueConfig);
+	//}
+
+	trace(ERDS.vueConfig);
+
+	ERDS.vue = new Vue(ERDS.vueConfig);
+
+	/////////
+
+	project.init && project.init();
+}
 
 function makeQueueBox(box, cb) {
 	box._queueObj = [];
@@ -53,6 +67,7 @@ function makeQueueBox(box, cb) {
 
 	box.showBox = function(obj) {
 		this._queueObj.push({obj: obj});
+
 		this._showBox();
 	};
 
@@ -84,17 +99,21 @@ function makeQueueBox(box, cb) {
 		obj._initY = gs.y;
 	}
 
-	function _animateBoxIn(box, cb=null) {
+	function _animateBoxIn(box, onComplete=null) {
 		box.show();
 
-		return TweenMax.to(box, 0.3, {y: box._initY, alpha: 1, ease: Back.easeIn, onComplete: () => cb && _.delay(cb, 1000 / (box._queueObj.length+1))});
+		trace('_animateBoxIn');
+
+		return TweenMax.to(box, 0.3, {y: box._initY, alpha: 1, ease: Back.easeIn, onComplete: () => onComplete && _.delay(onComplete, 1000 / (box._queueObj.length+1))});
 	}
 
-	function _animateBoxOut(box, cb=null) {
+	function _animateBoxOut(box, onComplete=null) {
+		trace('_animateBoxOut');
+
 		return TweenMax.to(box, 0.3, {y: box._initY - 10, alpha: 0, ease: Back.easeOut, onComplete: () => {
 			box.hide();
 
-			cb && cb();
+			onComplete && onComplete();
 		}});
 	}
 }

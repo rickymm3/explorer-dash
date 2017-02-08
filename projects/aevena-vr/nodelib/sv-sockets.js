@@ -12,7 +12,9 @@ module.exports = function(PROJ) {
 		return traceError("Missing Socket.IO for project!");
 	}
 
-	trace(io.sockets);
+	//////trace(io.sockets);
+
+
 	//function serveProjectJSON(req, res, next) {
 	//	var proj = svProjects.getProjectObj(req.params.project);
 	//	if(!proj) return next();

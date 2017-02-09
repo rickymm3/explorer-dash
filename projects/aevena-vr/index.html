@@ -2,9 +2,9 @@
     <h1 class="title" v-html="proj.name">&nbsp;</h1>
 
     <div class="sidebar">
-        <div class="button" v-on:click="view = 0">DefinableValues</div>
-        <div class="button" v-on:click="view = 1">LightSequence</div>
-        <div class="button" v-on:click="view = 2">ActionSequence</div>
+        <div class="button" v-on:click="changeView(0)">DefinableValues</div>
+        <div class="button" v-on:click="changeView(1)">LightSequence</div>
+        <div class="button" v-on:click="changeView(2)">ActionSequence</div>
     </div>
 </div>
 
@@ -15,11 +15,12 @@
 
     <div v-if="view==1" class="view light-sequence">
         <comp v-for="def in jsonData.lightSequence" v-bind:obj="def"></comp>
-        <button-action label="hello" click="trace('test')"></button-action>
+        <btn label="Add Light" v-on:click="addLight" />
     </div>
 
     <div v-if="view==2" class="view action-sequence">
         <comp v-for="def in jsonData.actionSequence" v-bind:obj="def"></comp>
+        <btn label="Add Action" v-on:click="addAction" />
     </div>
 </div>
 

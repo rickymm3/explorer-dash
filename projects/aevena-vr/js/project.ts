@@ -2,7 +2,8 @@
 
 declare var ERDS, _, $, $$$, Vue,
 	trace, traceError, traceClear,
-	registerComponents, fadeIn;
+	registerComponents, fadeIn,
+	getCookie, setCookie;
 
 function traceJSON() {
 	trace(JSON.stringify(ERDS.data.jsonData, null, ' '));
@@ -28,11 +29,30 @@ registerComponents({
 			</div>'
 	},
 
-	'button-action': {
-		props: ['obj', 'label', 'click'],
+	'light-item': {
+		props: ['obj'],
 		template:
-			'<div class="button-action" v-on:click="click">\
-				<i v-html="label"></i>\
+			'<div class="light-item">\
+				<div class="col-1">\
+					<i v-html="obj.name.camelToTitleCase()"></i>:\
+				</div>\
+				<div class="col-2">\
+					<input type="text" v-model:value="obj.value" />\
+				</div>\
+			</div>'
+	},
+
+	'btn': {
+		props: ['obj', 'label'],
+		methods: {
+			click() {
+				this.$emit('click');
+			}
+		},
+		
+		template:
+			'<div class="btn">\
+				<i v-html="label" v-on:click="click"></i>\
 			</div>'
 	}
 });
@@ -65,7 +85,7 @@ class Project {
 	extendVue(vueConfig) {
 		var projConfig = {
 			data: {
-				view: 0,
+				view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
 				jsonData: {
 					definableValues: [],
 					lightSequence: [],
@@ -74,9 +94,27 @@ class Project {
 			},
 
 			methods: {
-				// ???
+				changeView(id) {
+					ERDS.vue.view = id;
+					trace(id + ' stored');
+					setCookie('view', id);
+				},
+				
+				test() {
+					trace('test');
+				},
+
+				addLight() {
+					trace("Adding a light");
+				},
+				
+				addAction() {
+					trace("Adding an Action");
+				}
 			}
 		};
+		
+		trace(getCookie('view'));
 
 		var temp = _.merge(vueConfig, projConfig);
 		ERDS.data = temp.data;
@@ -88,7 +126,7 @@ class Project {
 		$$$.details = $('#details');
 		$$$.views = $$$.details.find('.view');
 
-		fadeIn($$$.details);
+		fadeIn($$$.details, 0.2);
 
 		demoPushExampleData();
 

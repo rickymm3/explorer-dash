@@ -32,20 +32,6 @@ String.prototype.rep = function rep(obj) {
 	return str;
 };
 
-//String.prototype.repPattern = function(obj, wipeMissingTags, isCleaningUnusedProperties) {
-//	regex = _.isRegExp(isCleaningUnusedProperties) ? isCleaningUnusedProperties : /\[\[([a-z0-9_\-]*)\]\]/gi;
-//
-//	do {
-//		var found = false;
-//		str = str.replace(regex, function(match, text) {
-//			ERDS.isTest && trace("text: " + text);
-//			found = true;
-//			return obj[text] || (wipeMissingTags ? "" : match);
-//		});
-//	} while(found);
-//};
-/**/
-
 String.prototype.fixSlashes = function() {
 	var str = this.toString().replace(/\\/g, "/");
 	return str.endsWith("/") ? str.substr(0,str.length-1) : str;

@@ -75,6 +75,12 @@ body {
   width: 80px;
   text-align: right;
 }
+.btn {
+  padding: 10px;
+  background: rgba(57, 177, 77, 0.75);
+  border-radius: 10px;
+  text-shadow: #fff 0px 1px 2px;
+}
 @media screen and (max-width: 604px) {
   .sidebar {
     position: absolute;

@@ -17,7 +17,7 @@ body {
   border-radius: @round;
 }
 
-.hiliteWhite() {
+.shadowy() {
   text-shadow: #fff 0px 1px 2px;
 }
 
@@ -51,7 +51,7 @@ body {
   text-align: center;
   cursor: pointer;
   border-radius: 5px;
-  .hiliteWhite();
+  .shadowy();
   
   &:hover {
     background: #ccc;
@@ -86,13 +86,22 @@ body {
   .col-1 {
     width: 200px;
     text-align: right;
-    .hiliteWhite();
+    .shadowy();
   }
   .col-2 input {
     width: 80px;
     text-align: right;
   }
 }
+
+.btn {
+  padding: 10px;
+  background: rgba(57, 177, 77, 0.75);
+  .round();
+  .shadowy();
+}
+
+//////////////////////////////////////////////// MEDIA QUERIES
 
 @media screen and (max-width: 604px) {
   .sidebar {

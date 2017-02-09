@@ -18,10 +18,26 @@ registerComponents({
 				</div>\
 			</div>'
     },
-    'button-action': {
-        props: ['obj', 'label', 'click'],
-        template: '<div class="button-action" v-on:click="click">\
-				<i v-html="label"></i>\
+    'light-item': {
+        props: ['obj'],
+        template: '<div class="light-item">\
+				<div class="col-1">\
+					<i v-html="obj.name.camelToTitleCase()"></i>:\
+				</div>\
+				<div class="col-2">\
+					<input type="text" v-model:value="obj.value" />\
+				</div>\
+			</div>'
+    },
+    'btn': {
+        props: ['obj', 'label'],
+        methods: {
+            click: function () {
+                this.$emit('click');
+            }
+        },
+        template: '<div class="btn">\
+				<i v-html="label" v-on:click="click"></i>\
 			</div>'
     }
 });
@@ -36,15 +52,31 @@ var Project = (function () {
     Project.prototype.extendVue = function (vueConfig) {
         var projConfig = {
             data: {
-                view: 0,
+                view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
                 jsonData: {
                     definableValues: [],
                     lightSequence: [],
                     actionSequence: []
                 }
             },
-            methods: {}
+            methods: {
+                changeView: function (id) {
+                    ERDS.vue.view = id;
+                    trace(id + ' stored');
+                    setCookie('view', id);
+                },
+                test: function () {
+                    trace('test');
+                },
+                addLight: function () {
+                    trace("Adding a light");
+                },
+                addAction: function () {
+                    trace("Adding an Action");
+                }
+            }
         };
+        trace(getCookie('view'));
         var temp = _.merge(vueConfig, projConfig);
         ERDS.data = temp.data;
         return temp;
@@ -52,10 +84,10 @@ var Project = (function () {
     Project.prototype.init = function () {
         $$$.details = $('#details');
         $$$.views = $$$.details.find('.view');
-        fadeIn($$$.details);
+        fadeIn($$$.details, 0.2);
         demoPushExampleData();
         ERDS.vue.$forceUpdate();
     };
     return Project;
-}());
+})();
 ERDS.Project = Project;

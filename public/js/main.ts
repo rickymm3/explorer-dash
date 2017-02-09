@@ -1,15 +1,24 @@
-declare var ERDS, Vue, trace, traceError, io, $, _, TweenMax, Back;
+declare var ERDS, Vue, trace, traceError, io, $, _, TweenMax, Back, Cookies;
 
 var $$$:any = {};
 
 window.addEventListener('load', function() {
 	//Vue.config.debug = true;
-
+	Cookies._prefix = "erds.web.";
+	
 	ERDS.io = io(); //Create a socket connection:
 	ERDS.io.on("echo", data => $$$.boxInfo.showBox(data));
 	ERDS.io.on('fetch-project', onFetchProject);
-	ERDS.io.emit('fetch-project', ERDS.projectName);
+	ERDS.io.on('file-changed', onFileChanged);
+	
+	//_.delay(() => {
+		ERDS.io.emit('fetch-project', ERDS.projectName);
+	//}, 0);
 });
+
+function onFileChanged(whichFile) {
+	window.location.reload(true);
+}
 
 function onFetchProject(proj) {
 	if(!ERDS.Project) return traceError("Missing ERDS.Project");
@@ -41,6 +50,7 @@ function onFetchProject(proj) {
 function initializeUI() {
 	$$$.boxError = $('.box-error');
 	$$$.boxInfo = $('.box-info');
+	$$$.boxes = [$$$.boxError,$$$.boxInfo];
 
 	makeQueueBox($$$.boxInfo, (obj) => {
 		ERDS.vue.infos = !_.isString(obj) && _.isObject(obj) ? JSON.stringify(obj) : obj;
@@ -48,6 +58,13 @@ function initializeUI() {
 
 	makeQueueBox($$$.boxError, (err) => {
 		ERDS.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
+	});
+
+	window.addEventListener('click', function() {
+		$$$.boxes.forEach(box => {
+			TweenMax.killTweensOf(box);
+			TweenMax.set(box, {alpha: 0});
+		});
 	});
 }
 
@@ -77,11 +94,6 @@ function makeQueueBox(box, cbSetInnerHTML) {
 	box.show();
 
 	_initTransforms(box);
-
-	window.addEventListener('click', function() {
-		TweenMax.killTweensOf(box);
-		TweenMax.set(box, {alpha: 0});
-	});
 
 	box.showBox = function(msg) {
 		this._queueObj.push({obj: msg});

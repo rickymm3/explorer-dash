@@ -15,6 +15,7 @@
 
     <div v-if="view==1" class="view light-sequence">
         <comp v-for="def in jsonData.lightSequence" v-bind:obj="def"></comp>
+        <button-action label="hello" click="trace('test')"></button-action>
     </div>
 
     <div v-if="view==2" class="view action-sequence">

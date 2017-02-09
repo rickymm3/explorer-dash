@@ -26,6 +26,14 @@ registerComponents({
 					<input type="text" v-model:value="obj.value" />\
 				</div>\
 			</div>'
+	},
+
+	'button-action': {
+		props: ['obj', 'label', 'click'],
+		template:
+			'<div class="button-action" v-on:click="click">\
+				<i v-html="label"></i>\
+			</div>'
 	}
 });
 
@@ -85,12 +93,6 @@ class Project {
 		demoPushExampleData();
 
 		ERDS.vue.$forceUpdate();
-
-		//ERDS.io.emit('echo', JSON.stringify(ERDS.data.jsonData));
-
-		//trace($$$.views);
-
-		//Will need "".camelToTitleCase() to convert JSON props to displayable UI fields.
 	}
 }
 

@@ -60,12 +60,14 @@ body {
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.5);
 }
+.col-1,
+.col-2 {
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+}
 .numeric-prop {
   padding: 3px;
-}
-.numeric-prop .col-1,
-.numeric-prop .col-2 {
-  display: inline-block;
 }
 .numeric-prop .col-1 {
   width: 200px;
@@ -94,6 +96,42 @@ body {
   display: inline-block;
   margin: 0;
   border: solid 1px #000;
+}
+.light-sequence {
+  overflow: hidden;
+}
+.light-sequence .col-1,
+.light-sequence .col-2 {
+  display: block;
+}
+.light-sequence div {
+  vertical-align: top;
+}
+.light-sequence h3 {
+  text-shadow: #fff 0px 1px 2px;
+  font-size: 1.1em;
+  border-radius: 10px;
+  background: rgba(0, 0, 255, 0.5);
+  padding: 5px;
+}
+.light-sequence .col-1 {
+  width: 100px;
+  float: left;
+}
+.light-sequence .col-2 {
+  margin-left: 100px;
+}
+.light-sequence .panel {
+  width: 100%;
+  display: block;
+  padding: 2px;
+  border-radius: 10px;
+  margin: 0;
+}
+.light-sequence .panel .ring-sequence,
+.light-sequence .panel .strip-sequence {
+  display: inline-block;
+  width: 49%;
 }
 @media screen and (max-width: 604px) {
   .sidebar {

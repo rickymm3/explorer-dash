@@ -76,13 +76,16 @@ body {
   background: rgba(255, 255, 255, 0.5);
 }
 
+.col-1, .col-2 {
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+}
+
 .numeric-prop {
   //border: solid 1px #888;
   padding: 3px;
   
-  .col-1, .col-2 {
-    display: inline-block;
-  }
   .col-1 {
     width: 200px;
     text-align: right;
@@ -101,6 +104,8 @@ body {
   .shadowy();
 }
 
+////////////////////////////////////////////////
+
 .light-item, .action-item {
   margin-bottom: 5px;
 }
@@ -111,6 +116,49 @@ body {
     display: inline-block;
     margin: 0;
     border: solid 1px #000;
+  }
+}
+
+.light-sequence {
+  overflow: hidden;
+  @col-1-width: 100px;
+  .col-1, .col-2 {
+    display: block;
+    //background: #f00;
+  }
+
+  div {
+    vertical-align: top;
+  }
+  
+  h3 {
+    .shadowy();
+    font-size: 1.1em;
+    .round();
+    background: rgba(0,0,255,0.5);
+    padding: 5px;
+  }
+  
+  .col-1 {
+    width: @col-1-width;
+    float: left;
+  }
+  
+  .col-2 {
+    margin-left: @col-1-width;
+  }
+  
+  .panel {
+    width: 100%;
+    display: block;
+    padding: 2px;
+    .round();
+    margin: 0;
+
+    .ring-sequence, .strip-sequence {
+      display: inline-block;
+      width: 49%;
+    }
   }
 }
 

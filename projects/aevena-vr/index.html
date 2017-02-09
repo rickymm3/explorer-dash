@@ -9,18 +9,23 @@
 </div>
 
 <div id="details">
-    <div v-if="view==0" class="view definable-values">
+    <view-tab v-if="view==0" class="view definable-values">
         <comp v-for="def in jsonData.definableValues" v-bind:obj="def"></comp>
-    </div>
+    </view-tab>
 
-    <div v-if="view==1" class="view light-sequence">
-        <comp v-for="def in jsonData.lightSequence" v-bind:obj="def"></comp>
-        <btn label="Add Light" v-on:click="addLight" />
-    </div>
+    <view-tab v-if="view==1" class="view light-sequence">
+        <div class="col-1">
+            <comp v-for="def in jsonData.lightSequence" v-bind:obj="def"></comp>
+            <btn label="Add Light" v-on:click="addLight" />
+        </div>
+        <div class="col-2">
+            <light-item-panel v-if=currentLightItem lightItem="currentLightItem"></light-item-panel>
+        </div>
+    </view-tab>
 
-    <div v-if="view==2" class="view action-sequence">
+    <view-tab v-if="view==2" class="view action-sequence">
         <comp v-for="def in jsonData.actionSequence" v-bind:obj="def"></comp>
         <btn label="Add Action" v-on:click="addAction" />
-    </div>
+    </view-tab>
 </div>
 

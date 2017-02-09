@@ -78,7 +78,7 @@ _.mapRename = function(obj, filter) {
 
 GLOBALS.trace = console.log.bind(console);
 GLOBALS.traceObj = function(o) {
-	var output = _.keys(o);
+	var output = _.keys(o).sort();
 	trace(output);
 	return output;
 };

@@ -8,6 +8,10 @@ registerComponents({
         props: ['obj'],
         template: '<div class="v-comp" v-bind:is="obj.type" v-bind:obj="obj"></div>'
     },
+    'view-tab': {
+        props: [],
+        template: '<div><slot></slot></div>'
+    },
     'numeric-prop': {
         props: ['obj'],
         template: '<div class="numeric-prop">\
@@ -21,12 +25,23 @@ registerComponents({
     },
     'light-item': {
         props: ['obj'],
+        methods: {
+            showPanel: function () {
+                ERDS.vue.currentLightItem = this.obj;
+            }
+        },
         template: '<div class="light-item">\
+				<btn label="Light Item" v-on:click="showPanel()" />\
+			</div>'
+    },
+    'light-item-panel': {
+        props: ['lightItem'],
+        template: '<div class="panel">\
 				<div class="ring-sequence">\
-					Ring Sequence\
+					<h3>Ring Sequence</h3>\
 				</div>\
 				<div class="strip-sequence">\
-					Strip Sequence\
+					<h3>Strip Sequence</h3><br/><br/><br/><br/>Testing layout, a very long layout test that is.\
 				</div>\
 			</div>'
     },
@@ -63,6 +78,8 @@ var Project = (function () {
         var projConfig = {
             data: {
                 view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
+                currentLightItem: null,
+                currentActionItem: null,
                 jsonData: {
                     definableValues: [],
                     lightSequence: [],
@@ -72,7 +89,6 @@ var Project = (function () {
             methods: {
                 changeView: function (id) {
                     ERDS.vue.view = id;
-                    trace(id + ' stored');
                     setCookie('view', id);
                 },
                 test: function () {

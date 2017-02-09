@@ -43,7 +43,8 @@ body {
 .button:hover {
   background: #ccc;
 }
-.button:active {
+.button:active,
+.button.active {
   background: #444;
   color: #fff;
 }
@@ -80,6 +81,19 @@ body {
   background: rgba(57, 177, 77, 0.75);
   border-radius: 10px;
   text-shadow: #fff 0px 1px 2px;
+}
+.light-item,
+.action-item {
+  margin-bottom: 5px;
+}
+.light-item {
+  padding: 0;
+}
+.light-item .ring-sequence,
+.light-item .strip-sequence {
+  display: inline-block;
+  margin: 0;
+  border: solid 1px #000;
 }
 @media screen and (max-width: 604px) {
   .sidebar {

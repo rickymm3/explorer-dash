@@ -57,7 +57,7 @@ body {
     background: #ccc;
   }
 
-  &:active {
+  &:active, &.active {
     background: #444;
     color: #fff;
   }
@@ -99,6 +99,19 @@ body {
   background: rgba(57, 177, 77, 0.75);
   .round();
   .shadowy();
+}
+
+.light-item, .action-item {
+  margin-bottom: 5px;
+}
+
+.light-item {
+  padding: 0;
+  .ring-sequence, .strip-sequence {
+    display: inline-block;
+    margin: 0;
+    border: solid 1px #000;
+  }
 }
 
 //////////////////////////////////////////////// MEDIA QUERIES

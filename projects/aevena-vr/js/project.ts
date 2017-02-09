@@ -9,6 +9,8 @@ function traceJSON() {
 	trace(JSON.stringify(ERDS.data.jsonData, null, ' '));
 }
 
+var definableValues, lightSequence, actionSequence;
+
 registerComponents({
 	comp: {
 		props: ['obj'],
@@ -33,11 +35,24 @@ registerComponents({
 		props: ['obj'],
 		template:
 			'<div class="light-item">\
-				<div class="col-1">\
-					<i v-html="obj.name.camelToTitleCase()"></i>:\
+				<div class="ring-sequence">\
+					Ring Sequence\
 				</div>\
-				<div class="col-2">\
-					<input type="text" v-model:value="obj.value" />\
+				<div class="strip-sequence">\
+					Strip Sequence\
+				</div>\
+			</div>'
+	},
+
+	'action-item': {
+		props: ['obj'],
+		methods: {
+			click() { this.$emit('click'); }
+		},
+		template:
+			'<div class="action-item">\
+				<div class="strip-action">\
+					<i>ScriptedAction <btn label="Add Parameter" v-on:click="click"/></i>\
 				</div>\
 			</div>'
 	},
@@ -45,14 +60,12 @@ registerComponents({
 	'btn': {
 		props: ['obj', 'label'],
 		methods: {
-			click() {
-				this.$emit('click');
-			}
+			click() { this.$emit('click'); }
 		},
 		
 		template:
-			'<div class="btn">\
-				<i v-html="label" v-on:click="click"></i>\
+			'<div class="btn" v-on:click="click">\
+				<i v-html="label"></i>\
 			</div>'
 	}
 });
@@ -72,12 +85,12 @@ function demoPushExampleData() {
 	);
 
 	ERDS.data.jsonData.lightSequence.push(
-		{type: 'numeric-prop', name: 'photoDistance', value: 5}
+		{type: 'light-item', name: 'photoDistance', value: 5}
 	);
 
 	ERDS.data.jsonData.actionSequence.push(
-		{type: 'numeric-prop', name: 'photoDistance', value: 5},
-		{type: 'numeric-prop', name: 'elevationHeight', value: 1}
+		{type: 'action-item', name: 'photoDistance', value: 5},
+		{type: 'action-item', name: 'elevationHeight', value: 1}
 	);
 }
 
@@ -105,11 +118,15 @@ class Project {
 				},
 
 				addLight() {
-					trace("Adding a light");
+					lightSequence.push(
+						{type: 'light-item', name: 'photoDistance', value: 5}
+					);
 				},
 				
 				addAction() {
-					trace("Adding an Action");
+					actionSequence.push(
+						{type: 'action-item', name: 'photoDistance', value: 5}
+					);
 				}
 			}
 		};
@@ -130,6 +147,10 @@ class Project {
 
 		demoPushExampleData();
 
+		definableValues = ERDS.data.jsonData.definableValues;
+		lightSequence = ERDS.data.jsonData.lightSequence;
+		actionSequence = ERDS.data.jsonData.actionSequence;
+		
 		ERDS.vue.$forceUpdate();
 	}
 }

@@ -2,9 +2,9 @@
     <h1 class="title" v-html="proj.name">&nbsp;</h1>
 
     <div class="sidebar">
-        <div class="button" v-on:click="changeView(0)">DefinableValues</div>
-        <div class="button" v-on:click="changeView(1)">LightSequence</div>
-        <div class="button" v-on:click="changeView(2)">ActionSequence</div>
+        <div class="button" :class="{ active: view==0 }" @click="changeView(0)">DefinableValues</div>
+        <div class="button" :class="{ active: view==1 }" @click="changeView(1)">LightSequence</div>
+        <div class="button" :class="{ active: view==2 }" @click="changeView(2)">ActionSequence</div>
     </div>
 </div>
 

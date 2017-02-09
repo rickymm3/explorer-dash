@@ -14,11 +14,11 @@
     </div>
 
     <div v-if="view==1" class="view light-sequence">
-        light-sequence
+        <comp v-for="def in jsonData.lightSequence" v-bind:obj="def"></comp>
     </div>
 
     <div v-if="view==2" class="view action-sequence">
-        action-sequence
+        <comp v-for="def in jsonData.actionSequence" v-bind:obj="def"></comp>
     </div>
 </div>
 

@@ -1,3 +1,7 @@
+"use strict";
+function traceJSON() {
+    trace(JSON.stringify(ERDS.data.jsonData, null, ' '));
+}
 registerComponents({
     comp: {
         props: ['obj'],
@@ -15,7 +19,12 @@ registerComponents({
 			</div>'
     }
 });
-ERDS.Project = (function () {
+function demoPushExampleData() {
+    ERDS.data.jsonData.definableValues.push({ type: 'numeric-prop', name: 'photoDistance', value: 5 }, { type: 'numeric-prop', name: 'elevationHeight', value: 1 }, { type: 'numeric-prop', name: 'elevationSpeed', value: 5 }, { type: 'numeric-prop', name: 'descentSpeed', value: 1 }, { type: 'numeric-prop', name: 'movementSpeed', value: 5 }, { type: 'numeric-prop', name: 'yawSpeed', value: 1 }, { type: 'numeric-prop', name: 'timeToStart', value: 5 }, { type: 'numeric-prop', name: 'timeToStop', value: 1 }, { type: 'numeric-prop', name: 'maxTiltRange', value: 5 }, { type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1 });
+    ERDS.data.jsonData.lightSequence.push({ type: 'numeric-prop', name: 'photoDistance', value: 5 });
+    ERDS.data.jsonData.actionSequence.push({ type: 'numeric-prop', name: 'photoDistance', value: 5 }, { type: 'numeric-prop', name: 'elevationHeight', value: 1 });
+}
+var Project = (function () {
     function Project() {
     }
     Project.prototype.extendVue = function (vueConfig) {
@@ -38,14 +47,12 @@ ERDS.Project = (function () {
         $$$.details = $('#details');
         $$$.views = $$$.details.find('.view');
         fadeIn($$$.details);
-        ERDS.data.jsonData.definableValues.push({ type: 'numeric-prop', name: 'photoDistance', value: 5 }, { type: 'numeric-prop', name: 'elevationHeight', value: 1 }, { type: 'numeric-prop', name: 'elevationSpeed', value: 5 }, { type: 'numeric-prop', name: 'descentSpeed', value: 1 }, { type: 'numeric-prop', name: 'movementSpeed', value: 5 }, { type: 'numeric-prop', name: 'yawSpeed', value: 1 }, { type: 'numeric-prop', name: 'timeToStart', value: 5 }, { type: 'numeric-prop', name: 'timeToStop', value: 1 }, { type: 'numeric-prop', name: 'maxTiltRange', value: 5 }, { type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1 });
+        demoPushExampleData();
         ERDS.vue.$forceUpdate();
         //ERDS.io.emit('echo', JSON.stringify(ERDS.data.jsonData));
         //trace($$$.views);
         //Will need "".camelToTitleCase() to convert JSON props to displayable UI fields.
     };
     return Project;
-}());
-function traceJSON() {
-    trace(JSON.stringify(ERDS.data.jsonData, null, ' '));
-}
+})();
+ERDS.Project = Project;

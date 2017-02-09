@@ -1,9 +1,9 @@
 body {
-    background: #dde;
+    background: #acf;
 }
 
 .header {
-  overflow-x: scroll;
+  overflow-x: hidden;
   overflow-y: hidden;
   white-space: nowrap;
   user-select: none;
@@ -13,17 +13,26 @@ body {
   width: 180px;
 }
 
+.round(@round: 10px) {
+  border-radius: @round;
+}
+
+.hiliteWhite() {
+  text-shadow: #fff 0px 1px 2px;
+}
+
 .sidebar {
   display: inline-block;
   position: relative;
-  max-height: 50px;
   font-size: 0.9em;
   vertical-align: bottom;
   margin-left: 10px;
   padding: 5px;
-  overflow-x: scroll;
+  overflow-x: hidden;
+  overflow-y: hidden;
   white-space: nowrap;
-  background: #080;
+  background: rgba(0,0,0,0.5);
+  .round();
 
   .button {
     position: relative;
@@ -31,18 +40,19 @@ body {
     white-space: normal;
     width: 120px;
     margin: 2px;
+    padding: 6px;
   }
 }
 
 .button {
   display: block;
   background: #aaa;
-  padding: 3px;
+  padding: 3px 15px 3px 15px;
   text-align: center;
   cursor: pointer;
   border-radius: 5px;
-  text-shadow: #fff 0px 1px 0px;
-
+  .hiliteWhite();
+  
   &:hover {
     background: #ccc;
   }
@@ -56,21 +66,69 @@ body {
 #details {
   display: none;
   position: relative;
-  border: solid 1px #f0f;
   top:  5px;
   left: 0px;
   right: 0px;
   padding: 5px;
   min-height: 30px;
+  margin-bottom: 100px;
+  .round();
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .numeric-prop {
-  border: solid 1px #888;
+  //border: solid 1px #888;
+  padding: 3px;
+  
   .col-1, .col-2 {
     display: inline-block;
   }
   .col-1 {
     width: 200px;
     text-align: right;
+    .hiliteWhite();
+  }
+  .col-2 input {
+    width: 80px;
+    text-align: right;
+  }
+}
+
+@media screen and (max-width: 604px) {
+  .sidebar {
+    position: absolute;
+    top: 55px;
+    left: 0px;
+    right: 5px;
+    overflow-x: visible;
+    overflow-y: visible;
+    white-space: normal;
+  }
+
+  #details {
+    top: 55px;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  #details {
+    top: 90px;
+  }
+}
+
+@media screen and (max-width: 292px) {
+  #details {
+    top: 120px;
+  }
+  
+  .numeric-prop {
+    .col-1 {
+      text-align: left;
+      width: 100%;
+    }
+    .col-2 input {
+      text-align: left;
+      //width: 100%;
+    }
   }
 }

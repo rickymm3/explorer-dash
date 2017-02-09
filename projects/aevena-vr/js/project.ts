@@ -1,6 +1,12 @@
+"use strict";
+
 declare var ERDS, _, $, $$$, Vue,
 	trace, traceError, traceClear,
 	registerComponents, fadeIn;
+
+function traceJSON() {
+	trace(JSON.stringify(ERDS.data.jsonData, null, ' '));
+}
 
 registerComponents({
 	comp: {
@@ -20,26 +26,42 @@ registerComponents({
 					<input type="text" v-model:value="obj.value" />\
 				</div>\
 			</div>'
-	},
-
-
+	}
 });
 
-ERDS.Project = class Project {
+function demoPushExampleData() {
+	ERDS.data.jsonData.definableValues.push(
+		{type: 'numeric-prop', name: 'photoDistance', value: 5},
+		{type: 'numeric-prop', name: 'elevationHeight', value: 1},
+		{type: 'numeric-prop', name: 'elevationSpeed', value: 5},
+		{type: 'numeric-prop', name: 'descentSpeed', value: 1},
+		{type: 'numeric-prop', name: 'movementSpeed', value: 5},
+		{type: 'numeric-prop', name: 'yawSpeed', value: 1},
+		{type: 'numeric-prop', name: 'timeToStart', value: 5},
+		{type: 'numeric-prop', name: 'timeToStop', value: 1},
+		{type: 'numeric-prop', name: 'maxTiltRange', value: 5},
+		{type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1}
+	);
+
+	ERDS.data.jsonData.lightSequence.push(
+		{type: 'numeric-prop', name: 'photoDistance', value: 5}
+	);
+
+	ERDS.data.jsonData.actionSequence.push(
+		{type: 'numeric-prop', name: 'photoDistance', value: 5},
+		{type: 'numeric-prop', name: 'elevationHeight', value: 1}
+	);
+}
+
+class Project {
 	extendVue(vueConfig) {
 		var projConfig = {
 			data: {
 				view: 0,
 				jsonData: {
-					definableValues: [
-
-					],
-					lightSequence: [
-
-					],
-					actionSequence: [
-
-					]
+					definableValues: [],
+					lightSequence: [],
+					actionSequence: []
 				}
 			},
 
@@ -60,18 +82,7 @@ ERDS.Project = class Project {
 
 		fadeIn($$$.details);
 
-		ERDS.data.jsonData.definableValues.push(
-			{type: 'numeric-prop', name: 'photoDistance', value: 5},
-			{type: 'numeric-prop', name: 'elevationHeight', value: 1},
-			{type: 'numeric-prop', name: 'elevationSpeed', value: 5},
-			{type: 'numeric-prop', name: 'descentSpeed', value: 1},
-			{type: 'numeric-prop', name: 'movementSpeed', value: 5},
-			{type: 'numeric-prop', name: 'yawSpeed', value: 1},
-			{type: 'numeric-prop', name: 'timeToStart', value: 5},
-			{type: 'numeric-prop', name: 'timeToStop', value: 1},
-			{type: 'numeric-prop', name: 'maxTiltRange', value: 5},
-			{type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1}
-		);
+		demoPushExampleData();
 
 		ERDS.vue.$forceUpdate();
 
@@ -81,9 +92,6 @@ ERDS.Project = class Project {
 
 		//Will need "".camelToTitleCase() to convert JSON props to displayable UI fields.
 	}
-
-};
-
-function traceJSON() {
-	trace(JSON.stringify(ERDS.data.jsonData, null, ' '));
 }
+
+ERDS.Project = Project;

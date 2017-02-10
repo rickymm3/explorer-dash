@@ -132,6 +132,7 @@ module.exports = function(ERDS) {
 			case 'PUT':
 			case 'POST':
 			case 'GET':
+				res.set({ 'content-type': 'application/json; charset=utf-8' });
 				if(!ERDS.fileExists(proj.__json)) {
 					return res.send({error: 'missing file'});
 				}

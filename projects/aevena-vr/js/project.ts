@@ -4,7 +4,7 @@
 declare var ERDS, _, $, $$$, Vue, TweenMax,
 	trace, traceError, traceClear, setCookie;
 
-var __JSONDATA;
+var __JSONDATA, __KEYS = {SHIFT: 1, CTRL: 2, ALT: 4};
 
 function traceJSON() {
 	var result = JSON.stringify(__JSONDATA, null, ' ');
@@ -101,6 +101,20 @@ function traceJSON() {
 
 	ERDS.Project = function Project() {};
 	
+	
+	$(window).on('keydown keyup', function(e) {
+		var status = "Save";
+		switch(true) {
+			case e.ctrlKey && e.shiftKey: status = "Recover"; break;
+			case e.ctrlKey: status = "Clear"; break;
+		}
+
+		__VUE.statusSaveButton = status;
+		__VUE.statusKeyModifiers =	(e.shiftKey ? __KEYS.SHIFT : 0) |
+									(e.ctrlKey ? __KEYS.CTRL : 0) |
+									(e.altKey ? __KEYS.ALT : 0);		
+	});
+	
 	_.extend(ERDS.Project.prototype, {
 		extendVue(vueConfig) {
 			return _.merge(vueConfig, {
@@ -108,6 +122,8 @@ function traceJSON() {
 					view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
 					currentLightItem: null,
 					currentActionItem: null,
+					statusKeyModifiers: 0,
+					statusSaveButton: 'Save',
 					jsonData: {
 						definableValues: [],
 						lightSequence: [],
@@ -137,6 +153,7 @@ function traceJSON() {
 					},
 
 					handleSaveButton(e) {
+						if(e.ctrlKey && e.shiftKey) return this.recoverJSON();
 						if(e.ctrlKey) return this.clearJSON();
 						this.saveJSON();
 					},
@@ -147,6 +164,10 @@ function traceJSON() {
 
 					clearJSON() {
 						projectCommand('clearJSON', null);
+					},
+
+					recoverJSON() {
+						projectCommand('recoverJSON', null);
 					}
 				}
 			});

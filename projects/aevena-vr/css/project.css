@@ -31,9 +31,19 @@ body {
   margin: 2px;
   padding: 6px;
 }
-.sidebar .save {
+.sidebar .save,
+.sidebar .recover,
+.sidebar .clear {
   width: 70px;
+}
+.sidebar .save {
   background: rgba(57, 177, 77, 0.75);
+}
+.sidebar .recover {
+  background: #08f;
+}
+.sidebar .clear {
+  background: #f00;
 }
 .button {
   display: block;

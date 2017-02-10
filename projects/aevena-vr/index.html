@@ -5,7 +5,7 @@
         <div class="button" :class="{ active: view==0 }" @click="changeView(0)">DefinableValues</div>
         <div class="button" :class="{ active: view==1 }" @click="changeView(1)">LightSequence</div>
         <div class="button" :class="{ active: view==2 }" @click="changeView(2)">ActionSequence</div>
-        <div class="button save" @click="handleSaveButton($event)">Save</div>
+        <div class="button" :class="statusSaveButton.toLowerCase()" @click="handleSaveButton($event)" v-html="statusSaveButton">Save</div>
     </div>
 </div>
 

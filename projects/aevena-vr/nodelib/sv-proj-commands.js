@@ -43,10 +43,24 @@ module.exports = function(PROJ) {
 			var jsonPath = cmd.proj.__json;
 			ERDS.makeDir(jsonPath);
 			ERDS.fileWrite(jsonPath, cmd.params, (err) => {
-				if(err) return ERDS.sendServerError(cmd.client, "Could not write JSON file!<br/>" + cmd.proj.__json);
+				if(err) return ERDS.sendServerError(cmd.client, "Could not write JSON file!");
 				
 				echo(cmd, 'JSON data saved to the server! <i class="em em---1"></i>');
 			});
+		},
+
+		recoverJSON(cmd) {
+			var bak = cmd.proj.__json+'.bak';
+			
+			if(!ERDS.fileExists(bak)) {
+				return ERDS.sendServerError(cmd.client, "Could not locate Backup JSON file! :-1:");
+			}
+			
+			ERDS.fileRename(bak, cmd.proj.__json, (err) => {
+				if(err) return ERDS.sendServerError(cmd.client, "Failed renaming Backup JSON file!");
+
+				echo(cmd, 'Backup recovered!');
+			})
 		}
 	};
 	

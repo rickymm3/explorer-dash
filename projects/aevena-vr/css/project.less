@@ -1,8 +1,11 @@
+@import "../../../public/css/main.less";
+
 body {
     background: #acf;
 }
 
 @colorModifiableBtn: rgba(57, 177, 77, 0.75);
+@col-1-width: 150px;
 
 .header {
   overflow-x: hidden;
@@ -27,6 +30,7 @@ body {
   white-space: nowrap;
   background: rgba(0,0,0,0.5);
   .round();
+  
 
   .button {
     position: relative;
@@ -109,13 +113,14 @@ body {
 
 ////////////////////////////////////////////////
 
-.light-item, .action-item {
-  margin-bottom: 5px;
-  
+.item {
   &.isSelected .btn {
     background: @colorModifiableBtn * 1.2;
     color: #fff;
   }
+}
+.light-item, .action-item {
+  margin-bottom: 5px;
 }
 
 .light-item {
@@ -127,12 +132,11 @@ body {
   }
 }
 
-.light-sequence {
+.light-sequence, .action-sequence {
   overflow: hidden;
-  @col-1-width: 100px;
+  
   .col-1, .col-2 {
     display: block;
-    //background: #f00;
   }
 
   div {
@@ -142,9 +146,9 @@ body {
   h3 {
     .shadowy();
     font-size: 1.1em;
-    .round();
     background: rgba(0,0,255,0.5);
     padding: 5px;
+    .round();
   }
   
   .col-1 {
@@ -153,20 +157,32 @@ body {
   }
   
   .col-2 {
-    margin-left: @col-1-width;
+    margin-left: @col-1-width + 5px;
   }
-  
-  .panel {
-    width: 100%;
-    display: block;
-    padding: 2px;
-    .round();
-    margin: 0;
+}
 
+.light-sequence {
+  .panel {
     .ring-sequence, .strip-sequence {
       display: inline-block;
       width: 49%;
     }
+  }
+}
+
+.panel {
+  width: 100%;
+  display: block;
+  padding: 2px;
+  margin: 0;
+  .round();
+}
+
+.side-left {
+  .btn {
+    width: @col-1-width;
+    max-width: @col-1-width;
+    white-space: normal;
   }
 }
 
@@ -198,7 +214,7 @@ body {
   }
 }
 
-@media screen and (max-width: 292px) {
+@media screen and (max-width: 355px) {
   #details {
     top: 120px;
   }
@@ -215,9 +231,9 @@ body {
   }
 }
 
-@media screen and (max-width: 227px) {
+@media screen and (max-width: 240px) {
   #details {
-    top: 150px;
+    top: 180px;
   }
 
   .numeric-prop {

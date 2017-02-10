@@ -61,47 +61,42 @@ function traceJSON() {
 				}
 			},
 			template:
-				'<div class="light-item" :class="isSelected">\
-					<btn label="Light Item" v-on:click="showPanel()" />\
+				'<div class="item light-item" :class="isSelected">\
+					<btn :label="obj.name" v-on:click="showPanel()" />\
 				</div>'
 		},
 
 		'action-item': {
 			props: ['obj'],
 			methods: {
-				addParam() {
-					__VUE.currentActionItem = this.obj;
+				showPanel() {
+					__VUE.currentActionItem = this.obj
+				}
+			},
+			computed: {
+				isSelected() {
+					return {
+						isSelected: __VUE.currentActionItem == this.obj
+					}
 				}
 			},
 			template:
-				'<div class="action-item">\
-					<div class="strip-action">\
-						<i>ScriptedAction <btn label="+ Param" v-on:click="addParam()"/></i>\
-					</div>\
-				</div>'
-		},
-
-		'action-item-panel': {
-			props: ['item'],
-			template:
-				'<div class="panel">\
-					Display Somekind of Action Panel here.\
+				'<div class="item action-item" :class="isSelected">\
+					<btn :label="obj.name" v-on:click="showPanel()" />\
 				</div>'
 		},
 
 		'btn': {
 			props: ['obj', 'label'],
 			methods: { click() { this.$emit('click'); } },
-			template:
+			template: 
 				'<div class="btn" v-on:click="click">\
 					<i v-html="label"></i>\
 				</div>'
 		}
 	});
 
-	ERDS.Project = function Project() {};
-	
-	
+	//Key modifier:
 	$(window).on('keydown keyup', function(e) {
 		var status = "Save";
 		switch(true) {
@@ -114,6 +109,8 @@ function traceJSON() {
 									(e.ctrlKey ? __KEYS.CTRL : 0) |
 									(e.altKey ? __KEYS.ALT : 0);		
 	});
+
+	ERDS.Project = function Project() {};
 	
 	_.extend(ERDS.Project.prototype, {
 		extendVue(vueConfig) {
@@ -127,6 +124,7 @@ function traceJSON() {
 					statusKeyModifiers: 0,
 					statusSaveButton: 'Save',
 					isBusy: false,
+					hardcoded: {},
 					jsonData: {
 						sheets: []
 					}
@@ -143,14 +141,30 @@ function traceJSON() {
 					},
 
 					addLight() {
-						var newLight = {type: 'light-item', name: 'photoDistance', value: 5};
-						__LIGHTS.push(__VUE.currentLightItem = newLight);
+						__LIGHTS.push({type: 'light-item', name: 'Light ' + (__LIGHTS.length+1), value: 5});
+						__VUE.currentLightItem = __LIGHTS.last();
 					},
 
 					addAction() {
-						__ACTIONS.push(
-							{type: 'action-item', name: 'photoDistance', value: 5}
-						);
+						__ACTIONS.push({type: 'action-item', name: 'Action ' + (__ACTIONS.length+1), value: 5});
+						__VUE.currentActionItem = __ACTIONS.last();
+					},
+
+					addActionParam() {
+						trace("Adding a parameter");
+						//__VUE.currentActionItem = this.obj;
+					},
+
+					removeLight() {
+						if(!this.currentLightItem) return;
+						var id = __LIGHTS.remove(this.currentLightItem) - 1;
+						this.currentLightItem = id<0 ? null : __LIGHTS[id];
+					},
+					
+					removeAction() {
+						if(!this.currentActionItem) return;
+						var id = __ACTIONS.remove(this.currentActionItem) - 1;
+						this.currentActionItem = id<0 ? null : __ACTIONS[id];
 					},
 
 					handleSaveButton(e) {
@@ -181,20 +195,32 @@ function traceJSON() {
 						id = parseInt(id);
 						if(id<0 || isNaN(id)) id = 0;
 						if(id>=__SHEETS.length) {
-							createNewSheetAt(id);
+							createNewSheetAt(id, null);
 						}
-						
+
 						this.currentSheetID = id;
-						
 						TweenMax.fromTo($$$.details, 0.5, {alpha:0}, {alpha:1});
 
 						if(__SHEETS==null) return null;
 
+						var old = {
+							__SHEET:__SHEET,
+							__DEFS:__DEFS,
+							__LIGHTS:__LIGHTS,
+							__ACTIONS:__ACTIONS
+						};
+						
 						__SHEET = __SHEETS[this.currentSheetID];
 						__DEFS = __SHEET.definableValues;
 						__LIGHTS = __SHEET.lightSequence;
 						__ACTIONS = __SHEET.actionSequence;
 						
+						//Try to preserve the selection index:
+						this.currentActionItem = trySameIndex(__ACTIONS, old.__ACTIONS, this.currentActionItem);
+						this.currentLightItem = trySameIndex(__LIGHTS, old.__LIGHTS, this.currentLightItem);
+						//this.currentLightItem = __LIGHTS[0];
+
+
 						return this.currentSheet = __SHEET;
 					}
 				}
@@ -213,12 +239,15 @@ function traceJSON() {
 			
 			if(!projectData || !projectData.json || !projectData.json) {
 				$$$.boxError.showBox("Starting with fresh data... :--1:");
-				
-				demoPushExampleData();
+
+				createNewSheetAt(0, null);
 			} else {
 				__JSONDATA = __VUE.jsonData = projectData.json;
 				__SHEETS = __JSONDATA.sheets;
 			}
+			
+			//If we don't have any hardcoded data, forget the rest!
+			if(!checkHardcodedData(projectData)) return;
 
 			__VUE.currentSheetUpdate(0);
 
@@ -231,15 +260,35 @@ function traceJSON() {
 			__VUE.$forceUpdate();
 		}
 	});
+	
+	function trySameIndex(arrNew, arrOld, itemOld) {
+		var first = arrNew[0];
+		if(!arrOld || itemOld==null) return first;
+		
+		var id = arrOld.indexOf(itemOld);
+		if(id==-1) return first;
+		if(id>=arrNew.length) return first;
+		return arrNew[id];
+	}
 
-	function demoPushExampleData() {
-		createNewSheetAt(0);
+	function checkHardcodedData(projectData) {
+		if(!projectData || !projectData.hardcoded) {
+			$$$.boxError.showBox('Oh no! We don\'t have any hardcoded data! :cry:');
+			return false;
+		}
+		
+		$$$.boxInfo.showBox('Found the hardcoded data! :smile: :--1: :--1: :--1:');
+		__VUE.hardcoded = projectData.hardcoded;
+		
+		return true;
 	}
 	
 	function createNewSheetAt(id, duplicate) {
 		if(id==null) id = __JSONDATA.sheets.length;
 
 		var sheet;
+
+		trace("NEW DATA...");
 		
 		if(duplicate) {
 			$$$.boxInfo.showBox("Duplicating Sheet...");
@@ -266,11 +315,11 @@ function traceJSON() {
 			);
 
 			sheet.lightSequence.push(
-				{type: 'light-item', name: 'photoDistance', value: 5}
+				{type: 'light-item', name: 'Light 1', value: 5}
 			);
 
 			sheet.actionSequence.push(
-				{type: 'action-item', name: 'First Action', time: 5, params: []}
+				{type: 'action-item', name: 'Action 1', time: 5, params: []}
 			);
 		}
 		

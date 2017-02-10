@@ -79,7 +79,43 @@ module.exports = function(PROJ) {
 			})
 		}
 	};
-	
+
+	var res = PROJ.responseData;
+	if(res) {
+		res.hardcoded = {
+			AraCommands: [
+				"TakeOff",
+				"Fly Straight",
+				"Dock",
+				"Go To Dock",
+				"Find User",
+				"Patrol",
+				"PatrolShort",
+				"Waiting",
+				"TurnNE",
+				"TurnE",
+				"TurnSE",
+				"TurnS",
+				"TurnNW",
+				"TurnW",
+				"TurnSW",
+				"SleepLowBatt",
+				"SleepHalfBatt",
+				"SleepMostBatt",
+				"SleepFullBatt",
+				"Ready",
+				"Error Minor",
+				"Error Standard",
+				"Error Critical",
+				"Battery Low",
+				"Obstacle In Path",
+				"Task In Progress",
+				"Thinking",
+				"Changing Task",
+				"Camera On"
+			]
+		}
+	}
 	
 	function defaultData() {
 		return {

@@ -13,6 +13,12 @@ Array.prototype.last = function() {
 	return this[this.length-1];
 };
 
+Array.prototype.remove = function(item) {
+	var id = this.indexOf(item);
+	if(id>-1) this.splice(id, 1);
+	return id;
+};
+
 String.prototype.has = function has(str) {
 	return this.indexOf(str)>-1;
 };

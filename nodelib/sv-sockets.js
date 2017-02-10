@@ -24,10 +24,10 @@ module.exports = function(ERDS) {
 		client.on('project-command', onProjectCommand);
 	});
 
-	function sendServerError(client, msg) {
+	ERDS.sendServerError = function(client, msg) {
 		traceError(msg);
 		client.emit("server-error", msg);
-	}
+	};
 
 	function onDisconnect() {
 		trace(("    <<< " + this.id).red);
@@ -42,7 +42,7 @@ module.exports = function(ERDS) {
 
 		var client = this;
 		var proj = projectsUtils.getProjectObj(projectName);
-		if(!proj) return sendServerError(this, "Project does not exists: " + projectName);
+		if(!proj) return ERDS.sendServerError(this, "Project does not exists: " + projectName);
 
 		//Set circular reference (for sub-modules to find ERDS or the Project):
 		proj.ERDS = ERDS;
@@ -50,10 +50,13 @@ module.exports = function(ERDS) {
 		
 		//Load specific project's modules:
 		ERDS.loadModules(proj.__nodelib, proj, ERDS.isDev);
-
-		ERDS.fileRead(proj.__indexhtml, (err, file) => {
-			client.emit('fetch-project', {
-				//projectHTML: file,
+		
+		ERDS.fileRead(proj.__json, (err, content) => {
+			if(err) content = null;
+			else content = JSON.parse(content);
+			
+			client.emit('project-fetch', {
+				json: content,
 				name: proj.name
 			});
 		});
@@ -62,13 +65,22 @@ module.exports = function(ERDS) {
 	function onProjectCommand(cmd) {
 		var _this = this;
 		var proj = ERDS.projects[cmd.project];
-		if(!proj) return sendServerError(this, "Project does not exists OR requires refresh: " + cmd.project);
+		if(!proj) return ERDS.sendServerError(this, "Project does not exists OR requires refresh: " + cmd.project);
 
-		_.delay(() => {
-			var knownCommand = proj.commands[cmd.command];
-			if(!knownCommand) {
-				sendServerError(_this, "Unknown command! " + cmd.command);
-			}
-		}, 1000);
+		cmd.proj = proj;
+		cmd.client = this;
+		cmd.dateServer = new Date();
+		
+		//_.delay(() => {
+		//	
+		//}, 500);
+
+		processProjectCommand(cmd);
+	}
+	
+	function processProjectCommand(cmd) {
+		var cmdMethod = cmd.proj.commands[cmd.command];
+		if(!cmdMethod) return ERDS.sendServerError(cmd.client, "Unknown command! " + cmd.command);
+		cmdMethod(cmd);
 	}
 };

@@ -9,10 +9,13 @@ function isNode() {
 	return typeof module !== 'undefined' && module.exports;
 }
 
+Array.prototype.last = function() {
+	return this[this.length-1];
+};
+
 String.prototype.has = function has(str) {
 	return this.indexOf(str)>-1;
 };
-
 
 String.prototype.rep = function rep(obj) {
 	var regex, str = this.toString();
@@ -48,6 +51,12 @@ String.prototype.fixSlashes = function() {
 		return lastIndex !== -1 && lastIndex === position;
 	};
 })();
+
+var regexEmoji = /:([a-z0-9\-\_]*):/gi;
+
+function toEmoji(str) {
+	return str.replace(regexEmoji, '<i class="em em-$1"></i>');
+}
 
 String.prototype.camelToTitleCase = function() {
 	var text = this.toString();

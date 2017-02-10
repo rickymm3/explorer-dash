@@ -9,10 +9,11 @@ const app =				ERDS.app = express();
 const server =			ERDS.server = require('http').createServer(app);
 const io =				ERDS.io = require('socket.io')(server);
 
-if(ERDS.isDev) traceClear();
-
 require('./nodelib/sv-helpers')(ERDS);
 require('./nodelib/sv-paths')(ERDS);
+
+if(ERDS.isDev) traceClear();
+
 ERDS.loadModules('./nodelib', ERDS);
 
 if (ERDS.isTest && ERDS.fileExists('./nodelib/test.js')) {

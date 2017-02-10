@@ -1,7 +1,7 @@
 /**
  * Created by Chamberlain on 14/12/2016.
  */
-const fs = require('fs');
+const fs = require('fs-extra');
 const mkdirp = require('mkdirp');
 const decache = require('decache');
 const path = require('path');
@@ -36,6 +36,28 @@ module.exports = function(ERDS) {
 		
 		path = pathArr.join('/');
 		mkdirp(path, cb);
+	};
+	
+	ERDS.fileBackup = function(path, isOverwrite, cb) {
+		if(_.isFunction(isOverwrite)) {
+			cb = isOverwrite;
+			isOverwrite = false;
+		}
+		
+		//First backup the file:
+		fs.copy(path, path + '.bak', {overwrite: isOverwrite, errorOnExists: true}, cb);
+	};
+	
+	ERDS.safeBackup = function(path, isOverwrite, cb) {
+		ERDS.fileBackup(path, isOverwrite, (err) => {
+			if(err) return cb(err);
+			
+			fs.remove(path, cb);
+		});
+	};
+	
+	ERDS.fileRename = function(path, path2, cb) {
+		fs.move(path, path2,  {overwrite: true}, cb);
 	};
 
 	ERDS.fileExists = function(dirOrFile) {

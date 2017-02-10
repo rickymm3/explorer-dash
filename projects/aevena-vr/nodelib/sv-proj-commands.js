@@ -11,11 +11,17 @@ module.exports = function(PROJ) {
 	
 	function echo(cmd, msg) {
 		cmd.client.emit('echo', msg);
+		isBusy(cmd, false);
+	}
+	
+	function isBusy(cmd, status) {
+		cmd.client.emit('isBusy', status);
 	}
 	
 	PROJ.commands = {
 		clearJSON(cmd) {
 			if(!ERDS.fileExists(cmd.proj.__json)) {
+				isBusy(cmd, false);
 				return ERDS.sendServerError(cmd.client, "The JSON does not even exists, therefore it can't be deleted!");
 			}
 			
@@ -33,7 +39,10 @@ module.exports = function(PROJ) {
 			clearTimeout(clearCommandFlag);
 
 			ERDS.fileRename(cmd.proj.__json, cmd.proj.__json+'.bak', (err) => {
-				if(err) return ERDS.sendServerError(cmd.client, "Failed backing up JSON file!");
+				if(err) {
+					isBusy(cmd, false);
+					return ERDS.sendServerError(cmd.client, "Failed backing up JSON file!");
+				}
 				
 				echo(cmd, 'Alright, clearing up the data completed!');
 			})
@@ -43,7 +52,10 @@ module.exports = function(PROJ) {
 			var jsonPath = cmd.proj.__json;
 			ERDS.makeDir(jsonPath);
 			ERDS.fileWrite(jsonPath, cmd.params, (err) => {
-				if(err) return ERDS.sendServerError(cmd.client, "Could not write JSON file!");
+				if(err) {
+					isBusy(cmd, false);
+					return ERDS.sendServerError(cmd.client, "Could not write JSON file!");
+				}
 				
 				echo(cmd, 'JSON data saved to the server! <i class="em em---1"></i>');
 			});
@@ -53,11 +65,15 @@ module.exports = function(PROJ) {
 			var bak = cmd.proj.__json+'.bak';
 			
 			if(!ERDS.fileExists(bak)) {
+				isBusy(cmd, false);
 				return ERDS.sendServerError(cmd.client, "Could not locate Backup JSON file! :-1:");
 			}
 			
 			ERDS.fileRename(bak, cmd.proj.__json, (err) => {
-				if(err) return ERDS.sendServerError(cmd.client, "Failed renaming Backup JSON file!");
+				if(err) {
+					isBusy(cmd, false);
+					return ERDS.sendServerError(cmd.client, "Failed renaming Backup JSON file!");
+				}
 
 				echo(cmd, 'Backup recovered!');
 			})

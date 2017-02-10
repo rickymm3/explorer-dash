@@ -124,6 +124,7 @@ function traceJSON() {
 					currentActionItem: null,
 					statusKeyModifiers: 0,
 					statusSaveButton: 'Save',
+					isBusy: false,
 					jsonData: {
 						definableValues: [],
 						lightSequence: [],
@@ -153,6 +154,9 @@ function traceJSON() {
 					},
 
 					handleSaveButton(e) {
+						if(this.isBusy) return;
+						
+						this.isBusy = true;
 						if(e.ctrlKey && e.shiftKey) return this.recoverJSON();
 						if(e.ctrlKey) return this.clearJSON();
 						this.saveJSON();
@@ -193,6 +197,12 @@ function traceJSON() {
 			__DEFS = __JSONDATA.definableValues;
 			__LIGHTS = __JSONDATA.lightSequence;
 			__ACTIONS = __JSONDATA.actionSequence;
+
+			//Force-Reset the 'isBusy' status when an error occurs:
+			ERDS.io.on("server-error", function() { __VUE.isBusy = false; });
+			ERDS.io.on('isBusy', function(status) {
+				__VUE.isBusy = status;
+			});
 			
 			__VUE.$forceUpdate();
 		}

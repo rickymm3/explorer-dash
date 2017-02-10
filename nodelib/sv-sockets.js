@@ -48,17 +48,18 @@ module.exports = function(ERDS) {
 		proj.ERDS = ERDS;
 		ERDS.projects[proj.name] = proj;
 		
+		var responseData = proj.responseData = {
+			name: proj.name
+		};
+		
 		//Load specific project's modules:
 		ERDS.loadModules(proj.__nodelib, proj, true); //ERDS.isDev
 		
 		ERDS.fileRead(proj.__json, (err, content) => {
-			if(err) content = null;
-			else content = JSON.parse(content);
+			if(err) responseData.json = null;
+			else responseData.json = JSON.parse(content);
 			
-			client.emit('project-fetch', {
-				json: content,
-				name: proj.name
-			});
+			client.emit('project-fetch', responseData);
 		});
 	}
 	

@@ -112,6 +112,12 @@ h5 {
 .padded-5 {
   padding: 9px;
 }
+.v-align-mid > * {
+  vertical-align: -50%;
+}
+.inline-block {
+  display: inline-block;
+}
 .git-info {
   position: fixed;
   display: inline-block;

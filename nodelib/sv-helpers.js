@@ -2,14 +2,30 @@
  * Created by Chamberlain on 14/12/2016.
  */
 const fs = require('fs');
+const decache = require('decache');
 const path = require('path');
 const FILE_ENCODING = {encoding: 'utf8'};
 
 module.exports = function(ERDS) {
 
+	//////////////////////////////////////////// File & Directory Helpers:
+
 	ERDS.isDir = function isDir(path) {
 		var stat = fs.statSync(path);
 		return stat.isDirectory();
+	};
+
+	ERDS.getDirs = function(dir, cb) {
+		dir = dir.fixSlashes();
+
+		fs.readdir(dir, (err, files) => {
+			var dirs = files.filter(file => ERDS.isDir(dir+'/'+file));
+			cb(dirs);
+		});
+	};
+
+	ERDS.fileExists = function(dirOrFile) {
+		return fs.existsSync(dirOrFile);
 	};
 	
 	ERDS.filesFilter = function(dir, filterFunc, isRecursive) {
@@ -47,17 +63,8 @@ module.exports = function(ERDS) {
 		return found;
 	};
 	
-	ERDS.getDirs = function(dir, cb) {
-		dir = dir.fixSlashes();
-		
-		fs.readdir(dir, (err, files) => {
-			var dirs = files.filter(file => ERDS.isDir(dir+'/'+file));
-			cb(dirs);
-		});
-	};
-	
-	ERDS.filesCollect = function(dir, filterFunc, cb, isRecursive) {
-		if(!cb) throw new Error("filesCollect needs a callback function!");
+	ERDS.filesMerge = function(dir, filterFunc, isRecursive, cb) {
+		if(!cb) throw new Error("filesMerge needs a callback function!");
 
 		//filterFunc could also be an *.extension
 		if(_.isString(filterFunc)) {
@@ -90,9 +97,40 @@ module.exports = function(ERDS) {
 			cb(err, content, file);
 		});
 	};
+
+	//////////////////////////////////////////// HTML Helpers:
 	
-	ERDS.createScriptTags = function(scriptsURLs) {
-		var scriptTemplate = '<script src="$url"></script>';
-		return scriptsURLs.map(url => scriptTemplate.rep({url: url}));
+	ERDS.createScriptTags = function(URLs) {
+		return URLs.map(url => '<script src="$0"></script>'.rep([url]));
+	}
+
+	ERDS.createCSSTags = function(URLs) {
+		return URLs.map(url => '<link rel="stylesheet" href="$0">'.rep([url]));
+	};
+
+	//////////////////////////////////////////// Require & Module Helpers:
+
+	ERDS.loadModules = function(dir, NS, reload, expr) {
+		if(!expr) expr = /\.*\.js/;
+
+		var svScripts = ERDS.filesFilter(dir, (file, full) => expr.test(file));
+
+		if(!svScripts || !svScripts.length) {
+			return traceError("Could not find modules in: " + dir);
+		}
+
+		svScripts.forEach( mod => {
+			if(ERDS.isModuleLoaded(mod)) {
+				if(!reload) return;
+
+				decache(mod);
+			}
+
+			require(mod)(NS);
+		} );
+	};
+
+	ERDS.isModuleLoaded = function(modName) {
+		return !!require.cache[require.resolve(modName)];
 	}
 };

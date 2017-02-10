@@ -7,15 +7,37 @@
 body {
   background: #ececef;
 }
-dragdropfile {
-  font-size: 20px;
-}
-#my-vue-templates {
-  display: none;
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 0;
+  display: inline-block;
 }
 #container {
   position: relative;
-  top: 50px;
+  padding: 10px;
+}
+.navbar {
+  margin: 0;
+}
+.box-error {
+  background: #f00;
+}
+.box-info {
+  background: #8af;
+}
+.box {
+  white-space: pre;
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  color: #fff;
+  border-radius: 10px;
   padding: 10px;
 }
 .float-left {
@@ -54,22 +76,8 @@ dragdropfile {
 .shadow-dark {
   text-shadow: #222 1px 1px 1px;
 }
-.dz-default {
-  display: inline-block;
-  max-width: 100vw;
-  text-align: center;
-  border-radius: 10px;
-  border: solid 4px #fff;
-  outline: dashed 2px #222;
-  outline-offset: -10px;
-  background-color: rgba(200, 200, 200, 0.2);
-  padding: 30px;
-}
-.dz-default:hover {
-  background-color: rgba(200, 200, 200, 0.5);
-}
-.dragdropfile {
-  border: solid 2px #f00;
+.hidden {
+  display: none;
 }
 .git-info {
   position: fixed;
@@ -83,35 +91,4 @@ dragdropfile {
 }
 .git-info a {
   color: #fff;
-}
-.project-view {
-  display: none;
-}
-.project .home-view {
-  display: none;
-}
-.project .project-view {
-  display: block;
-}
-u[scale] {
-  display: inline-block;
-  color: rgba(0, 0, 0, 0);
-  padding: 3px;
-  position: absolute;
-  transition: all 0.2s ease-in-out;
-  text-decoration: none;
-  -webkit-transform-origin: 0 center;
-  -moz-transform-origin: 0 center;
-  -ms-transform-origin: 0 center;
-  -o-transform-origin: 0 center;
-}
-button:hover + u[scale] {
-  -webkit-transform: scale(1.2);
-  -moz-transform: scale(1.2);
-  -o-transform: scale(1.2);
-  -ms-transform: scale(1.2);
-  transform: scale(1.2);
-  color: #000000;
-  font-weight: bold;
-  text-decoration: none;
 }

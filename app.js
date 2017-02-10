@@ -1,52 +1,25 @@
-const ERDS = global.ERDS = {};
+const _ = global._ =	require('underscore');
+const env =				require('dotenv').load({path: '.private/env.ini'});
+const extensions =		require('./nodelib/common/extensions');
+const colors =			require('colors');
 
-const _ = global._ = require('underscore');
-const env = require('dotenv').load({path: '.private/env.ini'});
-const extensions = require('./nodelib/common/extensions');
-const colors = require('colors');
-const port = process.env.PORT || 9999;
-const git = require('git-rev');
-const express = ERDS.express = require('express');
-const app = ERDS.app = express();
-const server = ERDS.server = require('http').createServer(app);
-const io = ERDS.io = require('socket.io')(server);
-const __rootpath = __dirname.fixSlashes();
+const ERDS = global.ERDS = {__dirname: __dirname.fixSlashes()};
+const express =			ERDS.express = require('express');
+const app =				ERDS.app = express();
+const server =			ERDS.server = require('http').createServer(app);
+const io =				ERDS.io = require('socket.io')(server);
 
 traceClear();
 
-ERDS.isTest = _.isTruthy(process.env.IS_TEST);
-ERDS.isDev = _.isTruthy(process.env.IS_DEV);
+require('./nodelib/sv-helpers')(ERDS);
+require('./nodelib/sv-paths')(ERDS);
+ERDS.loadModules('./nodelib', ERDS);
 
-if (ERDS.isTest) {
-	trace("process.env.RUN_TEST: " + process.env.IS_TEST);
-	require('./nodelib/test');
-	return;
+if (ERDS.isTest && ERDS.fileExists('./nodelib/test.js')) {
+	return require('./nodelib/test'); //Early EXIT when running in Test-mode.
 }
 
-git.branch(branchName => {
-	git.long(longTag => {
-		ERDS.git = {branch:branchName, tag:longTag};
-		onReady();
-	});
+server.listen(ERDS.port, function (err) {
+	if(err) throw err;
+	trace("Started Express on '$0' (or '$1')".rep([ERDS.__host, ERDS.__localhost]).yellow);
 });
-
-function onReady() {
-	app.set("__rootpath", ERDS.__rootpath = __rootpath);
-	app.set("__public", ERDS.__public = __rootpath + "/public");
-	app.set("__projects", ERDS.__projects = __rootpath + "/projects");
-	app.set("__private", ERDS.__private = __rootpath + "/.private");
-	app.set("port", ERDS.port = port);
-
-	//Require a bunch of homemade modules for each parts of this web-app: 
-
-	require('./nodelib/helpers')(ERDS);
-	require('./nodelib/routes-tester')(ERDS);
-	require('./nodelib/routes')(ERDS);
-	require('./nodelib/sockets')(ERDS);
-	require('./nodelib/handlers-errors')(ERDS);
-	require('./nodelib/dashboard-funcs')(ERDS);
-
-	server.listen(app.get("port"), function (err) {
-		trace("Started Express successfully on port #$port ...".rep({port: port}).yellow);
-	});
-}

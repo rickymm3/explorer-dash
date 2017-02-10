@@ -1,0 +1,236 @@
+body {
+    background: #acf;
+}
+
+@colorModifiableBtn: rgba(57, 177, 77, 0.75);
+
+.header {
+  overflow-x: hidden;
+  overflow-y: hidden;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.title {
+  width: 180px;
+}
+
+.round(@round: 10px) {
+  border-radius: @round;
+}
+
+.shadowy() {
+  text-shadow: #fff 0px 1px 2px;
+}
+
+.sidebar {
+  display: inline-block;
+  position: relative;
+  font-size: 0.9em;
+  vertical-align: bottom;
+  margin-left: 10px;
+  padding: 5px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  white-space: nowrap;
+  background: rgba(0,0,0,0.5);
+  .round();
+
+  .button {
+    position: relative;
+    display: inline-block;
+    white-space: normal;
+    width: 120px;
+    margin: 2px;
+    padding: 6px;
+  }
+  
+  .save {
+    width: 70px;
+    background: @colorModifiableBtn;
+  }
+}
+
+.button {
+  display: block;
+  background: #aaa;
+  padding: 3px 15px 3px 15px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 5px;
+  .shadowy();
+  
+  &:hover {
+    background: #ccc;
+  }
+
+  &:active, &.active {
+    background: #444;
+    color: #fff;
+  }
+}
+
+#details {
+  display: none;
+  position: relative;
+  top:  5px;
+  left: 0px;
+  right: 0px;
+  padding: 5px;
+  min-height: 30px;
+  margin-bottom: 100px;
+  .round();
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.col-1, .col-2 {
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+}
+
+.numeric-prop {
+  //border: solid 1px #888;
+  padding: 3px;
+  
+  .col-1 {
+    width: 200px;
+    text-align: right;
+    .shadowy();
+  }
+  .col-2 input {
+    width: 80px;
+    text-align: right;
+  }
+}
+
+.btn {
+  padding: 10px;
+  background: @colorModifiableBtn;
+  .round();
+  .shadowy();
+}
+
+////////////////////////////////////////////////
+
+.light-item, .action-item {
+  margin-bottom: 5px;
+  
+  &.isSelected .btn {
+    background: @colorModifiableBtn * 1.2;
+    color: #fff;
+  }
+}
+
+.light-item {
+  padding: 0;
+  .ring-sequence, .strip-sequence {
+    display: inline-block;
+    margin: 0;
+    border: solid 1px #000;
+  }
+}
+
+.light-sequence {
+  overflow: hidden;
+  @col-1-width: 100px;
+  .col-1, .col-2 {
+    display: block;
+    //background: #f00;
+  }
+
+  div {
+    vertical-align: top;
+  }
+  
+  h3 {
+    .shadowy();
+    font-size: 1.1em;
+    .round();
+    background: rgba(0,0,255,0.5);
+    padding: 5px;
+  }
+  
+  .col-1 {
+    width: @col-1-width;
+    float: left;
+  }
+  
+  .col-2 {
+    margin-left: @col-1-width;
+  }
+  
+  .panel {
+    width: 100%;
+    display: block;
+    padding: 2px;
+    .round();
+    margin: 0;
+
+    .ring-sequence, .strip-sequence {
+      display: inline-block;
+      width: 49%;
+    }
+  }
+}
+
+//////////////////////////////////////////////// MEDIA QUERIES
+
+@media screen and (max-width: 680px) {
+  body {font-size: 95%;}
+}
+@media screen and (max-width: 604px) {
+  .sidebar {
+    position: absolute;
+    top: 55px;
+    left: 0px;
+    right: 5px;
+    overflow-x: visible;
+    overflow-y: visible;
+    white-space: normal;
+  }
+
+  #details {
+    top: 55px;
+  }
+}
+
+@media screen and (max-width: 483px) {
+  #details {
+    top: 90px;
+  }
+}
+
+@media screen and (max-width: 292px) {
+  #details {
+    top: 120px;
+  }
+
+  .numeric-prop {
+    .col-1 {
+      text-align: left;
+      width: 100%;
+    }
+    .col-2 input {
+      text-align: left;
+      //width: 100%;
+    }
+  }
+}
+
+@media screen and (max-width: 227px) {
+  #details {
+    top: 150px;
+  }
+
+  .numeric-prop {
+    .col-1 {
+      text-align: left;
+      width: 100%;
+    }
+    .col-2 input {
+      text-align: left;
+      //width: 100%;
+    }
+  }
+}

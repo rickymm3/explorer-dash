@@ -49,7 +49,7 @@ module.exports = function(ERDS) {
 		ERDS.projects[proj.name] = proj;
 		
 		//Load specific project's modules:
-		ERDS.loadModules(proj.__nodelib, proj, ERDS.isDev);
+		ERDS.loadModules(proj.__nodelib, proj, true); //ERDS.isDev
 		
 		ERDS.fileRead(proj.__json, (err, content) => {
 			if(err) content = null;

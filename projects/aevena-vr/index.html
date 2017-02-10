@@ -2,6 +2,9 @@
     <h1 class="title">$projectName</h1>
 
     <div class="sidebar">
+        <span class="shadowy padded-5">Sheet:</span>
+        <input type="text" class="digits-2" :value="currentSheetID" v-on:keyup="currentSheetUpdate($event.target.value)">
+        
         <div class="button" :class="{ active: view==0 }" @click="changeView(0)">DefinableValues</div>
         <div class="button" :class="{ active: view==1 }" @click="changeView(1)">LightSequence</div>
         <div class="button" :class="{ active: view==2 }" @click="changeView(2)">ActionSequence</div>
@@ -11,12 +14,12 @@
 
 <div id="details">
     <view-tab v-if="view==0" class="view definable-values">
-        <comp v-for="def in jsonData.definableValues" v-bind:obj="def"></comp>
+        <comp v-for="def in currentSheet.definableValues" v-bind:obj="def"></comp>
     </view-tab>
 
     <view-tab v-if="view==1" class="view light-sequence">
         <div class="col-1">
-            <comp v-for="def in jsonData.lightSequence" v-bind:obj="def"></comp>
+            <comp v-for="def in currentSheet.lightSequence" v-bind:obj="def"></comp>
             <btn label="Add Light" @click="addLight"></btn>
         </div>
         
@@ -37,7 +40,7 @@
 
     <view-tab v-if="view==2" class="view action-sequence">
         <div class="col-1">
-            <comp v-for="def in jsonData.actionSequence" v-bind:obj="def"></comp>
+            <comp v-for="def in currentSheet.actionSequence" v-bind:obj="def"></comp>
             <btn label="Add Action" v-on:click="addAction"></btn>
         </div>
         

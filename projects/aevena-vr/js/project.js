@@ -12,7 +12,7 @@ function traceJSON() {
     return result;
 }
 (function (ERDS) {
-    var __VUE, __DEFS, __LIGHTS, __ACTIONS;
+    var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS;
     registerComponents({
         comp: {
             props: ['obj'],
@@ -101,13 +101,13 @@ function traceJSON() {
                     view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
                     currentLightItem: null,
                     currentActionItem: null,
+                    currentSheetID: -1,
+                    currentSheet: {},
                     statusKeyModifiers: 0,
                     statusSaveButton: 'Save',
                     isBusy: false,
                     jsonData: {
-                        definableValues: [],
-                        lightSequence: [],
-                        actionSequence: []
+                        sheets: []
                     }
                 },
                 methods: {
@@ -143,6 +143,27 @@ function traceJSON() {
                     },
                     recoverJSON: function () {
                         projectCommand('recoverJSON', null);
+                    },
+                    currentSheetUpdate: function (id) {
+                        if (isNaN(id))
+                            return;
+                        if (this.currentSheetID === id)
+                            return;
+                        id = parseInt(id);
+                        if (id < 0 || isNaN(id))
+                            id = 0;
+                        if (id >= __SHEETS.length) {
+                            createNewSheetAt(id);
+                        }
+                        this.currentSheetID = id;
+                        TweenMax.fromTo($$$.details, 0.5, { alpha: 0 }, { alpha: 1 });
+                        if (__SHEETS == null)
+                            return null;
+                        __SHEET = __SHEETS[this.currentSheetID];
+                        __DEFS = __SHEET.definableValues;
+                        __LIGHTS = __SHEET.lightSequence;
+                        __ACTIONS = __SHEET.actionSequence;
+                        return this.currentSheet = __SHEET;
                     }
                 }
             });
@@ -150,6 +171,7 @@ function traceJSON() {
         init: function (projectData) {
             __VUE = ERDS.vue;
             __JSONDATA = __VUE.jsonData;
+            __SHEETS = __JSONDATA.sheets;
             $$$.details = $('#details');
             $$$.views = $$$.details.find('.view');
             fadeIn($$$.details, 0.2);
@@ -159,10 +181,9 @@ function traceJSON() {
             }
             else {
                 __JSONDATA = __VUE.jsonData = projectData.json;
+                __SHEETS = __JSONDATA.sheets;
             }
-            __DEFS = __JSONDATA.definableValues;
-            __LIGHTS = __JSONDATA.lightSequence;
-            __ACTIONS = __JSONDATA.actionSequence;
+            __VUE.currentSheetUpdate(0);
             //Force-Reset the 'isBusy' status when an error occurs:
             ERDS.io.on("server-error", function () { __VUE.isBusy = false; });
             ERDS.io.on('isBusy', function (status) {
@@ -172,8 +193,26 @@ function traceJSON() {
         }
     });
     function demoPushExampleData() {
-        __JSONDATA.definableValues.push({ type: 'numeric-prop', name: 'photoDistance', value: 5 }, { type: 'numeric-prop', name: 'elevationHeight', value: 1 }, { type: 'numeric-prop', name: 'elevationSpeed', value: 5 }, { type: 'numeric-prop', name: 'descentSpeed', value: 1 }, { type: 'numeric-prop', name: 'movementSpeed', value: 5 }, { type: 'numeric-prop', name: 'yawSpeed', value: 1 }, { type: 'numeric-prop', name: 'timeToStart', value: 5 }, { type: 'numeric-prop', name: 'timeToStop', value: 1 }, { type: 'numeric-prop', name: 'maxTiltRange', value: 5 }, { type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1 });
-        __JSONDATA.lightSequence.push({ type: 'light-item', name: 'photoDistance', value: 5 });
-        __JSONDATA.actionSequence.push({ type: 'action-item', name: 'First Action', time: 5, params: [] });
+        createNewSheetAt(0);
+    }
+    function createNewSheetAt(id, duplicate) {
+        if (id == null)
+            id = __JSONDATA.sheets.length;
+        var sheet;
+        if (duplicate) {
+            $$$.boxInfo.showBox("Duplicating Sheet...");
+            //Do a quick JSON -to-and-from- to deep clone all the data without the Vue garbage around it.
+            var jsonStr = JSON.stringify(duplicate);
+            sheet = JSON.parse(jsonStr);
+        }
+        else {
+            $$$.boxInfo.showBox("Creating New Sheet...");
+            sheet = { definableValues: [], lightSequence: [], actionSequence: [] };
+            sheet.definableValues.push({ type: 'numeric-prop', name: 'photoDistance', value: 5 }, { type: 'numeric-prop', name: 'elevationHeight', value: 1 }, { type: 'numeric-prop', name: 'elevationSpeed', value: 5 }, { type: 'numeric-prop', name: 'descentSpeed', value: 1 }, { type: 'numeric-prop', name: 'movementSpeed', value: 5 }, { type: 'numeric-prop', name: 'yawSpeed', value: 1 }, { type: 'numeric-prop', name: 'timeToStart', value: 5 }, { type: 'numeric-prop', name: 'timeToStop', value: 1 }, { type: 'numeric-prop', name: 'maxTiltRange', value: 5 }, { type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1 });
+            sheet.lightSequence.push({ type: 'light-item', name: 'photoDistance', value: 5 });
+            sheet.actionSequence.push({ type: 'action-item', name: 'First Action', time: 5, params: [] });
+        }
+        __JSONDATA.sheets[id] = sheet;
+        return sheet;
     }
 })(ERDS);

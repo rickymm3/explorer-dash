@@ -20,33 +20,47 @@ module.exports = function(PROJ) {
 			}
 			
 			if(clearCommandFlag==-1) {
-				echo(cmd, 'Are you sure you want to clear the data?<br/>(YES = Press Again, NO = Do nothing!)');
+				echo(cmd, 'Are you sure you want to clear the data?<br/>:--1: CTRL Click Again<br/>:-1: Wait 4s and forget about it!');
 				
 				//Shut the clear flag back off shortly if it's never re-executed
 				return clearCommandFlag = setTimeout(() => {
 					clearCommandFlag = -1;
 
 					echo(cmd, 'Aborted JSON clearing.');
-				}, 6000);
+				}, 4000);
 			}
 			
 			clearTimeout(clearCommandFlag);
-			
-			fs.unlink(cmd.proj.__json, (err) => {
-				if(err) return ERDS.sendServerError(cmd.client, "Failed removing JSON file!");
+
+			ERDS.fileRename(cmd.proj.__json, cmd.proj.__json+'.bak', (err) => {
+				if(err) return ERDS.sendServerError(cmd.client, "Failed backing up JSON file!");
 				
 				echo(cmd, 'Alright, clearing up the data completed!');
-			});
+			})
 		},
 		
 		saveJSON(cmd) {
 			var jsonPath = cmd.proj.__json;
 			ERDS.makeDir(jsonPath);
 			ERDS.fileWrite(jsonPath, cmd.params, (err) => {
-				if(err) return ERDS.sendServerError(cmd.client, "Could not write JSON file!<br/>" + cmd.proj.__json);
+				if(err) return ERDS.sendServerError(cmd.client, "Could not write JSON file!");
 				
 				echo(cmd, 'JSON data saved to the server! <i class="em em---1"></i>');
 			});
+		},
+
+		recoverJSON(cmd) {
+			var bak = cmd.proj.__json+'.bak';
+			
+			if(!ERDS.fileExists(bak)) {
+				return ERDS.sendServerError(cmd.client, "Could not locate Backup JSON file! :-1:");
+			}
+			
+			ERDS.fileRename(bak, cmd.proj.__json, (err) => {
+				if(err) return ERDS.sendServerError(cmd.client, "Failed renaming Backup JSON file!");
+
+				echo(cmd, 'Backup recovered!');
+			})
 		}
 	};
 	

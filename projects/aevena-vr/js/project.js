@@ -1,6 +1,6 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
-var __JSONDATA;
+var __JSONDATA, __KEYS = { SHIFT: 1, CTRL: 2, ALT: 4 };
 function traceJSON() {
     var result = JSON.stringify(__JSONDATA, null, ' ');
     //trace(result);
@@ -79,6 +79,21 @@ function traceJSON() {
         }
     });
     ERDS.Project = function Project() { };
+    $(window).on('keydown keyup', function (e) {
+        var status = "Save";
+        switch (true) {
+            case e.ctrlKey && e.shiftKey:
+                status = "Recover";
+                break;
+            case e.ctrlKey:
+                status = "Clear";
+                break;
+        }
+        __VUE.statusSaveButton = status;
+        __VUE.statusKeyModifiers = (e.shiftKey ? __KEYS.SHIFT : 0) |
+            (e.ctrlKey ? __KEYS.CTRL : 0) |
+            (e.altKey ? __KEYS.ALT : 0);
+    });
     _.extend(ERDS.Project.prototype, {
         extendVue: function (vueConfig) {
             return _.merge(vueConfig, {
@@ -86,6 +101,8 @@ function traceJSON() {
                     view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
                     currentLightItem: null,
                     currentActionItem: null,
+                    statusKeyModifiers: 0,
+                    statusSaveButton: 'Save',
                     jsonData: {
                         definableValues: [],
                         lightSequence: [],
@@ -108,6 +125,8 @@ function traceJSON() {
                         __ACTIONS.push({ type: 'action-item', name: 'photoDistance', value: 5 });
                     },
                     handleSaveButton: function (e) {
+                        if (e.ctrlKey && e.shiftKey)
+                            return this.recoverJSON();
                         if (e.ctrlKey)
                             return this.clearJSON();
                         this.saveJSON();
@@ -117,6 +136,9 @@ function traceJSON() {
                     },
                     clearJSON: function () {
                         projectCommand('clearJSON', null);
+                    },
+                    recoverJSON: function () {
+                        projectCommand('recoverJSON', null);
                     }
                 }
             });

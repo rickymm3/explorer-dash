@@ -142,25 +142,17 @@ function traceJSON() {
 					},
 
 					saveJSON() {
-						//traceJSON();
-						//$.post({
-						//	url: "./json",
-						//	method: ""
-						//})
-						
-						var jsonStr = JSON.stringify(__JSONDATA, null, ' ');
-						trace(jsonStr);
-						projectCommand('saveJSON', jsonStr);
+						projectCommand('saveJSON', JSON.stringify(__JSONDATA, null, ' '));
 					},
 
 					clearJSON() {
-						trace("Clear JSON please.")
+						projectCommand('clearJSON', null);
 					}
 				}
 			});
 		},
 
-		init() {
+		init(projectData) {
 			__VUE = ERDS.vue;
 			__JSONDATA = __VUE.jsonData;
 
@@ -168,9 +160,15 @@ function traceJSON() {
 			$$$.views = $$$.details.find('.view');
 
 			fadeIn($$$.details, 0.2);
-
-			demoPushExampleData();
-
+			
+			if(!projectData || !projectData.json || !projectData.json) {
+				$$$.boxError.showBox("Starting with fresh data... :--1:");
+				
+				demoPushExampleData();
+			} else {
+				__JSONDATA = __VUE.jsonData = projectData.json;
+			}
+			
 			__DEFS = __JSONDATA.definableValues;
 			__LIGHTS = __JSONDATA.lightSequence;
 			__ACTIONS = __JSONDATA.actionSequence;

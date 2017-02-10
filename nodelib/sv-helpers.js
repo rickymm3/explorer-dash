@@ -2,6 +2,7 @@
  * Created by Chamberlain on 14/12/2016.
  */
 const fs = require('fs');
+const mkdirp = require('mkdirp');
 const decache = require('decache');
 const path = require('path');
 const FILE_ENCODING = {encoding: 'utf8'};
@@ -22,6 +23,19 @@ module.exports = function(ERDS) {
 			var dirs = files.filter(file => ERDS.isDir(dir+'/'+file));
 			cb(dirs);
 		});
+	};
+	
+	ERDS.makeDir = function(path, cb) {
+		path = path.fixSlashes();
+		var pathArr = path.split('/');
+		var ending = pathArr.last();
+		
+		if(ending.has('.')) {
+			pathArr.pop();
+		}
+		
+		path = pathArr.join('/');
+		mkdirp(path, cb);
 	};
 
 	ERDS.fileExists = function(dirOrFile) {
@@ -89,12 +103,20 @@ module.exports = function(ERDS) {
 			}
 		}
 	};
-	
+
 	ERDS.fileRead = function(file, cb) {
 		if(cb==null) return fs.readFileSync(file, FILE_ENCODING);
 
 		fs.readFile(file, FILE_ENCODING, (err, content) => {
 			cb(err, content, file);
+		});
+	};
+
+	ERDS.fileWrite = function(file, content, cb) {
+		if(cb==null) return fs.writeFileSync(file, content, FILE_ENCODING);
+
+		fs.writeFile(file, content, FILE_ENCODING, (err) => {
+			cb(err, file);
 		});
 	};
 

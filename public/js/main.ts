@@ -9,14 +9,15 @@ window.addEventListener('load', function() {
 	ERDS.io = io(); //Create a socket connection:
 	ERDS.io.on("echo", response => $$$.boxInfo.showBox(response));
 	ERDS.io.on("server-error", response => $$$.boxError.showBox(response));
-	ERDS.io.on('fetch-project', onFetchProject);
 	ERDS.io.on('file-changed', onFileChanged);
+	ERDS.io.on('project-fetch', onProjectFetch);
 	ERDS.io.emit('project-fetch', ERDS.projectName);
 });
 
 function projectCommand(command, params) {
 	ERDS.io.emit('project-command', {
 		project: ERDS.projectName,
+		dateClient: new Date(),
 		command: command,
 		params: params
 	});
@@ -26,7 +27,7 @@ function onFileChanged(whichFile) {
 	window.location.reload(true);
 }
 
-function onFetchProject(proj) {
+function onProjectFetch(projectData) {
 	if(!ERDS.Project) return traceError("Missing ERDS.Project");
 	if(ERDS.vue) return traceError("Vue already created!");
 
@@ -36,8 +37,8 @@ function onFetchProject(proj) {
 		data: {
 			message: 'Test VueJS Message!',
 			errors: '',
-			infos: '',
-			proj: proj
+			infos: ''//,
+			//proj: proj
 		},
 		methods: {}
 	};
@@ -50,7 +51,7 @@ function onFetchProject(proj) {
 
 	initializeUI();
 
-	project.init && project.init();
+	project.init && project.init(projectData);
 }
 
 function initializeUI() {
@@ -97,7 +98,10 @@ function initializeUI() {
 			if(_this._queueBusy || !_this._queueObj.length) return;
 			_this._queueBusy = true;
 
-			var obj = _this._queueObj.shift().obj;
+			var obj = String(_this._queueObj.shift().obj);
+			
+			//Replace with Emojis? Why not!
+			obj = toEmoji(obj);
 			
 			function notBusy() {
 				_this._queueBusy = false;

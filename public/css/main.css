@@ -76,8 +76,41 @@ h5 {
 .shadow-dark {
   text-shadow: #222 1px 1px 1px;
 }
+.shadowy {
+  text-shadow: #fff 0px 1px 2px;
+}
 .hidden {
   display: none;
+}
+.digits-1 {
+  width: 1em;
+}
+.digits-2 {
+  width: 2em;
+}
+.digits-3 {
+  width: 3em;
+}
+.digits-4 {
+  width: 4em;
+}
+.digits-5 {
+  width: 5em;
+}
+.padded-1 {
+  padding: 1px;
+}
+.padded-2 {
+  padding: 3px;
+}
+.padded-3 {
+  padding: 5px;
+}
+.padded-4 {
+  padding: 7px;
+}
+.padded-5 {
+  padding: 9px;
 }
 .git-info {
   position: fixed;

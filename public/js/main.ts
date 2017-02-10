@@ -61,11 +61,11 @@ function initializeUI() {
 
 	_makeQueueBox($$$.boxInfo, (obj) => {
 		ERDS.vue.infos = !_.isString(obj) && _.isObject(obj) ? JSON.stringify(obj) : obj;
-	});
+	}, 0);
 
 	_makeQueueBox($$$.boxError, (err) => {
 		ERDS.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
-	});
+	}, 50);
 
 	window.addEventListener('mousedown', function() {
 		$$$.boxes.forEach(box => {
@@ -78,10 +78,11 @@ function initializeUI() {
 		});
 	});
 
-	function _makeQueueBox(box, cbSetInnerHTML) {
+	function _makeQueueBox(box, cbSetInnerHTML, offset=0) {
 		box._queueObj = [];
 		box._queueBusy = false;
 		box._cbSetInnerHTML = cbSetInnerHTML;
+		box._offset = offset;
 		box.show();
 
 		_initTransforms(box);
@@ -125,10 +126,21 @@ function initializeUI() {
 
 		TweenMax.set(obj, {alpha: 0});
 	}
+	
+	function _hasOtherBoxesPresent(boxThis) {
+		for(var b=$$$.boxes.length; --b>=0;) {
+			var box = $$$.boxes[b];
+			if(box==boxThis) continue;
+			if(box.is(':visible')) return true;
+		}
+		
+		return false;
+	}
 
 	function _animateBoxIn(box, cb=null) {
 		box.show();
-		return TweenMax.to(box, 0.3, {y: box._initY, alpha: 1, ease: Back.easeIn, onComplete: () => {
+		var gotoY = box._initY + (_hasOtherBoxesPresent(box) ? box._offset : 0);
+		return TweenMax.to(box, 0.3, {y: gotoY, alpha: 1, ease: Back.easeIn, onComplete: () => {
 			cb && _.delay(cb, 2000 / (box._queueObj.length+1))
 		}});
 	}

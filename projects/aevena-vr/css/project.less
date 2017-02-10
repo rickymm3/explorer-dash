@@ -2,6 +2,8 @@ body {
     background: #acf;
 }
 
+@colorModifiableBtn: rgba(57, 177, 77, 0.75);
+
 .header {
   overflow-x: hidden;
   overflow-y: hidden;
@@ -41,6 +43,11 @@ body {
     width: 120px;
     margin: 2px;
     padding: 6px;
+  }
+  
+  .save {
+    width: 70px;
+    background: @colorModifiableBtn;
   }
 }
 
@@ -99,7 +106,7 @@ body {
 
 .btn {
   padding: 10px;
-  background: rgba(57, 177, 77, 0.75);
+  background: @colorModifiableBtn;
   .round();
   .shadowy();
 }
@@ -108,6 +115,11 @@ body {
 
 .light-item, .action-item {
   margin-bottom: 5px;
+  
+  &.isSelected .btn {
+    background: @colorModifiableBtn * 1.2;
+    color: #fff;
+  }
 }
 
 .light-item {
@@ -164,6 +176,9 @@ body {
 
 //////////////////////////////////////////////// MEDIA QUERIES
 
+@media screen and (max-width: 680px) {
+  body {font-size: 95%;}
+}
 @media screen and (max-width: 604px) {
   .sidebar {
     position: absolute;
@@ -180,7 +195,7 @@ body {
   }
 }
 
-@media screen and (max-width: 420px) {
+@media screen and (max-width: 483px) {
   #details {
     top: 90px;
   }
@@ -190,7 +205,24 @@ body {
   #details {
     top: 120px;
   }
-  
+
+  .numeric-prop {
+    .col-1 {
+      text-align: left;
+      width: 100%;
+    }
+    .col-2 input {
+      text-align: left;
+      //width: 100%;
+    }
+  }
+}
+
+@media screen and (max-width: 227px) {
+  #details {
+    top: 150px;
+  }
+
   .numeric-prop {
     .col-1 {
       text-align: left;

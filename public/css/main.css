@@ -29,6 +29,7 @@ h5 {
   background: #8af;
 }
 .box {
+  white-space: pre;
   display: none;
   position: fixed;
   z-index: 9999;

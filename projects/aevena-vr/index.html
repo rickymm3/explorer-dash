@@ -5,6 +5,7 @@
         <div class="button" :class="{ active: view==0 }" @click="changeView(0)">DefinableValues</div>
         <div class="button" :class="{ active: view==1 }" @click="changeView(1)">LightSequence</div>
         <div class="button" :class="{ active: view==2 }" @click="changeView(2)">ActionSequence</div>
+        <div class="button save" @click="handleSaveButton($event)">Save</div>
     </div>
 </div>
 
@@ -16,16 +17,36 @@
     <view-tab v-if="view==1" class="view light-sequence">
         <div class="col-1">
             <comp v-for="def in jsonData.lightSequence" v-bind:obj="def"></comp>
-            <btn label="Add Light" v-on:click="addLight" />
+            <btn label="Add Light" @click="addLight"></btn>
         </div>
+        
+        <!-- Panel -->
         <div class="col-2">
-            <light-item-panel v-if=currentLightItem lightItem="currentLightItem"></light-item-panel>
+            <div class="panel" v-if=currentLightItem>
+                    <div class="ring-sequence">
+                        <h3>Ring Sequence</h3>
+                    </div>
+                    <div class="strip-sequence">
+                        <h3>Strip Sequence</h3>
+                        <br/><br/><br/><br/>
+                        Testing layout, a very long layout test that is.
+                    </div>
+            </div>
         </div>
     </view-tab>
 
     <view-tab v-if="view==2" class="view action-sequence">
-        <comp v-for="def in jsonData.actionSequence" v-bind:obj="def"></comp>
-        <btn label="Add Action" v-on:click="addAction" />
+        <div class="col-1">
+            <comp v-for="def in jsonData.actionSequence" v-bind:obj="def"></comp>
+            <btn label="Add Action" v-on:click="addAction"></btn>
+        </div>
+        
+        <!-- Panel -->
+        <div class="col-2">
+            <div class="panel" v-if=currentActionItem>
+                Display somesort of Action Panel here.
+            </div>  
+        </div>
     </view-tab>
 </div>
 

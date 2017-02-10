@@ -31,6 +31,10 @@ body {
   margin: 2px;
   padding: 6px;
 }
+.sidebar .save {
+  width: 70px;
+  background: rgba(57, 177, 77, 0.75);
+}
 .button {
   display: block;
   background: #aaa;
@@ -88,6 +92,11 @@ body {
 .action-item {
   margin-bottom: 5px;
 }
+.light-item.isSelected .btn,
+.action-item.isSelected .btn {
+  background: #44d45c;
+  color: #fff;
+}
 .light-item {
   padding: 0;
 }
@@ -133,6 +142,11 @@ body {
   display: inline-block;
   width: 49%;
 }
+@media screen and (max-width: 680px) {
+  body {
+    font-size: 95%;
+  }
+}
 @media screen and (max-width: 604px) {
   .sidebar {
     position: absolute;
@@ -147,7 +161,7 @@ body {
     top: 55px;
   }
 }
-@media screen and (max-width: 420px) {
+@media screen and (max-width: 483px) {
   #details {
     top: 90px;
   }
@@ -155,6 +169,18 @@ body {
 @media screen and (max-width: 292px) {
   #details {
     top: 120px;
+  }
+  .numeric-prop .col-1 {
+    text-align: left;
+    width: 100%;
+  }
+  .numeric-prop .col-2 input {
+    text-align: left;
+  }
+}
+@media screen and (max-width: 227px) {
+  #details {
+    top: 150px;
   }
   .numeric-prop .col-1 {
     text-align: left;

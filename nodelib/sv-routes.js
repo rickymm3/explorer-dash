@@ -7,14 +7,19 @@ module.exports = function(ERDS) {
 	const fs = require('fs');
 	const app = ERDS.app;
 	const express = ERDS.express;
+	const errorHeader = '<h1>Something broke!</h1><br/>';
 
+	function status500(res, msg) {
+		res.status(500).send(errorHeader + msg);
+	}
+	
 	app.use('/test', express.static(ERDS.__test));
 	app.use('/', preprocessIndexHTML);
 	app.use('/', express.static(ERDS.__public));
 	app.use('/js', express.static(ERDS.__common));
 	app.use('/p/:project/js', serveStaticProjectFiles);
 	app.use('/p/:project/css', serveStaticProjectFiles);
-	//app.use('/p/:project/json', serveProjectJSON);
+	app.use('/p/:project/json', serveProjectJSON);
 	app.use('/p/:project', preprocessProject);
 
 	//Error Handler:
@@ -23,7 +28,7 @@ module.exports = function(ERDS) {
 			traceError(err);
 		}
 
-		res.status(500).send('<h1>Something broke!</h1><br/>' + err.message);
+		status500(res, err.message);
 	});
 
 	var cache = {
@@ -109,12 +114,36 @@ module.exports = function(ERDS) {
 			var urlFile = proj.__path + urlEnd;
 
 			if(!ERDS.fileExists(urlFile)) {
-				return res.status(500).send('Missing File: ' + urlEnd);
+				return status500(res, 'Missing File: ' + urlEnd);
 			}
 
 			return res.sendFile(urlFile);
 		}
 
 		next();
+	}
+	
+	function serveProjectJSON(req, res, next) {
+		var projectName = req.params.project;
+		var proj = projectsUtils.getProjectObj(projectName);
+		if(!proj) return status500(res, "Requested JSON of unknown project: " + projectName)
+		
+		switch(req.method) {
+			case 'PUT':
+			case 'POST':
+			case 'GET':
+				if(!ERDS.fileExists(proj.__json)) {
+					return res.send({error: 'missing file'});
+				}
+				
+				ERDS.fileRead(proj.__json, (err, content) => {
+					if(err) return status500(res, 'Error while reading the JSON file.');
+					return res.send(content);
+				});
+				
+				break;
+			
+			default: status500(res, 'Unhandled JSON HTTP method: ' + req.method);	
+		}
 	}
 };

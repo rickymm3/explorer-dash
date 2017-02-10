@@ -3,5 +3,5 @@
  */
 
 module.exports = function(PROJ) {
-	trace("Project MONGO MODELS!");
+	trace("Project MONGO MODELS!".gray);
 };

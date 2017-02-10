@@ -1,178 +1,206 @@
-"use strict";
+/// <reference path="../../../public/js/main.ts" />
+/// <reference path="../../../public/js/jquery-cookie.ts" />
 
-declare var ERDS, _, $, $$$, Vue,
-	trace, traceError, traceClear,
-	registerComponents, fadeIn,
-	getCookie, setCookie;
+declare var ERDS, _, $, $$$, Vue, TweenMax,
+	trace, traceError, traceClear, setCookie;
+
+var __JSONDATA;
 
 function traceJSON() {
-	trace(JSON.stringify(ERDS.data.jsonData, null, ' '));
+	var result = JSON.stringify(__JSONDATA, null, ' ');
+	//trace(result);
+	//$$$.boxInfo.show();
+	//TweenMax.set($$$.boxInfo, {alpha: 1});
+	//
+	//trace( $$$.boxInfo[0] == $('.box-info')[0] );
+	$$$.boxInfo.showBox(result);
+	return result;
 }
 
-var definableValues, lightSequence, actionSequence;
-
-registerComponents({
-	comp: {
-		props: ['obj'],
-		template:
-			'<div class="v-comp" v-bind:is="obj.type" v-bind:obj="obj"></div>'
-	},
+(function(ERDS) {
+	var __VUE, __DEFS, __LIGHTS, __ACTIONS;
 	
-	'view-tab': {
-		props: [],
-		template:
-			'<div><slot></slot></div>'
-	},
-
-	'numeric-prop': {
-		props: ['obj'],
-		template:
-			'<div class="numeric-prop">\
-				<div class="col-1">\
-					<i v-html="obj.name.camelToTitleCase()"></i>:\
-				</div>\
-				<div class="col-2">\
-					<input type="text" v-model:value="obj.value" />\
-				</div>\
-			</div>'
-	},
-
-	'light-item': {
-		props: ['obj'],
-		methods: {
-			showPanel() {
-				ERDS.vue.currentLightItem = this.obj
-			}
+	registerComponents({
+		comp: {
+			props: ['obj'],
+			template:
+				'<div class="v-comp" v-bind:is="obj.type" v-bind:obj="obj"></div>'
 		},
-		template:
-			'<div class="light-item">\
-				<btn label="Light Item" v-on:click="showPanel()" />\
-			</div>'
-	},
-	
-	'light-item-panel': {
-		props: ['lightItem'],
-		template:
-			'<div class="panel">\
-				<div class="ring-sequence">\
-					<h3>Ring Sequence</h3>\
-				</div>\
-				<div class="strip-sequence">\
-					<h3>Strip Sequence</h3><br/><br/><br/><br/>Testing layout, a very long layout test that is.\
-				</div>\
-			</div>'
-	},
 
-	'action-item': {
-		props: ['obj'],
-		methods: {
-			click() { this.$emit('click'); }
+		'view-tab': {
+			props: [],
+			template:
+				'<div><slot></slot></div>'
 		},
-		template:
-			'<div class="action-item">\
-				<div class="strip-action">\
-					<i>ScriptedAction <btn label="Add Parameter" v-on:click="click"/></i>\
-				</div>\
-			</div>'
-	},
 
-	'btn': {
-		props: ['obj', 'label'],
-		methods: {
-			click() { this.$emit('click'); }
+		'numeric-prop': {
+			props: ['obj'],
+			template:
+				'<div class="numeric-prop">\
+					<div class="col-1">\
+						<i v-html="obj.name.camelToTitleCase()"></i>:\
+					</div>\
+					<div class="col-2">\
+						<input type="text" v-model:value="obj.value" />\
+					</div>\
+				</div>'
 		},
-		
-		template:
-			'<div class="btn" v-on:click="click">\
-				<i v-html="label"></i>\
-			</div>'
-	}
-});
 
-function demoPushExampleData() {
-	ERDS.data.jsonData.definableValues.push(
-		{type: 'numeric-prop', name: 'photoDistance', value: 5},
-		{type: 'numeric-prop', name: 'elevationHeight', value: 1},
-		{type: 'numeric-prop', name: 'elevationSpeed', value: 5},
-		{type: 'numeric-prop', name: 'descentSpeed', value: 1},
-		{type: 'numeric-prop', name: 'movementSpeed', value: 5},
-		{type: 'numeric-prop', name: 'yawSpeed', value: 1},
-		{type: 'numeric-prop', name: 'timeToStart', value: 5},
-		{type: 'numeric-prop', name: 'timeToStop', value: 1},
-		{type: 'numeric-prop', name: 'maxTiltRange', value: 5},
-		{type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1}
-	);
-
-	ERDS.data.jsonData.lightSequence.push(
-		{type: 'light-item', name: 'photoDistance', value: 5}
-	);
-
-	ERDS.data.jsonData.actionSequence.push(
-		{type: 'action-item', name: 'photoDistance', value: 5},
-		{type: 'action-item', name: 'elevationHeight', value: 1}
-	);
-}
-
-class Project {
-	extendVue(vueConfig) {
-		var projConfig = {
-			data: {
-				view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
-				currentLightItem: null,
-				currentActionItem: null,
-				jsonData: {
-					definableValues: [],
-					lightSequence: [],
-					actionSequence: []
+		'light-item': {
+			props: ['obj'],
+			methods: {
+				showPanel() {
+					__VUE.currentLightItem = this.obj
 				}
 			},
-
-			methods: {
-				changeView(id) {
-					ERDS.vue.view = id;
-					setCookie('view', id);
-				},
-				
-				test() {
-					trace('test');
-				},
-
-				addLight() {
-					lightSequence.push(
-						{type: 'light-item', name: 'photoDistance', value: 5}
-					);
-				},
-				
-				addAction() {
-					actionSequence.push(
-						{type: 'action-item', name: 'photoDistance', value: 5}
-					);
+			computed: {
+				isSelected() {
+					return {
+						isSelected: __VUE.currentLightItem == this.obj
+					}
 				}
-			}
-		};
-		
-		trace(getCookie('view'));
+			},
+			template:
+				'<div class="light-item" :class="isSelected">\
+					<btn label="Light Item" v-on:click="showPanel()" />\
+				</div>'
+		},
 
-		var temp = _.merge(vueConfig, projConfig);
-		ERDS.data = temp.data;
+		'action-item': {
+			props: ['obj'],
+			methods: {
+				addParam() {
+					__VUE.currentActionItem = this.obj;
+				}
+			},
+			template:
+				'<div class="action-item">\
+					<div class="strip-action">\
+						<i>ScriptedAction <btn label="+ Param" v-on:click="addParam()"/></i>\
+					</div>\
+				</div>'
+		},
 
-		return temp;
+		'action-item-panel': {
+			props: ['item'],
+			template:
+				'<div class="panel">\
+					Display Somekind of Action Panel here.\
+				</div>'
+		},
+
+		'btn': {
+			props: ['obj', 'label'],
+			methods: { click() { this.$emit('click'); } },
+			template:
+				'<div class="btn" v-on:click="click">\
+					<i v-html="label"></i>\
+				</div>'
+		}
+	});
+
+	ERDS.Project = function Project() {};
+	
+	_.extend(ERDS.Project.prototype, {
+		extendVue(vueConfig) {
+			return _.merge(vueConfig, {
+				data: {
+					view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
+					currentLightItem: null,
+					currentActionItem: null,
+					jsonData: {
+						definableValues: [],
+						lightSequence: [],
+						actionSequence: []
+					}
+				},
+
+				methods: {
+					changeView(id) {
+						ERDS.vue.view = id;
+						setCookie('view', id);
+					},
+
+					test() {
+						trace('test');
+					},
+
+					addLight() {
+						var newLight = {type: 'light-item', name: 'photoDistance', value: 5};
+						__LIGHTS.push(__VUE.currentLightItem = newLight);
+					},
+
+					addAction() {
+						__ACTIONS.push(
+							{type: 'action-item', name: 'photoDistance', value: 5}
+						);
+					},
+
+					handleSaveButton(e) {
+						if(e.ctrlKey) return this.clearJSON();
+						this.saveJSON();
+					},
+
+					saveJSON() {
+						//traceJSON();
+						//$.post({
+						//	url: "./json",
+						//	method: ""
+						//})
+						
+						var jsonStr = JSON.stringify(__JSONDATA, null, ' ');
+						trace(jsonStr);
+						projectCommand('saveJSON', jsonStr);
+					},
+
+					clearJSON() {
+						trace("Clear JSON please.")
+					}
+				}
+			});
+		},
+
+		init() {
+			__VUE = ERDS.vue;
+			__JSONDATA = __VUE.jsonData;
+
+			$$$.details = $('#details');
+			$$$.views = $$$.details.find('.view');
+
+			fadeIn($$$.details, 0.2);
+
+			demoPushExampleData();
+
+			__DEFS = __JSONDATA.definableValues;
+			__LIGHTS = __JSONDATA.lightSequence;
+			__ACTIONS = __JSONDATA.actionSequence;
+			
+			__VUE.$forceUpdate();
+		}
+	});
+
+	function demoPushExampleData() {
+		__JSONDATA.definableValues.push(
+			{type: 'numeric-prop', name: 'photoDistance', value: 5},
+			{type: 'numeric-prop', name: 'elevationHeight', value: 1},
+			{type: 'numeric-prop', name: 'elevationSpeed', value: 5},
+			{type: 'numeric-prop', name: 'descentSpeed', value: 1},
+			{type: 'numeric-prop', name: 'movementSpeed', value: 5},
+			{type: 'numeric-prop', name: 'yawSpeed', value: 1},
+			{type: 'numeric-prop', name: 'timeToStart', value: 5},
+			{type: 'numeric-prop', name: 'timeToStop', value: 1},
+			{type: 'numeric-prop', name: 'maxTiltRange', value: 5},
+			{type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1}
+		);
+
+		__JSONDATA.lightSequence.push(
+			{type: 'light-item', name: 'photoDistance', value: 5}
+		);
+
+		__JSONDATA.actionSequence.push(
+			{type: 'action-item', name: 'First Action', time: 5, params: []}
+		);
 	}
+	
+})(ERDS);
 
-	init() {
-		$$$.details = $('#details');
-		$$$.views = $$$.details.find('.view');
-
-		fadeIn($$$.details, 0.2);
-
-		demoPushExampleData();
-
-		definableValues = ERDS.data.jsonData.definableValues;
-		lightSequence = ERDS.data.jsonData.lightSequence;
-		actionSequence = ERDS.data.jsonData.actionSequence;
-		
-		ERDS.vue.$forceUpdate();
-	}
-}
-
-ERDS.Project = Project;

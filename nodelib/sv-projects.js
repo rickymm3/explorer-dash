@@ -4,7 +4,8 @@ module.exports = function (ERDS) {
 			if (!projectName || !projectName.length) return null;
 
 			var projectPath = ERDS.__projects + '/' + projectName;
-
+			var projectData = ERDS.__data + '/' + projectName;
+			
 			if (!ERDS.fileExists(projectPath)) {
 				traceError("Project does not exists! " + projectName);
 				return null;
@@ -17,7 +18,8 @@ module.exports = function (ERDS) {
 				__nodelib: projectPath + '/nodelib',
 				__js: projectPath + '/js',
 				__css: projectPath + '/css',
-				__data: ERDS.__data + '/' + projectName
+				__data: projectData,
+				__json: projectData + '/data.json'
 			};
 		}
 	}

@@ -9,7 +9,7 @@ const app =				ERDS.app = express();
 const server =			ERDS.server = require('http').createServer(app);
 const io =				ERDS.io = require('socket.io')(server);
 
-traceClear();
+if(ERDS.isDev) traceClear();
 
 require('./nodelib/sv-helpers')(ERDS);
 require('./nodelib/sv-paths')(ERDS);

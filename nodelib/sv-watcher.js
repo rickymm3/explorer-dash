@@ -5,6 +5,8 @@ module.exports = function(ERDS) {
         return trace("Skip Watcher since we're running PRODUCTION".yellow);
     }
     
+    var timeoutID = -1;
+    
     // One-liner for current directory, ignores .dotfiles 
     chokidar.watch([ERDS.__nodelib, ERDS.__projects, ERDS.__public], {ignored: /[\/\\]\./}).on('all', (event, path) => {
         path = path.fixSlashes();
@@ -15,6 +17,12 @@ module.exports = function(ERDS) {
         
         if(path.has('/nodelib/')) return traceError("CHANGED server-side node JS file:\n  " + path);
         
-        if(ERDS.io) ERDS.io.emit('file-changed', path);
+        if(!ERDS.io) return;
+
+        if(timeoutID>-1) clearTimeout(timeoutID);
+        timeoutID = setTimeout(() => {
+            timeoutID = -1;
+            ERDS.io.emit('file-changed', path);
+        }, 500);
     });
 };

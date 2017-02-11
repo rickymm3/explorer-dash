@@ -10,7 +10,13 @@ function isNode() {
 }
 
 Array.prototype.last = function() {
-	return this[this.length-1];
+	if(this.length>0) return this[0];
+	return null;
+};
+
+Array.prototype.last = function() {
+	if(this.length>0) return this[this.length-1];
+	return null
 };
 
 Array.prototype.remove = function(item) {

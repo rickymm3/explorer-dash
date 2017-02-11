@@ -83,19 +83,34 @@ h5 {
   display: none;
 }
 .digits-1 {
-  width: 1em;
+  width: 1em !important;
 }
 .digits-2 {
-  width: 2em;
+  width: 2em !important;
 }
 .digits-3 {
-  width: 3em;
+  width: 3em !important;
 }
 .digits-4 {
-  width: 4em;
+  width: 4em !important;
 }
 .digits-5 {
-  width: 5em;
+  width: 5em !important;
+}
+.spacer-1 {
+  margin-left: 1em;
+}
+.spacer-2 {
+  margin-left: 2em;
+}
+.spacer-3 {
+  margin-left: 3em;
+}
+.spacer-4 {
+  margin-left: 4em;
+}
+.spacer-5 {
+  margin-left: 5em;
 }
 .padded-1 {
   padding: 1px;
@@ -112,11 +127,63 @@ h5 {
 .padded-5 {
   padding: 9px;
 }
+.margin-top-1 {
+  margin-top: 1px;
+}
+.margin-top-2 {
+  margin-top: 3px;
+}
+.margin-top-3 {
+  margin-top: 5px;
+}
+.margin-top-4 {
+  margin-top: 7px;
+}
+.margin-top-5 {
+  margin-top: 9px;
+}
 .v-align-mid > * {
-  vertical-align: -50%;
+  display: inline-block;
+  vertical-align: middle;
+}
+.v-align-bottom > * {
+  display: inline-block;
+  vertical-align: bottom;
 }
 .inline-block {
   display: inline-block;
+}
+.border {
+  outline: 2px #000;
+}
+.dropdown {
+  display: inline-table;
+}
+.dropdown-list {
+  width: 50vw;
+  position: absolute;
+  display: inline-block;
+  padding: 6px;
+  background: #fff;
+  column-count: 3;
+  column-width: 90px;
+  border: solid 2px #000;
+  z-index: 9999;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+.dropdown-list div {
+  padding: 2px;
+  margin: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.dropdown-list div:hover {
+  background: #22f;
+  color: #fff;
+}
+.nowrap {
+  white-space: nowrap;
 }
 .git-info {
   position: fixed;
@@ -213,8 +280,6 @@ body {
 }
 .col-1,
 .col-2 {
-  display: inline-block;
-  position: relative;
   vertical-align: top;
 }
 .numeric-prop {
@@ -230,10 +295,22 @@ body {
   text-align: right;
 }
 .btn {
-  padding: 10px;
   background: rgba(57, 177, 77, 0.75);
+  margin-bottom: 4px;
+  margin-right: 4px;
   border-radius: 10px;
   text-shadow: #fff 0px 1px 2px;
+}
+.btn:hover {
+  background: #3fc355;
+  box-shadow: 0px 0px 3px #fff, 0px 0px 3px #fff, 0px 0px 3px #fff;
+  text-shadow: 0px 0px 3px #000, 0px 0px 3px #000, 0px 0px 3px #000;
+  color: #fff;
+}
+.btn .icon {
+  padding-left: 3px !important;
+  padding-right: 3px !important;
+  padding-bottom: 10px !important;
 }
 .item.isSelected .btn {
   background: #44d45c;
@@ -252,15 +329,16 @@ body {
   margin: 0;
   border: solid 1px #000;
 }
+.definable-values .col-1,
+.definable-values .col-2 {
+  display: inline-block;
+}
+.definable-values .col-1 {
+  width: 200px;
+}
 .light-sequence,
 .action-sequence {
   overflow: hidden;
-}
-.light-sequence .col-1,
-.action-sequence .col-1,
-.light-sequence .col-2,
-.action-sequence .col-2 {
-  display: block;
 }
 .light-sequence div,
 .action-sequence div {
@@ -277,30 +355,52 @@ body {
 .light-sequence .col-1,
 .action-sequence .col-1 {
   width: 150px;
-  float: left;
-}
-.light-sequence .col-2,
-.action-sequence .col-2 {
-  margin-left: 155px;
+  max-width: 150px;
 }
 .light-sequence .panel .ring-sequence,
 .light-sequence .panel .strip-sequence {
   display: inline-block;
   width: 49%;
 }
+.view {
+  overflow: visible;
+}
+.view table {
+  table-layout: fixed;
+  border-spacing: 8px;
+  border-collapse: separate;
+}
 .panel {
   width: 100%;
   display: block;
   padding: 2px;
   margin: 0;
+  overflow: visible;
   border-radius: 10px;
 }
 .side-left .btn {
-  width: 150px;
-  max-width: 150px;
+  width: 100%;
   white-space: normal;
 }
-@media screen and (max-width: 604px) {
+.action-header i {
+  display: inline-block;
+  width: 100px;
+  margin-right: 3px;
+  text-align: right;
+}
+.action-param {
+  background: rgba(0, 0, 0, 0.2);
+  margin-bottom: 3px;
+  border-radius: 10px;
+}
+.ara-command {
+  width: 150px;
+}
+.ara-command-panel {
+  top: 0vh;
+  left: 0vw;
+}
+@media screen and (max-width: 767px) {
   .sidebar {
     position: absolute;
     top: 55px;
@@ -314,12 +414,12 @@ body {
     top: 55px;
   }
 }
-@media screen and (max-width: 483px) {
+@media screen and (max-width: 584px) {
   #details {
     top: 90px;
   }
 }
-@media screen and (max-width: 355px) {
+@media screen and (max-width: 368px) {
   #details {
     top: 120px;
   }

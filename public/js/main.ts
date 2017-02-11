@@ -5,7 +5,7 @@ var $$$:any = {};
 window.addEventListener('load', function() {
 	//Vue.config.debug = true;
 	Cookies._prefix = "erds.web.";
-	
+
 	ERDS.io = io(); //Create a socket connection:
 	ERDS.io.on("echo", response => $$$.boxInfo.showBox(response));
 	ERDS.io.on("server-error", response => $$$.boxError.showBox(response));

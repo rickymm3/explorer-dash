@@ -1,9 +1,9 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
 var __JSONDATA, __KEYS = { SHIFT: 1, CTRL: 2, ALT: 4 };
-function traceJSON() {
-    var result = JSON.stringify(__JSONDATA, null, ' ');
-    //trace(result);
+function traceJSON(obj) {
+    var result = JSON.stringify(obj || __JSONDATA, null, ' ');
+    trace(result);
     //$$$.boxInfo.show();
     //TweenMax.set($$$.boxInfo, {alpha: 1});
     //
@@ -16,7 +16,7 @@ function traceJSON() {
     registerComponents({
         comp: {
             props: ['obj'],
-            template: '<div class="v-comp" v-bind:is="obj.type" v-bind:obj="obj"></div>'
+            template: '<div class="v-comp" v-bind:is="obj.type" v-bind:obj="obj"><slot></slot></div>'
         },
         'view-tab': {
             props: [],
@@ -49,6 +49,7 @@ function traceJSON() {
             },
             template: '<div class="item light-item" :class="isSelected">\
 					<btn :label="obj.name" v-on:click="showPanel()" />\
+					<slot></slot>\
 				</div>'
         },
         'action-item': {
@@ -66,13 +67,15 @@ function traceJSON() {
                 }
             },
             template: '<div class="item action-item" :class="isSelected">\
-					<btn :label="obj.name" v-on:click="showPanel()" />\
+					<btn :label="obj.name" v-on:click="showPanel()"></btn><slot></slot>\
 				</div>'
         },
         'btn': {
-            props: ['obj', 'label'],
+            props: ['obj', 'label', 'emoji', 'icon'],
             methods: { click: function () { this.$emit('click'); } },
             template: '<div class="btn" v-on:click="click">\
+					<i v-if="emoji" :class="\'em em-\'+emoji" aria-hidden="true"></i>\
+					<i v-if="icon" :class="\'icon fa fa-\'+icon" aria-hidden="true"></i>\
 					<i v-html="label"></i>\
 				</div>'
         }
@@ -92,6 +95,23 @@ function traceJSON() {
         __VUE.statusKeyModifiers = (e.shiftKey ? __KEYS.SHIFT : 0) |
             (e.ctrlKey ? __KEYS.CTRL : 0) |
             (e.altKey ? __KEYS.ALT : 0);
+        //Handle the dropdown menus:
+        if (__VUE.currentDropDown != null) {
+            switch (e.which) {
+                case 13: // __VUE.currentDropDown = null; return;
+                case 9: // __VUE.currentDropDown = null; return;
+                //ESCAPE
+                case 27:
+                    __VUE.currentDropDown = null;
+                    return;
+            }
+            trace(e.which);
+        }
+    });
+    $(document).on('click', function (e) {
+        if (!__VUE.currentDropDown)
+            return;
+        __VUE.currentDropDown = null;
     });
     ERDS.Project = function Project() { };
     _.extend(ERDS.Project.prototype, {
@@ -101,6 +121,7 @@ function traceJSON() {
                     view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
                     currentLightItem: null,
                     currentActionItem: null,
+                    currentDropDown: null,
                     currentSheetID: -1,
                     currentSheet: {},
                     statusKeyModifiers: 0,
@@ -116,32 +137,36 @@ function traceJSON() {
                         ERDS.vue.view = id;
                         setCookie('view', id);
                     },
+                    trace: trace,
                     test: function () {
                         trace('test');
                     },
                     addLight: function () {
-                        __LIGHTS.push({ type: 'light-item', name: 'Light ' + (__LIGHTS.length + 1), value: 5 });
-                        __VUE.currentLightItem = __LIGHTS.last();
+                        globalAddLight();
                     },
                     addAction: function () {
-                        __ACTIONS.push({ type: 'action-item', name: 'Action ' + (__ACTIONS.length + 1), value: 5 });
-                        __VUE.currentActionItem = __ACTIONS.last();
+                        globalAddAction();
                     },
                     addActionParam: function () {
-                        trace("Adding a parameter");
-                        //__VUE.currentActionItem = this.obj;
+                        globalAddActionParam();
                     },
-                    removeLight: function () {
+                    removeLight: function (item) {
+                        if (item != this.currentLightItem) {
+                            __LIGHTS.remove(item);
+                        }
                         if (!this.currentLightItem)
                             return;
                         var id = __LIGHTS.remove(this.currentLightItem) - 1;
-                        this.currentLightItem = id < 0 ? null : __LIGHTS[id];
+                        this.currentLightItem = id < 0 ? __LIGHTS.first() : __LIGHTS[id];
                     },
-                    removeAction: function () {
+                    removeAction: function (item) {
+                        if (item != this.currentActionItem) {
+                            __ACTIONS.remove(item);
+                        }
                         if (!this.currentActionItem)
                             return;
                         var id = __ACTIONS.remove(this.currentActionItem) - 1;
-                        this.currentActionItem = id < 0 ? null : __ACTIONS[id];
+                        this.currentActionItem = id < 0 ? __ACTIONS.first() : __ACTIONS[id];
                     },
                     handleSaveButton: function (e) {
                         if (this.isBusy)
@@ -192,6 +217,15 @@ function traceJSON() {
                         this.currentLightItem = trySameIndex(__LIGHTS, old.__LIGHTS, this.currentLightItem);
                         //this.currentLightItem = __LIGHTS[0];
                         return this.currentSheet = __SHEET;
+                    },
+                    setCurrentDropDown: function (item) {
+                        this.currentDropDown = item;
+                    },
+                    selectActionType: function (actionParam, e) {
+                        var index = $(e.target).data('index');
+                        if (isNaN(index) || index >= __VUE.hardcoded.AraCommands.length)
+                            return;
+                        actionParam.type = __VUE.hardcoded.AraCommands[index];
                     }
                 }
             });
@@ -202,7 +236,11 @@ function traceJSON() {
             __SHEETS = __JSONDATA.sheets;
             $$$.details = $('#details');
             $$$.views = $$$.details.find('.view');
+            //$$$.
             fadeIn($$$.details, 0.2);
+            //If we don't have any hardcoded data, forget the rest!
+            if (!checkHardcodedData(projectData))
+                return;
             if (!projectData || !projectData.json || !projectData.json) {
                 $$$.boxError.showBox("Starting with fresh data... :--1:");
                 createNewSheetAt(0, null);
@@ -211,9 +249,6 @@ function traceJSON() {
                 __JSONDATA = __VUE.jsonData = projectData.json;
                 __SHEETS = __JSONDATA.sheets;
             }
-            //If we don't have any hardcoded data, forget the rest!
-            if (!checkHardcodedData(projectData))
-                return;
             __VUE.currentSheetUpdate(0);
             //Force-Reset the 'isBusy' status when an error occurs:
             ERDS.io.on("server-error", function () { __VUE.isBusy = false; });
@@ -236,10 +271,10 @@ function traceJSON() {
     }
     function checkHardcodedData(projectData) {
         if (!projectData || !projectData.hardcoded) {
+            trace("NO HARDCODED DATA!");
             $$$.boxError.showBox('Oh no! We don\'t have any hardcoded data! :cry:');
             return false;
         }
-        $$$.boxInfo.showBox('Found the hardcoded data! :smile: :--1: :--1: :--1:');
         __VUE.hardcoded = projectData.hardcoded;
         return true;
     }
@@ -256,12 +291,50 @@ function traceJSON() {
         }
         else {
             $$$.boxInfo.showBox("Creating New Sheet...");
-            sheet = { definableValues: [], lightSequence: [], actionSequence: [] };
+            __SHEET = sheet = { definableValues: [], lightSequence: [], actionSequence: [] };
+            __DEFS = __SHEET.definableValues;
+            __LIGHTS = __SHEET.lightSequence;
+            __ACTIONS = __SHEET.actionSequence;
             sheet.definableValues.push({ type: 'numeric-prop', name: 'photoDistance', value: 5 }, { type: 'numeric-prop', name: 'elevationHeight', value: 1 }, { type: 'numeric-prop', name: 'elevationSpeed', value: 5 }, { type: 'numeric-prop', name: 'descentSpeed', value: 1 }, { type: 'numeric-prop', name: 'movementSpeed', value: 5 }, { type: 'numeric-prop', name: 'yawSpeed', value: 1 }, { type: 'numeric-prop', name: 'timeToStart', value: 5 }, { type: 'numeric-prop', name: 'timeToStop', value: 1 }, { type: 'numeric-prop', name: 'maxTiltRange', value: 5 }, { type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1 });
-            sheet.lightSequence.push({ type: 'light-item', name: 'Light 1', value: 5 });
-            sheet.actionSequence.push({ type: 'action-item', name: 'Action 1', time: 5, params: [] });
+            globalAddLight();
+            globalAddAction();
         }
-        __JSONDATA.sheets[id] = sheet;
+        __SHEETS[id] = sheet;
         return sheet;
+    }
+    function globalAddLight() {
+        __LIGHTS.push({
+            type: 'light-item',
+            name: 'Light ' + (__LIGHTS.length + 1),
+            steps: [],
+            ringSeqLooping: false,
+            stripSeqLooping: false,
+            holdLastLightStep: false
+        });
+        __VUE.currentLightItem = __LIGHTS.last();
+    }
+    function globalAddAction() {
+        __ACTIONS.push({
+            type: 'action-item',
+            name: 'Action ' + (__ACTIONS.length + 1),
+            actions: [],
+            time: 5
+        });
+        __VUE.currentActionItem = __ACTIONS.last();
+        globalAddActionParam(); //Always add 1 scripted-action object first
+    }
+    function globalAddActionParam() {
+        if (!__VUE.currentActionItem)
+            return;
+        __VUE.currentActionItem.actions.push({
+            type: __VUE.hardcoded.AraCommands[0],
+            time: 1,
+            waitForRing: false,
+            waitForStrip: false,
+            waitForYaw: false,
+            elevation: 0
+        });
+        //traceJSON(__VUE.currentActionItem.actions);
+        //__VUE.currentActionItem
     }
 })(ERDS);

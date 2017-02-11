@@ -1,9 +1,11 @@
+
+
 <div class="header">
     <h1 class="title">$projectName</h1>
 
     <div class="sidebar">
         <span class="shadowy padded-5">Sheet:</span>
-        <input type="text" class="digits-2" :value="currentSheetID" v-on:keyup="currentSheetUpdate($event.target.value)">
+        <input type="text" class="digits-2" :value="currentSheetID" @keyup="currentSheetUpdate($event.target.value)">
         
         <div class="button" :class="{ active: view==0 }" @click="changeView(0)">DefinableValues</div>
         <div class="button" :class="{ active: view==1 }" @click="changeView(1)">LightSequence</div>
@@ -18,55 +20,112 @@
     </view-tab>
 
     <view-tab v-if="view==1" class="view light-sequence">
-        <div class="col-1 side-left">
-            <comp v-for="def in currentSheet.lightSequence" v-bind:obj="def"></comp>
-            <btn label="Add Light" @click="addLight"></btn>
-        </div>
-        
-        <!-- Panel -->
-        <div class="col-2">
-            <div class="panel" v-if=currentLightItem>
-                <div class="padded-3">
-                    Name: <input v-model:value="currentLightItem.name" />
-                    <btn class="padded-5" label="-" v-on:click="removeLight()"/>
-                </div>
-                
-                <div class="padded-3 ring-sequence">
-                    <h3>Ring Sequence</h3>
-                </div>
-                <div class="padded-3 strip-sequence">
-                    <h3>Strip Sequence</h3>
-                    <br/><br/><br/><br/>
-                    Testing layout, a very long layout test that is.
-                </div>
-        </div>
-        </div>
+        <table width="100%">
+            <tr>
+                <td class="col-1 side-left">
+                    <btn icon="plus-square" label="Light" v-on:click="addLight()"></btn>
+                    <light-item v-for="def in currentSheet.lightSequence" v-bind:obj="def"></light-item>
+                </td>
+
+                <td class="col-2">
+                    <div class="panel" v-if=currentLightItem>
+
+                        <div class="margin-top-2 padded-5 v-align-mid">
+                            <btn class="trash" icon="trash-o" @click="removeLight"></btn>
+                            
+                            <i>Name:</i>
+                            <input v-model:value="currentLightItem.name" />
+                        </div>
+
+                        <div class="padded-3 ring-sequence">
+                            <h3>Ring Sequence</h3>
+                        </div>
+                        <div class="padded-3 strip-sequence">
+                            <h3>Strip Sequence</h3>
+                            <br/><br/><br/><br/>
+                            Testing layout, a very long layout test that is.
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </view-tab>
 
     <view-tab v-if="view==2" class="view action-sequence">
-        <div class="col-1 side-left">
-            <comp v-for="def in currentSheet.actionSequence" v-bind:obj="def"></comp>
-            <btn label="Add Action" v-on:click="addAction"></btn>
-        </div>
-        
-        <!-- Panel -->
-        <div class="col-2">
-            <div class="panel" v-if=currentActionItem>
-                <div class="padded-3 v-align-mid">
-                    <i>Name</i>
-                    <input class="" v-model:value="currentActionItem.name">
+        <table width="100%">
+            <tr>
+                <td class="col-1 side-left">
+                    <btn icon="plus-square" label="Action" v-on:click="addAction()"></btn>
+                    <action-item v-for="def in currentSheet.actionSequence" v-bind:obj="def">
+                    </action-item>
+                </td>
 
-                    <btn class="padded-5" label="-" v-on:click="removeAction()"></btn>
-                    <btn class="padded-3" label="+ Param" v-on:click="addActionParam()"></btn>
-                    
-                </div>
-                
-                <div class="padded-3 strip-action">
-                    Show me more settings here...
-                </div>
-                
-            </div>
-        </div>
+                <td class="col-2">
+                    <div class="panel" v-if=currentActionItem>
+                        <div class="padded-3 v-align-mid">
+                            <btn class="trash" icon="trash-o" @click="removeAction(def)"></btn>
+                            <btn class="padded-5 v-align-mid" icon="plus-square" label="Param" v-on:click="addActionParam()"></btn>
+                            
+                            <div class="action-header">
+                                <i>Name:</i> <input class="" v-model:value="currentActionItem.name"> <br/>
+                                <i>Params Count:</i> <i style="text-align: left;" v-html="currentActionItem.actions.length"></i>
+                            </div>
+
+                            
+                        </div>
+
+                        <div class="padded-3 strip-action">
+                            <div class="border padded-5 action-param" v-for="actionParam in currentActionItem.actions">
+                                <div class="inline-block">
+                                    <i class="nowrap head">
+                                        <span class="nowrap action-header">
+                                            <i>Time:</i>
+                                            <input class="digits-3" v-model:value="actionParam.time">
+                                        </span>
+                                        
+                                        <br/>
+                                        
+                                        <span class="nowrap action-header">
+                                            <i>Elevation:</i>
+                                            <input class="digits-3" v-model:value="actionParam.elevation">
+                                        </span>
+                                    </i>
+                                </div>
+                                
+                                <div class="dropdown">
+                                    <div class="btn ara-command"
+                                         @click.capture.stop.prevent="setCurrentDropDown(actionParam)"
+                                         v-html="actionParam.type.name">
+                                    </div>
+                                    <div class="dropdown-list ara-command-panel" v-if="currentDropDown==actionParam" @click="selectActionType(actionParam, $event)">
+                                        <div v-for="(araCmd, araID) in hardcoded.AraCommands" v-html="araCmd.name" :data-index="araID"></div>
+                                    </div>
+                                </div>
+                                
+                                
+                                <br/>
+                                <i class="spacer-1 nowrap">
+                                <input type="checkbox" v-model:value="actionParam.waitForRing">
+                                <i>Wait For Ring</i>
+                                </i>
+
+                                <i class="spacer-1 nowrap">
+                                <input type="checkbox" v-model:value="actionParam.waitForStrip">
+                                <i>Wait For Strip</i>
+                                </i>
+
+                                <i class="spacer-1 nowrap">
+                                <input type="checkbox" v-model:value="actionParam.waitForYaw">
+                                <i>Wait For Yaw</i>
+                                </i>
+                            </div>
+                        </div>
+
+                    </div>
+                </td>
+            </tr>
+        </table>
+        
     </view-tab>
 </div>
 

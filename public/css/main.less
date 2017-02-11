@@ -49,11 +49,17 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
 
 .hidden { display: none; }
 
-.digits-1 { width: 1em; }
-.digits-2 { width: 2em; }
-.digits-3 { width: 3em; }
-.digits-4 { width: 4em; }
-.digits-5 { width: 5em; }
+.digits-1 { width: 1em !important; }
+.digits-2 { width: 2em !important; }
+.digits-3 { width: 3em !important; }
+.digits-4 { width: 4em !important; }
+.digits-5 { width: 5em !important; }
+
+.spacer-1 { margin-left: 1em; }
+.spacer-2 { margin-left: 2em; }
+.spacer-3 { margin-left: 3em; }
+.spacer-4 { margin-left: 4em; }
+.spacer-5 { margin-left: 5em; }
 
 .padded-1 { padding: 1px; }
 .padded-2 { padding: 3px; }
@@ -61,11 +67,55 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
 .padded-4 { padding: 7px; }
 .padded-5 { padding: 9px; }
 
+.margin-top-1 { margin-top: 1px; }
+.margin-top-2 { margin-top: 3px; }
+.margin-top-3 { margin-top: 5px; }
+.margin-top-4 { margin-top: 7px; }
+.margin-top-5 { margin-top: 9px; }
+
 .round(@round: 10px) { border-radius: @round; }
 
-.v-align-mid > *{ vertical-align: -50%; }
+.v-align-mid > * { display: inline-block; vertical-align: middle; }
+.v-align-bottom > * { display: inline-block; vertical-align: bottom; }
 .inline-block { display: inline-block; }
 
+.border { outline: 2px #000; }
+
+.dropdown {
+  display: inline-table;
+  //position: relative;
+}
+
+.dropdown-list {
+  width: 50vw;
+  position: absolute;
+  display: inline-block;
+  padding: 6px;
+  background: #fff;
+  column-count: 3;
+  column-width: 90px;
+  border: solid 2px #000;
+  z-index: 9999;
+  margin-bottom: 20px;
+  
+  .round();
+
+  div {
+    padding: 2px;
+    margin: 2px;
+    cursor: pointer;
+    .round(4px);
+    
+    &:hover {
+      background: #22f;
+      color: #fff;
+    }
+  }
+}
+
+.nowrap {
+  white-space: nowrap;
+}
 /////////////////////////////////////// CLASSES for EVERYTHING ELSE!
 
 .git-info {

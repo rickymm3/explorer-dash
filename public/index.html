@@ -9,7 +9,8 @@
   
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://afeld.github.io/emoji-css/emoji.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://afeld.github.io/emoji-css/emoji.css">
   <link rel="stylesheet" href="/css/main.css">
     $pageCSS
   <script>
@@ -18,6 +19,13 @@
 </head>
 
 <body>
+    <!-- Some global VueJS components -->
+    <script type="text/x-template" id="select2-template">
+        <select>
+            <slot></slot>
+        </select>
+    </script>
+    
     <nav class="navbar navbar-inverse">
         <div class="container-fluid">
             <div class="navbar-header">

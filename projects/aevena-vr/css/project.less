@@ -84,8 +84,8 @@ body {
 }
 
 .col-1, .col-2 {
-  display: inline-block;
-  position: relative;
+  //display: inline-block;
+  //position: relative;
   vertical-align: top;
 }
 
@@ -105,11 +105,39 @@ body {
 }
 
 .btn {
-  padding: 10px;
+  //padding: 10px;
+  //padding-left: 3px;
+  //padding-right: 3px;
   background: @colorModifiableBtn;
+  margin-bottom: 4px;
+  margin-right: 4px;
+  
+  &:hover {
+    background: @colorModifiableBtn * 1.1;
+    //font-weight: bold;
+    box-shadow: 0px 0px 3px #fff, 0px 0px 3px #fff, 0px 0px 3px #fff;
+    text-shadow: 0px 0px 3px #000, 0px 0px 3px #000, 0px 0px 3px #000;
+    color: #fff;
+  }
+  
   .round();
   .shadowy();
+  
+  .icon {
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+    padding-bottom: 10px !important;
+    //font-size: 100%;
+  }
 }
+
+//.trash {
+//  width: 40px !important;
+//  display: inline-block !important;
+//  position: absolute !important;
+//  
+//  //height: 40px !important;
+//}
 
 ////////////////////////////////////////////////
 
@@ -119,6 +147,7 @@ body {
     color: #fff;
   }
 }
+
 .light-item, .action-item {
   margin-bottom: 5px;
 }
@@ -132,11 +161,24 @@ body {
   }
 }
 
+.definable-values {
+  .col-1, .col-2 { display: inline-block; }
+  
+  .col-1 {
+    width: 200px;
+  }
+  
+  .col-2 {
+    
+  }
+}
+
 .light-sequence, .action-sequence {
   overflow: hidden;
   
   .col-1, .col-2 {
-    display: block;
+    //display: block;
+    //overflow: visible;
   }
 
   div {
@@ -153,11 +195,12 @@ body {
   
   .col-1 {
     width: @col-1-width;
-    float: left;
+    max-width: @col-1-width;
+    //float: left;
   }
   
   .col-2 {
-    margin-left: @col-1-width + 5px;
+    //margin-left: @col-1-width + 10px;
   }
 }
 
@@ -170,20 +213,49 @@ body {
   }
 }
 
+.view {
+  overflow: visible;
+  
+  table {
+    table-layout: fixed;
+    border-spacing: 8px;
+    border-collapse: separate;
+  }
+}
 .panel {
   width: 100%;
   display: block;
   padding: 2px;
   margin: 0;
+  overflow: visible;
   .round();
 }
 
 .side-left {
   .btn {
-    width: @col-1-width;
-    max-width: @col-1-width;
+    width: 100%;
+    //max-width: @col-1-width;
     white-space: normal;
   }
+}
+
+.action-header {
+  i { display: inline-block; width: 100px; margin-right: 3px; text-align: right; }
+}
+
+.action-param {
+  background: rgba(0, 0, 0, 0.2);
+  margin-bottom: 3px;
+  .round();
+}
+
+.ara-command {
+  width: 150px;
+}
+
+.ara-command-panel {
+  top: 0vh;
+  left: 0vw;
 }
 
 //////////////////////////////////////////////// MEDIA QUERIES
@@ -192,7 +264,7 @@ body {
   //body {font-size: 95%;}
 }
 
-@media screen and (max-width: 604px) {
+@media screen and (max-width: 767px) {
   .sidebar {
     position: absolute;
     top: 55px;
@@ -208,13 +280,13 @@ body {
   }
 }
 
-@media screen and (max-width: 483px) {
+@media screen and (max-width: 584px) {
   #details {
     top: 90px;
   }
 }
 
-@media screen and (max-width: 355px) {
+@media screen and (max-width: 368px) {
   #details {
     top: 120px;
   }

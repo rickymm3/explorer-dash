@@ -98,25 +98,6 @@ function traceJSON(obj) {
 					<i v-html="label"></i>\
 				</div>'
 		}
-		//,
-		//'btn-trash': {
-		//	props: ['obj', 'label' ],
-		//	methods: { click() { this.$emit('click'); } },
-		//	template:
-		//		'<div class="btn btn-trash" v-on:click="click">\
-		//			<i class="icon fa fa-trash-o" aria-hidden="true"></i>\
-		//			<i v-if="label" v-html="label"></i>\
-		//		</div>'
-		//},
-		//'btn-plus': {
-		//	props: ['obj', 'label' ],
-		//	methods: { click() { this.$emit('click'); } },
-		//	template:
-		//		'<div class="btn btn-plus" v-on:click="click">\
-		//			<i class="icon fa fa-plus-square" aria-hidden="true"></i>\
-		//			<i v-if="label" v-html="label"></i>\
-		//		</div>'
-		//}
 	});
 
 	//Key modifier:
@@ -357,12 +338,12 @@ function traceJSON(obj) {
 			sheet = JSON.parse(jsonStr);
 		} else {
 			$$$.boxInfo.showBox("Creating New Sheet...");
-			
+
 			__SHEET = sheet = { definableValues: [], lightSequence: [], actionSequence: [] };
 			__DEFS = __SHEET.definableValues;
 			__LIGHTS = __SHEET.lightSequence;
 			__ACTIONS = __SHEET.actionSequence;
-			
+
 			sheet.definableValues.push(
 				{type: 'numeric-prop', name: 'photoDistance', value: 5},
 				{type: 'numeric-prop', name: 'elevationHeight', value: 1},

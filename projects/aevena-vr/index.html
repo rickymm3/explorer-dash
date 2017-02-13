@@ -24,15 +24,19 @@
             <tr>
                 <td class="col-1 side-left">
                     <btn icon="plus-square" label="Light" v-on:click="addLight()"></btn>
-                    <light-item v-for="def in currentSheet.lightSequence" v-bind:obj="def"></light-item>
+                    <draggable :list="currentSheet.lightSequence">
+                        <light-item v-for="def in currentSheet.lightSequence" v-bind:obj="def">
+                        </light-item>
+                    </draggable>
                 </td>
 
                 <td class="col-2">
                     <div class="panel" v-if=currentLightItem>
 
                         <div class="margin-top-2 padded-5 v-align-mid">
-                            <btn class="trash" icon="trash-o" @click="removeLight"></btn>
-                            
+                            <btn class="padded-5" icon="trash-o" title="Delete item" @click="removeLight"></btn>
+                            <btn class="padded-5" icon="clone" title="Clone item" @click="copyLight(currentLightItem)"></btn>
+
                             <i>Name:</i>
                             <input v-model:value="currentLightItem.name" />
                         </div>
@@ -56,28 +60,52 @@
             <tr>
                 <td class="col-1 side-left">
                     <btn icon="plus-square" label="Action" v-on:click="addAction()"></btn>
-                    <action-item v-for="def in currentSheet.actionSequence" v-bind:obj="def">
-                    </action-item>
+                    <draggable :list="currentSheet.actionSequence">
+                        <action-item v-for="def in currentSheet.actionSequence" v-bind:obj="def">
+                        </action-item>
+                    </draggable>
                 </td>
 
                 <td class="col-2">
                     <div class="panel" v-if=currentActionItem>
                         <div class="padded-3 v-align-mid">
-                            <btn class="trash" icon="trash-o" @click="removeAction(def)"></btn>
-                            <btn class="padded-5 v-align-mid" icon="plus-square" label="Param" v-on:click="addActionParam()"></btn>
-                            
+                            <btn class="padded-5" icon="trash-o" title="Delete item" @click="removeAction(def)"></btn>
+                            <btn class="padded-5" icon="clone" title="Clone item" @click="copyAction(currentActionItem)"></btn>
+                            <btn class="padded-5" icon="plus-square" title="Add an Action Parameter" label="Param" v-on:click="addActionParam()"></btn>
+
                             <div class="action-header">
                                 <i>Name:</i> <input class="" v-model:value="currentActionItem.name"> <br/>
                                 <i>Params Count:</i> <i style="text-align: left;" v-html="currentActionItem.actions.length"></i>
                             </div>
 
-                            
+
                         </div>
 
-                        <div class="padded-3 strip-action">
-                            <div class="border padded-5 action-param" v-for="actionParam in currentActionItem.actions">
+                        <draggable class="padded-3 strip-action"
+                                   :list="currentActionItem.actions"
+                                    :options="{ handle: '.drag-handle' }">
+                            <div class="border padded-5 action-param"
+                                 v-for="actionParam in currentActionItem.actions">
+
                                 <div class="inline-block">
-                                    <i class="nowrap head">
+                                    <span class="">
+                                        <btn class="padded-5" icon="trash-o" title="Delete param" @click="removeActionParam(actionParam)"></btn>
+                                        <btn class="padded-5" icon="clone" title="Clone param" @click="copyActionParam(actionParam)"></btn>
+                                        <btn class="padded-5 drag-handle" icon="sort" title="Sort param"></btn>
+
+                                        <!-- "Take Off" DropDown menu -->
+                                        <span class="dropdown">
+                                            <btn class="padded-5 ara-command"
+                                                 @click="setCurrentDropDown(actionParam)"
+                                                 :label="actionParam.type.name">
+                                            </btn>
+                                            <div class="dropdown-list ara-command-panel" v-if="currentDropDown==actionParam" @click="selectActionType(actionParam, $event)">
+                                                <div v-for="(araCmd, araID) in hardcoded.AraCommands" v-html="araCmd.name" :data-index="araID"></div>
+                                            </div>
+                                        </span>
+                                    </span>
+
+                                    <div class="nowrap head">
                                         <span class="nowrap action-header">
                                             <i>Time:</i>
                                             <input class="digits-3" v-model:value="actionParam.time">
@@ -89,19 +117,9 @@
                                             <i>Elevation:</i>
                                             <input class="digits-3" v-model:value="actionParam.elevation">
                                         </span>
-                                    </i>
-                                </div>
-                                
-                                <div class="dropdown">
-                                    <div class="btn ara-command"
-                                         @click.capture.stop.prevent="setCurrentDropDown(actionParam)"
-                                         v-html="actionParam.type.name">
-                                    </div>
-                                    <div class="dropdown-list ara-command-panel" v-if="currentDropDown==actionParam" @click="selectActionType(actionParam, $event)">
-                                        <div v-for="(araCmd, araID) in hardcoded.AraCommands" v-html="araCmd.name" :data-index="araID"></div>
                                     </div>
                                 </div>
-                                
+
                                 
                                 <br/>
                                 <i class="spacer-1 nowrap">
@@ -119,7 +137,7 @@
                                 <i>Wait For Yaw</i>
                                 </i>
                             </div>
-                        </div>
+                        </draggable>
 
                     </div>
                 </td>

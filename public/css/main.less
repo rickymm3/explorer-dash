@@ -75,43 +75,11 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
 
 .round(@round: 10px) { border-radius: @round; }
 
-.v-align-mid > * { display: inline-block; vertical-align: middle; }
-.v-align-bottom > * { display: inline-block; vertical-align: bottom; }
+.v-align-mid { vertical-align: middle; }
+.v-align-bottom { vertical-align: bottom; }
 .inline-block { display: inline-block; }
 
 .border { outline: 2px #000; }
-
-.dropdown {
-  display: inline-table;
-  //position: relative;
-}
-
-.dropdown-list {
-  width: 50vw;
-  position: absolute;
-  display: inline-block;
-  padding: 6px;
-  background: #fff;
-  column-count: 3;
-  column-width: 90px;
-  border: solid 2px #000;
-  z-index: 9999;
-  margin-bottom: 20px;
-  
-  .round();
-
-  div {
-    padding: 2px;
-    margin: 2px;
-    cursor: pointer;
-    .round(4px);
-    
-    &:hover {
-      background: #22f;
-      color: #fff;
-    }
-  }
-}
 
 .nowrap {
   white-space: nowrap;

@@ -19,7 +19,7 @@ function traceJSON(obj) {
 }
 
 (function(ERDS) {
-	var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS;
+	var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS;
 	
 	registerComponents({
 		comp: {
@@ -92,9 +92,9 @@ function traceJSON(obj) {
 			props: ['obj', 'label', 'emoji', 'icon'],
 			methods: { click() { this.$emit('click'); } },
 			template: 
-				'<div class="btn" v-on:click="click">\
-					<i v-if="emoji" :class="\'em em-\'+emoji" aria-hidden="true"></i>\
-					<i v-if="icon" :class="\'icon fa fa-\'+icon" aria-hidden="true"></i>\
+				'<div class="btn" v-on:click.capture.stop.prevent="click">\
+					<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>\
+					<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>\
 					<i v-html="label"></i>\
 				</div>'
 		}
@@ -168,32 +168,40 @@ function traceJSON(obj) {
 						globalAddLight();
 					},
 
+					copyLight(item) {
+						this.currentLightItem = duplicateItem(item, __LIGHTS);
+						this.currentLightItem.name += " (Copy)";
+					},
+
+					removeLight(item) {
+						removeItem(item, __LIGHTS, "currentLightItem");
+					},
+
 					addAction() {
 						globalAddAction();
+					},
+
+					copyAction(action) {
+						this.currentActionItem = duplicateItem(action, __ACTIONS);
+						this.currentActionItem.name += " (Copy)";
+					},
+
+					removeAction(item) {
+						removeItem(item, __ACTIONS, "currentActionItem");
 					},
 
 					addActionParam() {
 						globalAddActionParam();
 					},
 
-					removeLight(item) {
-						if(item!=this.currentLightItem) {
-							__LIGHTS.remove(item);
-						}
-						
-						if(!this.currentLightItem) return;
-						var id = __LIGHTS.remove(this.currentLightItem) - 1;
-						this.currentLightItem = id<0 ? __LIGHTS.first() : __LIGHTS[id];
-					},
-					
-					removeAction(item) {
-						if(item!=this.currentActionItem) {
-							__ACTIONS.remove(item);
-						}
-						
+					removeActionParam(param) {
 						if(!this.currentActionItem) return;
-						var id = __ACTIONS.remove(this.currentActionItem) - 1;
-						this.currentActionItem = id<0 ? __ACTIONS.first() : __ACTIONS[id];
+						this.currentActionItem.actions.remove(param);
+					},
+
+					copyActionParam(param) {
+						if(!this.currentActionItem) return;
+						duplicateItem(param, this.currentActionItem.actions);
 					},
 
 					handleSaveButton(e) {
@@ -247,8 +255,6 @@ function traceJSON(obj) {
 						//Try to preserve the selection index:
 						this.currentActionItem = trySameIndex(__ACTIONS, old.__ACTIONS, this.currentActionItem);
 						this.currentLightItem = trySameIndex(__LIGHTS, old.__LIGHTS, this.currentLightItem);
-						//this.currentLightItem = __LIGHTS[0];
-
 
 						return this.currentSheet = __SHEET;
 					},
@@ -259,8 +265,8 @@ function traceJSON(obj) {
 
 					selectActionType(actionParam, e) {
 						var index = $(e.target).data('index');
-						if(isNaN(index) || index >= __VUE.hardcoded.AraCommands.length) return;
-						actionParam.type = __VUE.hardcoded.AraCommands[index];
+						if(isNaN(index) || index >= __ARACOMMANDS.length) return;
+						actionParam.type = __ARACOMMANDS[index];
 					}
 				}
 			});
@@ -319,7 +325,8 @@ function traceJSON(obj) {
 		}
 		
 		__VUE.hardcoded = projectData.hardcoded;
-		
+		__ARACOMMANDS = __VUE.hardcoded.AraCommands;
+
 		return true;
 	}
 	
@@ -396,7 +403,7 @@ function traceJSON(obj) {
 		if(!__VUE.currentActionItem) return;
 		
 		__VUE.currentActionItem.actions.push({
-			type: __VUE.hardcoded.AraCommands[0],
+			type: __ARACOMMANDS[0],
 			time: 1,
 			waitForRing: false,
 			waitForStrip: false,
@@ -406,6 +413,21 @@ function traceJSON(obj) {
 
 		//traceJSON(__VUE.currentActionItem.actions);
 		//__VUE.currentActionItem
+	}
+
+	function removeItem(item, list, vueProperty) {
+		if(item) return list.remove(item);
+		if(!__VUE[vueProperty]) return;
+
+		var id = list.remove(__VUE[vueProperty]) - 1;
+		__VUE[vueProperty] = id<0 ? list.first() : list[id];
+	}
+
+	function duplicateItem(item, list) {
+		var id = list.indexOf(item);
+		var dup = _.jsonClone(item);
+		list.splice(id+1, 0, dup);
+		return dup;
 	}
 	
 })(ERDS);

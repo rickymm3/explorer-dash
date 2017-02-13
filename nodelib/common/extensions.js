@@ -95,6 +95,10 @@ _.mapRename = function(obj, filter) {
 	return newObj;
 };
 
+_.jsonClone = function(data) {
+	return JSON.parse(JSON.stringify(data));
+};
+
 //////////////////////////////////////////////////////////////
 
 GLOBALS.trace = console.log.bind(console);

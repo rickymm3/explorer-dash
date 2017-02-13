@@ -1,4 +1,4 @@
-@import "../../../public/css/main.less";
+@import (reference) "../../../public/css/main.less";
 
 body {
     background: #acf;
@@ -126,18 +126,43 @@ body {
   .icon {
     padding-left: 3px !important;
     padding-right: 3px !important;
-    padding-bottom: 10px !important;
     //font-size: 100%;
   }
 }
 
-//.trash {
-//  width: 40px !important;
-//  display: inline-block !important;
-//  position: absolute !important;
-//  
-//  //height: 40px !important;
-//}
+.dropdown {
+  display: inline-table;
+  border-spacing: 0px;
+  border-collapse: collapse;
+  //position: relative;
+}
+
+.dropdown-list {
+  width: 50vw;
+  position: absolute;
+  display: inline-block;
+  padding: 6px;
+  background: #fff;
+  column-count: 3;
+  column-width: 90px;
+  border: solid 2px #000;
+  z-index: 9999;
+  margin-bottom: 20px;
+
+  .round();
+
+  div {
+    padding: 2px;
+    margin: 2px;
+    cursor: pointer;
+    .round(4px);
+
+    &:hover {
+      background: #22f;
+      color: #fff;
+    }
+  }
+}
 
 ////////////////////////////////////////////////
 

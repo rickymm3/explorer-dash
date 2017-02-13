@@ -8,43 +8,54 @@ body {
 @col-1-width: 150px;
 
 .header {
-  overflow-x: hidden;
-  overflow-y: hidden;
   white-space: nowrap;
   user-select: none;
+  margin-bottom: 5px;
 }
 
 .title {
   width: 180px;
 }
 
-.sidebar {
+.sidebar, .topbar {
   display: inline-block;
   position: relative;
   font-size: 0.9em;
   vertical-align: bottom;
-  margin-left: 10px;
   padding: 5px;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  white-space: nowrap;
+  //overflow-x: hidden;
+  //overflow-y: hidden;
+  overflow-x: visible;
+  overflow-y: visible;
+  //white-space: nowrap;
+
   background: rgba(0,0,0,0.5);
   .round();
-  
 
   .button {
     position: relative;
     display: inline-block;
     white-space: normal;
-    width: 120px;
     margin: 2px;
     padding: 6px;
+  }
+}
+
+.topbar {
+  margin-left: 10px;
+}
+
+.sidebar {
+  white-space: normal;
+
+  .button {
+    width: 120px;
   }
 
   .save, .recover, .clear {
     width: 70px;
   }
-  
+
   .save { background: @colorModifiableBtn; }
   .recover { background: #08f; }
   .clear { background: #f00; }
@@ -131,9 +142,9 @@ body {
 }
 
 .dropdown {
-  display: inline-table;
-  border-spacing: 0px;
-  border-collapse: collapse;
+  //display: inline-table;
+  //border-spacing: 0px;
+  //border-collapse: collapse;
   //position: relative;
 }
 
@@ -148,6 +159,8 @@ body {
   border: solid 2px #000;
   z-index: 9999;
   margin-bottom: 20px;
+  top: 0px;
+  left: 0px;
 
   .round();
 
@@ -247,6 +260,7 @@ body {
     border-collapse: separate;
   }
 }
+
 .panel {
   width: 100%;
   display: block;
@@ -265,6 +279,7 @@ body {
 }
 
 .action-header {
+  display: inline-block;
   i { display: inline-block; width: 100px; margin-right: 3px; text-align: right; }
 }
 
@@ -275,46 +290,18 @@ body {
 }
 
 .ara-command {
-  width: 150px;
+  //width: 150px;
+  min-width: 150px;
 }
 
-.ara-command-panel {
-  top: 0vh;
-  left: 0vw;
+.suggested-names-panel {
+  width: 200px;
+  column-count: 1;
 }
 
 //////////////////////////////////////////////// MEDIA QUERIES
 
-@media screen and (max-width: 680px) {
-  //body {font-size: 95%;}
-}
-
-@media screen and (max-width: 767px) {
-  .sidebar {
-    position: absolute;
-    top: 55px;
-    left: 0px;
-    right: 5px;
-    overflow-x: visible;
-    overflow-y: visible;
-    white-space: normal;
-  }
-
-  #details {
-    top: 55px;
-  }
-}
-
-@media screen and (max-width: 584px) {
-  #details {
-    top: 90px;
-  }
-}
-
 @media screen and (max-width: 368px) {
-  #details {
-    top: 120px;
-  }
 
   .numeric-prop {
     .col-1 {
@@ -329,9 +316,6 @@ body {
 }
 
 @media screen and (max-width: 240px) {
-  #details {
-    top: 180px;
-  }
 
   .numeric-prop {
     .col-1 {

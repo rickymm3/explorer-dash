@@ -2,34 +2,41 @@ body {
   background: #acf;
 }
 .header {
-  overflow-x: hidden;
-  overflow-y: hidden;
   white-space: nowrap;
   user-select: none;
+  margin-bottom: 5px;
 }
 .title {
   width: 180px;
 }
-.sidebar {
+.sidebar,
+.topbar {
   display: inline-block;
   position: relative;
   font-size: 0.9em;
   vertical-align: bottom;
-  margin-left: 10px;
   padding: 5px;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  white-space: nowrap;
+  overflow-x: visible;
+  overflow-y: visible;
   background: rgba(0, 0, 0, 0.5);
   border-radius: 10px;
 }
-.sidebar .button {
+.sidebar .button,
+.topbar .button {
   position: relative;
   display: inline-block;
   white-space: normal;
-  width: 120px;
   margin: 2px;
   padding: 6px;
+}
+.topbar {
+  margin-left: 10px;
+}
+.sidebar {
+  white-space: normal;
+}
+.sidebar .button {
+  width: 120px;
 }
 .sidebar .save,
 .sidebar .recover,
@@ -111,11 +118,6 @@ body {
   padding-left: 3px !important;
   padding-right: 3px !important;
 }
-.dropdown {
-  display: inline-table;
-  border-spacing: 0px;
-  border-collapse: collapse;
-}
 .dropdown-list {
   width: 50vw;
   position: absolute;
@@ -127,6 +129,8 @@ body {
   border: solid 2px #000;
   z-index: 9999;
   margin-bottom: 20px;
+  top: 0px;
+  left: 0px;
   border-radius: 10px;
 }
 .dropdown-list div {
@@ -209,6 +213,9 @@ body {
   width: 100%;
   white-space: normal;
 }
+.action-header {
+  display: inline-block;
+}
 .action-header i {
   display: inline-block;
   width: 100px;
@@ -221,37 +228,13 @@ body {
   border-radius: 10px;
 }
 .ara-command {
-  width: 150px;
+  min-width: 150px;
 }
-.ara-command-panel {
-  top: 0vh;
-  left: 0vw;
-}
-@media screen and (max-width: 680px) {
-}
-@media screen and (max-width: 767px) {
-  .sidebar {
-    position: absolute;
-    top: 55px;
-    left: 0px;
-    right: 5px;
-    overflow-x: visible;
-    overflow-y: visible;
-    white-space: normal;
-  }
-  #details {
-    top: 55px;
-  }
-}
-@media screen and (max-width: 584px) {
-  #details {
-    top: 90px;
-  }
+.suggested-names-panel {
+  width: 200px;
+  column-count: 1;
 }
 @media screen and (max-width: 368px) {
-  #details {
-    top: 120px;
-  }
   .numeric-prop .col-1 {
     text-align: left;
     width: 100%;
@@ -261,9 +244,6 @@ body {
   }
 }
 @media screen and (max-width: 240px) {
-  #details {
-    top: 180px;
-  }
   .numeric-prop .col-1 {
     text-align: left;
     width: 100%;

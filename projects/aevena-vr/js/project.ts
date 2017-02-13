@@ -224,15 +224,24 @@ function traceJSON(obj) {
 					recoverJSON() {
 						projectCommand('recoverJSON', null);
 					},
+
+					createNewSheet() {
+						this.currentSheetUpdate(__SHEETS.length);
+					},
 					
 					currentSheetUpdate(id) {
-						if(isNaN(id)) return;
-						if(this.currentSheetID===id) return;
-						
+						if(_.isObject(id) && id.target) {
+							id = $(id.target).data('index');
+						}
+
 						id = parseInt(id);
+
+						trace(this.currentSheetID + " : " + id);
+
+						if(this.currentSheetID===id) return;
 						if(id<0 || isNaN(id)) id = 0;
 						if(id>=__SHEETS.length) {
-							createNewSheetAt(id, null);
+							createNewSheetAt(__SHEETS.length, null);
 						}
 
 						this.currentSheetID = id;
@@ -267,6 +276,13 @@ function traceJSON(obj) {
 						var index = $(e.target).data('index');
 						if(isNaN(index) || index >= __ARACOMMANDS.length) return;
 						actionParam.type = __ARACOMMANDS[index];
+					},
+
+					useSuggestedName(light, e, list, prefix) {
+						if(!prefix) prefix = "";
+						var index = $(e.target).data('index');
+						if(isNaN(index) || index >= list.length) return;
+						light.name = prefix + list[index].name;
 					}
 				}
 			});
@@ -346,7 +362,7 @@ function traceJSON(obj) {
 		} else {
 			$$$.boxInfo.showBox("Creating New Sheet...");
 
-			__SHEET = sheet = { definableValues: [], lightSequence: [], actionSequence: [] };
+			__SHEET = sheet = { name: "Sheet " + (__SHEETS.length+1), definableValues: [], lightSequence: [], actionSequence: [] };
 			__DEFS = __SHEET.definableValues;
 			__LIGHTS = __SHEET.lightSequence;
 			__ACTIONS = __SHEET.actionSequence;

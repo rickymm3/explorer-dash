@@ -28,9 +28,4 @@ module.exports = function(ERDS) {
 
 	ERDS.isTest = _.isTruthy(process.env.IS_TEST);
 	ERDS.isDev = _.isTruthy(process.env.IS_DEV);
-
-	ERDS.git = _.assign(ERDS.git || {}, {
-		clientID: process.env.GITHUB_CLIENT,
-		clientSecret: process.env.GITHUB_SECRET
-	});
 };

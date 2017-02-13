@@ -2,6 +2,8 @@ declare var ERDS, Vue, trace, traceError, io, $, _, TweenMax, Back, Cookies;
 
 var $$$:any = {};
 
+ERDS.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
+
 window.addEventListener('load', function() {
 	//Vue.config.debug = true;
 	Cookies._prefix = "erds.web.";

@@ -103,15 +103,16 @@ function traceJSON(obj) {
 	//Key modifier:
 	$(window).on('keydown keyup', function(e) {
 		var status = "Save";
+		var ctrlOrAlt = ERDS.isMac ? e.altKey : e.ctrlKey;
 		switch(true) {
-			case e.ctrlKey && e.shiftKey: status = "Recover"; break;
-			case e.ctrlKey: status = "Clear"; break;
+			case ctrlOrAlt && e.shiftKey: status = "Recover"; break;
+			case ctrlOrAlt: status = "Clear"; break;
 		}
 
 		__VUE.statusSaveButton = status;
 		__VUE.statusKeyModifiers =	(e.shiftKey ? __KEYS.SHIFT : 0) |
-									(e.ctrlKey ? __KEYS.CTRL : 0) |
-									(e.altKey ? __KEYS.ALT : 0);
+									(ctrlOrAlt ? __KEYS.CTRL : 0);
+									//| (e.altKey ? __KEYS.ALT : 0);
 		
 		//Handle the dropdown menus:
 		if(__VUE.currentDropDown!=null) {
@@ -206,11 +207,14 @@ function traceJSON(obj) {
 
 					handleSaveButton(e) {
 						if(this.isBusy) return;
-						
+
 						this.isBusy = true;
-						if(e.ctrlKey && e.shiftKey) return this.recoverJSON();
-						if(e.ctrlKey) return this.clearJSON();
-						this.saveJSON();
+
+						switch(e.target.innerHTML) {
+							case 'Clear': return this.clearJSON();
+							case 'Recover': return this.recoverJSON();
+							default: return this.saveJSON();
+						}
 					},
 
 					saveJSON() {
@@ -275,7 +279,7 @@ function traceJSON(obj) {
 					selectActionType(actionParam, e) {
 						var index = $(e.target).data('index');
 						if(isNaN(index) || index >= __ARACOMMANDS.length) return;
-						actionParam.type = __ARACOMMANDS[index];
+						actionParam.type = __ARACOMMANDS[index].name;
 					},
 
 					useSuggestedName(light, e, list, prefix) {
@@ -419,7 +423,7 @@ function traceJSON(obj) {
 		if(!__VUE.currentActionItem) return;
 		
 		__VUE.currentActionItem.actions.push({
-			type: __ARACOMMANDS[0],
+			type: __ARACOMMANDS[0].name,
 			time: 1,
 			waitForRing: false,
 			waitForStrip: false,

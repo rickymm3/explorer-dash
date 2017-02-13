@@ -4,7 +4,10 @@ body {
     background: #acf;
 }
 
+@colorSidebarBtn: #aaa;
+@colorAraCommandBtn: rgba(105, 72, 177, 0.75);
 @colorModifiableBtn: rgba(57, 177, 77, 0.75);
+@colorSheetBtn: rgba(220, 216, 94, 0.75);
 @col-1-width: 150px;
 
 .header {
@@ -43,6 +46,14 @@ body {
 
 .topbar {
   margin-left: 10px;
+
+  .btn {
+    background: @colorSheetBtn;
+
+    &:hover {
+      background: @colorSheetBtn * 1.1;
+    }
+  }
 }
 
 .sidebar {
@@ -62,22 +73,22 @@ body {
   .busy { background: #888 !important; opacity: 0.6; }
 }
 
-.button {
-  display: block;
-  background: #aaa;
+.btn-sidebar {
+  display: inline-block;
+  background: @colorSidebarBtn !important;
   padding: 3px 15px 3px 15px;
   text-align: center;
-  cursor: pointer;
   border-radius: 5px;
   .shadowy();
   
   &:hover {
-    background: #ccc;
+    background: @colorSidebarBtn * 0.8 !important;
   }
 
   &:active, &.active {
-    background: #444;
+    background: @colorSidebarBtn * 1.1 !important;
     color: #fff;
+    .shadow-dark;
   }
 }
 
@@ -115,6 +126,11 @@ body {
   }
 }
 
+.btn-large {
+  width: 120px !important;
+  padding: 14px !important;
+  margin: 0px;
+}
 .btn {
   //padding: 10px;
   //padding-left: 3px;
@@ -142,10 +158,7 @@ body {
 }
 
 .dropdown {
-  //display: inline-table;
-  //border-spacing: 0px;
-  //border-collapse: collapse;
-  //position: relative;
+
 }
 
 .dropdown-list {
@@ -164,8 +177,12 @@ body {
 
   .round();
 
+  .isSelected {
+    background: #ccc;
+  }
+
   div {
-    padding: 2px;
+    padding: 2px 4px 2px 4px;
     margin: 2px;
     cursor: pointer;
     .round(4px);
@@ -183,6 +200,7 @@ body {
   &.isSelected .btn {
     background: @colorModifiableBtn * 1.2;
     color: #fff;
+    .shadow-dark;
   }
 }
 
@@ -192,11 +210,6 @@ body {
 
 .light-item {
   padding: 0;
-  .ring-sequence, .strip-sequence {
-    display: inline-block;
-    margin: 0;
-    border: solid 1px #000;
-  }
 }
 
 .definable-values {
@@ -221,14 +234,6 @@ body {
 
   div {
     vertical-align: top;
-  }
-  
-  h3 {
-    .shadowy();
-    font-size: 1.1em;
-    background: rgba(0,0,255,0.5);
-    padding: 5px;
-    .round();
   }
   
   .col-1 {
@@ -290,8 +295,12 @@ body {
 }
 
 .ara-command {
-  //width: 150px;
+  background: @colorAraCommandBtn;
   min-width: 150px;
+
+  &:hover {
+    background: @colorAraCommandBtn * 1.3;
+  }
 }
 
 .suggested-names-panel {
@@ -299,8 +308,99 @@ body {
   column-count: 1;
 }
 
+//////////////////////////////////////////////////////////////
+
+.ring-sequence, .strip-sequence {
+  display: inline-block;
+  margin: 0;
+  margin-top: 5px;
+
+  .break { padding-left: 20px; }
+}
+
+.light-comp {
+  background: #fff;
+  padding: 10px;
+  .round();
+}
+
+.ring-light {
+  position: relative;
+  @size: 120px;
+  @sizeBulb: @size / 10;
+  @radius: @size * 0.3;
+  @radiusSmall: @radius * 0.66;
+  width: 100%;
+  height: @size;
+
+  .ring-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+  }
+
+  .bulb {
+    display: block;
+    position: absolute;
+    width:@sizeBulb;
+    height:@sizeBulb;
+    border: solid 2px #000;
+    border-radius: @sizeBulb/2;
+    background: #888;
+
+    &:hover {
+      border-color: #444;
+    }
+  }
+
+  .n {left: 0; top: -@radius;}
+  .ne {left: @radiusSmall; top: -@radiusSmall;}
+  .e {left: @radius; top: 0;}
+  .se {left: @radiusSmall; top: @radiusSmall;}
+  .s {left: 0; top: @radius;}
+  .sw {left: -@radiusSmall; top: @radiusSmall;}
+  .w {left: -@radius; top: 0;}
+  .nw {left: -@radiusSmall; top: -@radiusSmall;}
+}
+
+.subheader {
+  display: inline-block;
+  .shadowy();
+  font-size: 1.1em;
+}
+
+.subpanel {
+  background: rgba(0,0,255,0.5);
+  padding: 5px;
+  .round();
+}
+
 //////////////////////////////////////////////// MEDIA QUERIES
 
+@media screen and (max-width: 990px) {
+  .ring-sequence, .strip-sequence {
+    .break {
+      display: block !important;
+      padding-left: 0px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      //width: 100% !important;
+    }
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .ring-sequence, .strip-sequence {
+    display: block !important;
+    width: 100% !important;
+  }
+}
+
+@media screen and (max-width: 684px){
+  .light-checkboxes .spacer-1 {
+    display: block;
+  }
+}
 @media screen and (max-width: 368px) {
 
   .numeric-prop {

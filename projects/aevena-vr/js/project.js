@@ -72,7 +72,7 @@ function traceJSON(obj) {
         },
         'btn': {
             props: ['obj', 'label', 'emoji', 'icon'],
-            methods: { click: function () { this.$emit('click'); } },
+            methods: { click: function (e) { this.$emit('click', e); } },
             template: '<div class="btn" v-on:click.capture.stop.prevent="click">\
 					<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>\
 					<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>\
@@ -87,6 +87,9 @@ function traceJSON(obj) {
         switch (true) {
             case ctrlOrAlt && e.shiftKey:
                 status = "Recover";
+                break;
+            case e.shiftKey:
+                status = "Trace";
                 break;
             case ctrlOrAlt:
                 status = "Clear";
@@ -168,12 +171,12 @@ function traceJSON(obj) {
                     removeActionParam: function (param) {
                         if (!this.currentActionItem)
                             return;
-                        this.currentActionItem.actions.remove(param);
+                        this.currentActionItem.params.remove(param);
                     },
                     copyActionParam: function (param) {
                         if (!this.currentActionItem)
                             return;
-                        duplicateItem(param, this.currentActionItem.actions);
+                        duplicateItem(param, this.currentActionItem.params);
                     },
                     handleSaveButton: function (e) {
                         if (this.isBusy)
@@ -182,6 +185,9 @@ function traceJSON(obj) {
                         switch (e.target.innerHTML) {
                             case 'Clear': return this.clearJSON();
                             case 'Recover': return this.recoverJSON();
+                            case 'Trace':
+                                this.isBusy = false;
+                                return traceJSON();
                             default: return this.saveJSON();
                         }
                     },
@@ -326,10 +332,38 @@ function traceJSON(obj) {
         __LIGHTS.push({
             type: 'light-item',
             name: 'Light ' + (__LIGHTS.length + 1),
-            steps: [],
             ringSeqLooping: false,
+            ringSeqHoldLast: false,
+            ringSteps: [
+                {
+                    type: 'ring-step',
+                    time: 1,
+                    'light-n': { state: 'Full', color: '#f00' },
+                    'light-ne': { state: 'Full', color: '#f00' },
+                    'light-e': { state: 'Full', color: '#f00' },
+                    'light-se': { state: 'Full', color: '#f00' },
+                    'light-s': { state: 'Full', color: '#f00' },
+                    'light-sw': { state: 'Full', color: '#f00' },
+                    'light-w': { state: 'Full', color: '#f00' },
+                    'light-nw': { state: 'Full', color: '#f00' }
+                }
+            ],
             stripSeqLooping: false,
-            holdLastLightStep: false
+            stripSeqHoldLast: false,
+            stripSteps: [
+                {
+                    type: 'strip-step',
+                    time: 1,
+                    'light-n': { state: 'Full', color: '#f00' },
+                    'light-ne': { state: 'Full', color: '#f00' },
+                    'light-e': { state: 'Full', color: '#f00' },
+                    'light-se': { state: 'Full', color: '#f00' },
+                    'light-s': { state: 'Full', color: '#f00' },
+                    'light-sw': { state: 'Full', color: '#f00' },
+                    'light-w': { state: 'Full', color: '#f00' },
+                    'light-nw': { state: 'Full', color: '#f00' }
+                }
+            ]
         });
         __VUE.currentLightItem = __LIGHTS.last();
     }
@@ -337,7 +371,7 @@ function traceJSON(obj) {
         __ACTIONS.push({
             type: 'action-item',
             name: 'Action ' + (__ACTIONS.length + 1),
-            actions: [],
+            params: [],
             time: 5
         });
         __VUE.currentActionItem = __ACTIONS.last();
@@ -346,7 +380,7 @@ function traceJSON(obj) {
     function globalAddActionParam() {
         if (!__VUE.currentActionItem)
             return;
-        __VUE.currentActionItem.actions.push({
+        __VUE.currentActionItem.params.push({
             type: __ARACOMMANDS[0].name,
             time: 1,
             waitForRing: false,
@@ -354,7 +388,7 @@ function traceJSON(obj) {
             waitForYaw: false,
             elevation: 0
         });
-        //traceJSON(__VUE.currentActionItem.actions);
+        //traceJSON(__VUE.currentActionItem.params);
         //__VUE.currentActionItem
     }
     function removeItem(item, list, vueProperty) {

@@ -32,6 +32,12 @@ body {
 .topbar {
   margin-left: 10px;
 }
+.topbar .btn {
+  background: rgba(220, 216, 94, 0.75);
+}
+.topbar .btn:hover {
+  background: #f2ee67;
+}
 .sidebar {
   white-space: normal;
 }
@@ -56,22 +62,22 @@ body {
   background: #888 !important;
   opacity: 0.6;
 }
-.button {
-  display: block;
-  background: #aaa;
+.btn-sidebar {
+  display: inline-block;
+  background: #aaa !important;
   padding: 3px 15px 3px 15px;
   text-align: center;
-  cursor: pointer;
   border-radius: 5px;
   text-shadow: #fff 0px 1px 2px;
 }
-.button:hover {
-  background: #ccc;
+.btn-sidebar:hover {
+  background: #888888 !important;
 }
-.button:active,
-.button.active {
-  background: #444;
+.btn-sidebar:active,
+.btn-sidebar.active {
+  background: #bbbbbb !important;
   color: #fff;
+  text-shadow: #222 1px 1px 1px;
 }
 #details {
   display: none;
@@ -100,6 +106,11 @@ body {
 .numeric-prop .col-2 input {
   width: 80px;
   text-align: right;
+}
+.btn-large {
+  width: 120px !important;
+  padding: 14px !important;
+  margin: 0px;
 }
 .btn {
   background: rgba(57, 177, 77, 0.75);
@@ -133,8 +144,11 @@ body {
   left: 0px;
   border-radius: 10px;
 }
+.dropdown-list .isSelected {
+  background: #ccc;
+}
 .dropdown-list div {
-  padding: 2px;
+  padding: 2px 4px 2px 4px;
   margin: 2px;
   cursor: pointer;
   border-radius: 4px;
@@ -146,6 +160,7 @@ body {
 .item.isSelected .btn {
   background: #44d45c;
   color: #fff;
+  text-shadow: #222 1px 1px 1px;
 }
 .light-item,
 .action-item {
@@ -153,12 +168,6 @@ body {
 }
 .light-item {
   padding: 0;
-}
-.light-item .ring-sequence,
-.light-item .strip-sequence {
-  display: inline-block;
-  margin: 0;
-  border: solid 1px #000;
 }
 .definable-values .col-1,
 .definable-values .col-2 {
@@ -174,14 +183,6 @@ body {
 .light-sequence div,
 .action-sequence div {
   vertical-align: top;
-}
-.light-sequence h3,
-.action-sequence h3 {
-  text-shadow: #fff 0px 1px 2px;
-  font-size: 1.1em;
-  background: rgba(0, 0, 255, 0.5);
-  padding: 5px;
-  border-radius: 10px;
 }
 .light-sequence .col-1,
 .action-sequence .col-1 {
@@ -228,11 +229,115 @@ body {
   border-radius: 10px;
 }
 .ara-command {
+  background: rgba(105, 72, 177, 0.75);
   min-width: 150px;
+}
+.ara-command:hover {
+  background: #895ee6;
 }
 .suggested-names-panel {
   width: 200px;
   column-count: 1;
+}
+.ring-sequence,
+.strip-sequence {
+  display: inline-block;
+  margin: 0;
+  margin-top: 5px;
+}
+.ring-sequence .break,
+.strip-sequence .break {
+  padding-left: 20px;
+}
+.light-comp {
+  background: #fff;
+  padding: 10px;
+  border-radius: 10px;
+}
+.ring-light {
+  position: relative;
+  width: 100%;
+  height: 120px;
+}
+.ring-light .ring-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+.ring-light .bulb {
+  display: block;
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: solid 2px #000;
+  border-radius: 6px;
+  background: #888;
+}
+.ring-light .bulb:hover {
+  border-color: #444;
+}
+.ring-light .n {
+  left: 0;
+  top: -36px;
+}
+.ring-light .ne {
+  left: 23.76px;
+  top: -23.76px;
+}
+.ring-light .e {
+  left: 36px;
+  top: 0;
+}
+.ring-light .se {
+  left: 23.76px;
+  top: 23.76px;
+}
+.ring-light .s {
+  left: 0;
+  top: 36px;
+}
+.ring-light .sw {
+  left: -23.76px;
+  top: 23.76px;
+}
+.ring-light .w {
+  left: -36px;
+  top: 0;
+}
+.ring-light .nw {
+  left: -23.76px;
+  top: -23.76px;
+}
+.subheader {
+  display: inline-block;
+  text-shadow: #fff 0px 1px 2px;
+  font-size: 1.1em;
+}
+.subpanel {
+  background: rgba(0, 0, 255, 0.5);
+  padding: 5px;
+  border-radius: 10px;
+}
+@media screen and (max-width: 990px) {
+  .ring-sequence .break,
+  .strip-sequence .break {
+    display: block !important;
+    padding-left: 0px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+}
+@media screen and (max-width: 760px) {
+  .ring-sequence,
+  .strip-sequence {
+    display: block !important;
+    width: 100% !important;
+  }
+}
+@media screen and (max-width: 684px) {
+  .light-checkboxes .spacer-1 {
+    display: block;
+  }
 }
 @media screen and (max-width: 368px) {
   .numeric-prop .col-1 {

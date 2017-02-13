@@ -13,17 +13,23 @@
             <div class="dropdown-list suggested-names-panel"
                  v-if="currentDropDown==currentSheet"
                  @click="currentSheetUpdate($event)">
-                <div v-for="(item, id) in jsonData.sheets" v-html="item.name" :data-index="id"></div>
+                <div v-for="(item, id) in jsonData.sheets"
+                     v-html="item.name"
+                     :class="currentSheet==item ? 'isSelected' : ''"
+                     :data-index="id"></div>
             </div>
         </span>
     </div>
 </div>
 
 <div class="sidebar">
-    <div class="button" :class="{ active: view==0 }" @click="changeView(0)">DefinableValues</div>
-    <div class="button" :class="{ active: view==1 }" @click="changeView(1)">LightSequence</div>
-    <div class="button" :class="{ active: view==2 }" @click="changeView(2)">ActionSequence</div>
-    <div class="button" :class="[statusSaveButton.toLowerCase(), isBusy ? 'busy' : '']" @click="handleSaveButton($event)" v-html="statusSaveButton">Save</div>
+    <btn class="btn-sidebar" :class="{ active: view==0 }" @click="changeView(0)" label="Definable<br/>Values"></btn>
+    <btn class="btn-sidebar" :class="{ active: view==1 }" @click="changeView(1)" label="Light<br/>Sequence"></btn>
+    <btn class="btn-sidebar" :class="{ active: view==2 }" @click="changeView(2)" label="Action<br/>Sequence"></btn>
+    <btn class="v-align-top btn-large" :class="[statusSaveButton.toLowerCase(), isBusy ? 'busy' : '']"
+         @click="handleSaveButton($event)"
+         v-html="statusSaveButton"
+         label="Save"></btn>
 </div>
 
 <div id="details">
@@ -66,15 +72,75 @@
                                     <div v-for="(item, id) in currentSheet.actionSequence" v-html="item.name" :data-index="id"></div>
                                 </div>
                             </span>
+
+                            <btn class="spacer-1" icon="play" label="Play All"></btn>
                         </div>
 
-                        <div class="padded-3 ring-sequence">
-                            <h3>Ring Sequence</h3>
+
+                        <div class="padded-3 subpanel ring-sequence">
+                            <i class="subheader nowrap v-align-mid-kids">
+                                <i>Ring Sequence</i>
+                                <i class="spacer-1">
+                                    <input type="checkbox" v-model:value="currentLightItem.ringSeqLooping"> &nbsp;
+                                    <i class="fa fa-refresh v-align-mid" title="Looping"></i>
+                                </i>
+
+                                <i class="spacer-1">
+                                    <input type="checkbox" v-model:value="currentLightItem.ringSeqHoldLast"> &nbsp;
+                                    <i class="fa fa-pause v-align-mid" title="Hold Last"></i>
+                                </i>
+
+                                <i class="break">
+                                    <btn class="" icon="plus-square" label="Step"></btn>
+                                    <btn class="" icon="play"></btn>
+                                </i>
+                            </i> <br/>
+
+                            <div class="light-comp ring-light">
+                                <div class="ring-center">
+                                    <i class="bulb n"></i>
+                                    <i class="bulb ne"></i>
+                                    <i class="bulb e"></i>
+                                    <i class="bulb se"></i>
+                                    <i class="bulb s"></i>
+                                    <i class="bulb sw"></i>
+                                    <i class="bulb w"></i>
+                                    <i class="bulb nw"></i>
+                                </div>
+                            </div>
                         </div>
-                        <div class="padded-3 strip-sequence">
-                            <h3>Strip Sequence</h3>
-                            <br/><br/><br/><br/>
-                            Testing layout, a very long layout test that is.
+
+                        <div class="padded-3 subpanel strip-sequence">
+                            <i class="subheader nowrap v-align-mid-kids">
+                                <i>Strip Sequence</i>
+                                <i class="spacer-1">
+                                    <input type="checkbox" v-model:value="currentLightItem.stripSeqLooping"> &nbsp;
+                                    <i class="fa fa-refresh v-align-mid" title="Looping"></i>
+                                </i>
+
+                                <i class="spacer-1">
+                                    <input type="checkbox" v-model:value="currentLightItem.stripSeqHoldLast"> &nbsp;
+                                    <i class="fa fa-pause v-align-mid" title="Hold Last"></i>
+                                </i>
+
+                                <i class="break">
+                                    <btn class="" icon="plus-square" label="Step"></btn>
+                                    <btn class="" icon="play"></btn>
+                                </i>
+                            </i> <br/>
+
+                            <div class="light-comp strip-light">
+                                <div class="strip-center">
+                                    <i class="bulb n"></i>
+                                    <i class="bulb ne"></i>
+                                    <i class="bulb e"></i>
+                                    <i class="bulb se"></i>
+                                    <i class="bulb s"></i>
+                                    <i class="bulb sw"></i>
+                                    <i class="bulb w"></i>
+                                    <i class="bulb nw"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </td>
@@ -120,14 +186,14 @@
                         </div>
 
                         <i class="padded-3">
-                            <i>Params Count:</i> <i style="text-align: left;" v-html="currentActionItem.actions.length"></i>
+                            <i>Params Count:</i> <i v-html="currentActionItem.params.length"></i>
                         </i>
 
                         <draggable class="padded-3 strip-action"
                                    :list="currentActionItem.actions"
                                     :options="{ handle: '.drag-handle' }">
                             <div class="border padded-5 action-param"
-                                 v-for="actionParam in currentActionItem.actions">
+                                 v-for="actionParam in currentActionItem.params">
 
                                 <div class="inline-block">
                                     <span class="">
@@ -139,12 +205,15 @@
                                         <span class="dropdown">
                                             <btn class="padded-5 ara-command"
                                                  @click="setCurrentDropDown(actionParam)"
-                                                 :label="actionParam.type">
+                                                 :label="actionParam.type"><!-- icon="caret-down" -->
                                             </btn>
                                             <div class="dropdown-list ara-command-panel"
                                                  v-if="currentDropDown==actionParam"
                                                  @click="selectActionType(actionParam, $event)">
-                                                <div v-for="(araCmd, araID) in hardcoded.AraCommands" v-html="araCmd.name" :data-index="araID"></div>
+                                                <div v-for="(araCmd, araID) in hardcoded.AraCommands"
+                                                     v-html="araCmd.name"
+                                                     :class="actionParam.type==araCmd.name ? 'isSelected' : ''"
+                                                     :data-index="araID"></div>
                                             </div>
                                         </span>
                                     </span>

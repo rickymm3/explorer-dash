@@ -632,9 +632,12 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-git-rev@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/git-rev/-/git-rev-0.2.1.tgz#8ccbd2092b345bc2c9149548396df549646ca63f"
+git-rev-sync@^1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/git-rev-sync/-/git-rev-sync-1.8.0.tgz#15c5708b905877af1d75dd9f147106f715415066"
+  dependencies:
+    graceful-fs "4.1.6"
+    shelljs "0.7.4"
 
 glob-base@^0.3.0:
   version "0.3.0"
@@ -649,7 +652,7 @@ glob-parent@^2.0.0:
   dependencies:
     is-glob "^2.0.0"
 
-glob@^7.0.5:
+glob@^7.0.0, glob@^7.0.5:
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.1.tgz#805211df04faaf1c63a3600306cdf5ade50b2ec8"
   dependencies:
@@ -659,6 +662,10 @@ glob@^7.0.5:
     minimatch "^3.0.2"
     once "^1.3.0"
     path-is-absolute "^1.0.0"
+
+graceful-fs@4.1.6:
+  version "4.1.6"
+  resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.6.tgz#514c38772b31bee2e08bedc21a0aeb3abf54c19e"
 
 graceful-fs@^4.1.2, graceful-fs@^4.1.6:
   version "4.1.11"
@@ -748,6 +755,10 @@ inherits@2, inherits@2.0.3, inherits@^2.0.1, inherits@~2.0.0, inherits@~2.0.1:
 ini@~1.3.0:
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.4.tgz#0537cb79daf59b59a1a517dff706c86ec039162e"
+
+interpret@^1.0.0:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/interpret/-/interpret-1.0.1.tgz#d579fb7f693b858004947af39fa0db49f795602c"
 
 ipaddr.js@1.2.0:
   version "1.2.0"
@@ -1264,6 +1275,12 @@ readdirp@^2.0.0:
     readable-stream "^2.0.2"
     set-immediate-shim "^1.0.1"
 
+rechoir@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/rechoir/-/rechoir-0.6.2.tgz#85204b54dba82d5742e28c96756ef43af50e3384"
+  dependencies:
+    resolve "^1.1.6"
+
 redis-commands@^1.2.0:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/redis-commands/-/redis-commands-1.3.1.tgz#81d826f45fa9c8b2011f4cd7a0fe597d241d442b"
@@ -1335,6 +1352,10 @@ resolve-from@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/resolve-from/-/resolve-from-2.0.0.tgz#9480ab20e94ffa1d9e80a804c7ea147611966b57"
 
+resolve@^1.1.6:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.2.0.tgz#9589c3f2f6149d1417a40becc1663db6ec6bc26c"
+
 rimraf@2, rimraf@~2.5.1, rimraf@~2.5.4:
   version "2.5.4"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.5.4.tgz#96800093cbf1a0c86bd95b4625467535c29dfa04"
@@ -1383,6 +1404,14 @@ set-immediate-shim@^1.0.1:
 setprototypeof@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.0.2.tgz#81a552141ec104b88e89ce383103ad5c66564d08"
+
+shelljs@0.7.4:
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.7.4.tgz#b8f04b3a74ddfafea22acf98e0be45ded53d59c8"
+  dependencies:
+    glob "^7.0.0"
+    interpret "^1.0.0"
+    rechoir "^0.6.2"
 
 signal-exit@^3.0.0:
   version "3.0.2"

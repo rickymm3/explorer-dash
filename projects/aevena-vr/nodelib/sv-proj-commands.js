@@ -80,69 +80,74 @@ module.exports = function(PROJ) {
 		}
 	};
 
-	var res = PROJ.responseData;
-	if(res) {
-		var AraCommandNames = [
-			"TakeOff",
-			"Fly Straight",
-			"Dock",
-			"Go To Dock",
-			"Find User",
-			"Patrol",
-			"PatrolShort",
-			"Waiting",
-			"TurnNE",
-			"TurnE",
-			"TurnSE",
-			"TurnS",
-			"TurnNW",
-			"TurnW",
-			"TurnSW",
-			"SleepLowBatt",
-			"SleepHalfBatt",
-			"SleepMostBatt",
-			"SleepFullBatt",
-			"Ready",
-			"Error Minor",
-			"Error Standard",
-			"Error Critical",
-			"Battery Low",
-			"Obstacle In Path",
-			"Task In Progress",
-			"Thinking",
-			"Changing Task",
-			"Camera On"
-		];
-		
-		var AraCommands = AraCommandNames.map((name,i) => { return {value: i, name: name}; });
-		
-		res.hardcoded = {
-			AraCommands: AraCommands
-		}
-	}
-	
-	function defaultData() {
-		return {
-			definableValues: [
-				{type: 'numeric-prop', name: 'photoDistance', value: 5},
-				{type: 'numeric-prop', name: 'elevationHeight', value: 1},
-				{type: 'numeric-prop', name: 'elevationSpeed', value: 5},
-				{type: 'numeric-prop', name: 'descentSpeed', value: 1},
-				{type: 'numeric-prop', name: 'movementSpeed', value: 5},
-				{type: 'numeric-prop', name: 'yawSpeed', value: 1},
-				{type: 'numeric-prop', name: 'timeToStart', value: 5},
-				{type: 'numeric-prop', name: 'timeToStop', value: 1},
-				{type: 'numeric-prop', name: 'maxTiltRange', value: 5},
-				{type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1}
-			],
+	var responseData = PROJ.responseData;
 
-			lightSequence: [
-				{type: 'light-item', name: 'Light 1', params: []}
-			],
-			
-			actionSequence: [
-				{type: 'action-item', name: 'Action 1', time: 5, params: []}
-			]
-		};
+	if(responseData) {
+		responseData.hardcoded = {
+			AraCommands: [
+				"TakeOff",
+				"Fly Straight",
+				"Dock",
+				"Go To Dock",
+				"Find User",
+				"Patrol",
+				"PatrolShort",
+				"Waiting",
+				"TurnNE",
+				"TurnE",
+				"TurnSE",
+				"TurnS",
+				"TurnNW",
+				"TurnW",
+				"TurnSW",
+				"SleepLowBatt",
+				"SleepHalfBatt",
+				"SleepMostBatt",
+				"SleepFullBatt",
+				"Ready",
+				"Error Minor",
+				"Error Standard",
+				"Error Critical",
+				"Battery Low",
+				"Obstacle In Path",
+				"Task In Progress",
+				"Thinking",
+				"Changing Task",
+				"Camera On"
+			].toKeyValues(),
+
+			Colors: [
+				"White",
+				"Green",
+				"Blue",
+				"Red"
+			].toKeyValues(),
+
+			AudioClips: [
+				"Off",
+				"BeepHigh",
+				"Blip",
+				"Boop",
+				"Chime",
+				"MenuSelect",
+				"SineUp",
+				"SineUp2",
+				"Sonar",
+				"ToneBeep",
+				"ToneBeepSloLow",
+				"TriToneDown",
+				"TriToneUp",
+				"UpFlutter",
+				"UpwardBeep"
+			].toKeyValues(),
+
+			LightStates: [
+				"Colors",
+				"Off",
+				"Full",
+				"FadeIn",
+				"FadeOut"
+			].toKeyValues()
+		}
 	}
 };

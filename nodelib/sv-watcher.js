@@ -21,8 +21,12 @@ module.exports = function(ERDS) {
 
         if(timeoutID>-1) clearTimeout(timeoutID);
         timeoutID = setTimeout(() => {
-            timeoutID = -1;
-            ERDS.io.emit('file-changed', path);
-        }, 500);
+			timeoutID = -1;
+			ERDS.io.emit('file-changed', path);
+		}, 500);
     });
+
+	function onFileChanged() {
+
+	}
 };

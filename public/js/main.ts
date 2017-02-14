@@ -2,6 +2,8 @@ declare var ERDS, Vue, trace, traceError, io, $, _, TweenMax, Back, Cookies;
 
 var $$$:any = {};
 
+ERDS.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
+
 window.addEventListener('load', function() {
 	//Vue.config.debug = true;
 	Cookies._prefix = "erds.web.";
@@ -160,10 +162,6 @@ function registerComponents(compList) {
 		//Assume a default template ID naming convention if no raw HTML is used:
 		if(!tag.template || !tag.template.length) {
 			tag.template = '#'+compName+'-tmp';
-			var $tmp = $(tag.template);
-			if(!$tmp || !$tmp.length) {
-				return traceError("VUEJS ERROR: Cannot find template: " + tag.template);
-			}
 
 			trace("Registering tag: " + tag.template);
 		}

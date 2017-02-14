@@ -1,17 +1,36 @@
 
-
 <div class="header">
-    <h1 class="title">$projectName</h1>
+    <h1 class="title padded-5">$projectName</h1>
 
-    <div class="sidebar">
-        <span class="shadowy padded-5">Sheet:</span>
-        <input type="text" class="digits-2" :value="currentSheetID" @keyup="currentSheetUpdate($event.target.value)">
-        
-        <div class="button" :class="{ active: view==0 }" @click="changeView(0)">DefinableValues</div>
-        <div class="button" :class="{ active: view==1 }" @click="changeView(1)">LightSequence</div>
-        <div class="button" :class="{ active: view==2 }" @click="changeView(2)">ActionSequence</div>
-        <div class="button" :class="[statusSaveButton.toLowerCase(), isBusy ? 'busy' : '']" @click="handleSaveButton($event)" v-html="statusSaveButton">Save</div>
+    <div class="topbar v-align-mid">
+        <btn class="padded-5" icon="plus-square" label="Sheet" @click="createNewSheet()"></btn>
+        <span class="dropdown">
+            <btn class="padded-5 sheet-names"
+                 @click="setCurrentDropDown(currentSheet)"
+                 icon="caret-down" :label="currentSheet.name">
+            </btn>
+            <div class="dropdown-list suggested-names-panel"
+                 v-if="currentDropDown==currentSheet"
+                 @click="currentSheetUpdate($event)">
+                <div v-for="(item, id) in jsonData.sheets"
+                     v-html="item.name"
+                     :class="currentSheet==item ? 'isSelected' : ''"
+                     :data-index="id"></div>
+            </div>
+
+            <input class="" v-model:value="currentSheet.name">
+        </span>
     </div>
+</div>
+
+<div class="sidebar">
+    <btn class="btn-sidebar" :class="{ active: view==0 }" @click="changeView(0)" label="Definable<br/>Values"></btn>
+    <btn class="btn-sidebar" :class="{ active: view==1 }" @click="changeView(1)" label="Light<br/>Sequence"></btn>
+    <btn class="btn-sidebar" :class="{ active: view==2 }" @click="changeView(2)" label="Action<br/>Sequence"></btn>
+    <btn class="v-align-top btn-large" :class="[statusSaveButton.toLowerCase(), isBusy ? 'busy' : '']"
+         @click="handleSaveButton($event)"
+         v-html="statusSaveButton"
+         label="Save"></btn>
 </div>
 
 <div id="details">
@@ -24,27 +43,75 @@
             <tr>
                 <td class="col-1 side-left">
                     <btn icon="plus-square" label="Light" v-on:click="addLight()"></btn>
-                    <light-item v-for="def in currentSheet.lightSequence" v-bind:obj="def"></light-item>
+                    <draggable :list="currentSheet.lightSequence">
+                        <light-item v-for="def in currentSheet.lightSequence" v-bind:obj="def">
+                        </light-item>
+                    </draggable>
                 </td>
 
                 <td class="col-2">
                     <div class="panel" v-if=currentLightItem>
 
-                        <div class="margin-top-2 padded-5 v-align-mid">
-                            <btn class="trash" icon="trash-o" @click="removeLight"></btn>
-                            
-                            <i>Name:</i>
-                            <input v-model:value="currentLightItem.name" />
+                        <div class="padded-3">
+                            <btn class="padded-5" icon="trash-o" title="Delete item" @click="removeLight()"></btn>
+                            <btn class="padded-5" icon="clone" title="Clone item" @click="copyLight(currentLightItem)"></btn>
+
+                            <i class="inline-block padded-3">
+                                <i>Name:</i>
+                                <input v-model:value="currentLightItem.name">
+                            </i>
+
+                            <!-- Names Suggestion DropDown menu -->
+                            <span class="dropdown">
+                                <btn class="padded-5 action-names"
+                                     @click="setCurrentDropDown(currentLightItem)"
+                                     icon="caret-down">
+                                </btn>
+                                <div class="dropdown-list suggested-names-panel"
+                                     v-if="currentDropDown==currentLightItem"
+                                     @click="useSuggestedName(currentLightItem, $event, currentSheet.actionSequence)">
+                                    <div v-for="(item, id) in currentSheet.actionSequence" v-html="item.name" :data-index="id"></div>
+                                </div>
+                            </span>
+
+                            <btn class="spacer-1" icon="play" label="Play All"></btn>
                         </div>
 
-                        <div class="padded-3 ring-sequence">
-                            <h3>Ring Sequence</h3>
-                        </div>
-                        <div class="padded-3 strip-sequence">
-                            <h3>Strip Sequence</h3>
-                            <br/><br/><br/><br/>
-                            Testing layout, a very long layout test that is.
-                        </div>
+                        <light-comp v-if="currentLightItem"
+                                header="Ring Sequence"
+                                prefix="Ring"
+                                class_lightcomp="ring-light"
+                                class="ring-sequence"
+                                :obj="currentLightItem"
+                                :steps="currentLightItem.ringSteps"
+                                :loops="'ringSeqLooping'"
+                                :holds="'ringSeqHoldLast'">
+                        </light-comp>
+
+                        <light-comp v-if="currentLightItem"
+                                header="Strip Sequence"
+                                prefix="Strip"
+                                class_lightcomp="strip-light"
+                                class="strip-sequence"
+                                :obj="currentLightItem"
+                                :steps="currentLightItem.stripSteps"
+                                :loops="'stripSeqLooping'"
+                                :holds="'stripSeqHoldLast'">
+                        </light-comp>
+
+                        <!--<light-comp-->
+                                <!--header="Strip Sequence"-->
+                                <!--class="strip-sequence"-->
+                                <!--:obj="currentLightItem"-->
+                                <!--:steps="currentLightItem.stripSteps"-->
+                                <!--:isLooping="currentLightItem.stripSeqLooping"-->
+                                <!--:isHoldLast="currentLightItem.stripSeqHoldLast"-->
+                                <!--:currentStep="currentStripStep"-->
+                                <!--:clazzLightComp="'strip-light'">-->
+
+                        <!--</light-comp>-->
+
+
                     </div>
                 </td>
             </tr>
@@ -56,28 +123,72 @@
             <tr>
                 <td class="col-1 side-left">
                     <btn icon="plus-square" label="Action" v-on:click="addAction()"></btn>
-                    <action-item v-for="def in currentSheet.actionSequence" v-bind:obj="def">
-                    </action-item>
+                    <draggable :list="currentSheet.actionSequence">
+                        <action-item v-for="def in currentSheet.actionSequence" v-bind:obj="def">
+                        </action-item>
+                    </draggable>
                 </td>
 
                 <td class="col-2">
                     <div class="panel" v-if=currentActionItem>
-                        <div class="padded-3 v-align-mid">
-                            <btn class="trash" icon="trash-o" @click="removeAction(def)"></btn>
-                            <btn class="padded-5 v-align-mid" icon="plus-square" label="Param" v-on:click="addActionParam()"></btn>
-                            
-                            <div class="action-header">
-                                <i>Name:</i> <input class="" v-model:value="currentActionItem.name"> <br/>
-                                <i>Params Count:</i> <i style="text-align: left;" v-html="currentActionItem.actions.length"></i>
-                            </div>
+                        <div class="padded-3">
+                            <btn class="padded-5" icon="trash-o" title="Delete item" @click="removeAction(def)"></btn>
+                            <btn class="padded-5" icon="clone" title="Clone item" @click="copyAction(currentActionItem)"></btn>
 
-                            
+                            <i class="inline-block padded-3">
+                                <i>Name:</i>
+                                <input class="" v-model:value="currentActionItem.name">
+                            </i>
+                            <!-- Names Suggestion DropDown menu -->
+                            <span class="dropdown">
+                                <btn class="padded-5 action-names"
+                                     @click="setCurrentDropDown(currentActionItem)"
+                                     icon="caret-down">
+                                </btn>
+                                <div class="dropdown-list suggested-names-panel"
+                                     v-if="currentDropDown==currentActionItem"
+                                     @click="useSuggestedName(currentActionItem, $event, currentSheet.lightSequence)">
+                                    <div v-for="(item, id) in currentSheet.lightSequence" v-html="item.name" :data-index="id"></div>
+                                </div>
+                            </span>
+
+                            <btn class="padded-5" icon="plus-square" title="Add an Action Parameter" label="Param" v-on:click="addActionParam()"></btn>
                         </div>
 
-                        <div class="padded-3 strip-action">
-                            <div class="border padded-5 action-param" v-for="actionParam in currentActionItem.actions">
+                        <i class="padded-3">
+                            <i>Params Count:</i> <i v-html="currentActionItem.params.length"></i>
+                        </i>
+
+                        <draggable class="padded-3 strip-action"
+                                   :list="currentActionItem.actions"
+                                    :options="{ handle: '.drag-handle' }">
+                            <div class="border padded-5 action-param"
+                                 v-for="actionParam in currentActionItem.params">
+
                                 <div class="inline-block">
-                                    <i class="nowrap head">
+                                    <span class="">
+                                        <btn class="padded-5" icon="trash-o" title="Delete param" @click="removeActionParam(actionParam)"></btn>
+                                        <btn class="padded-5" icon="clone" title="Clone param" @click="copyActionParam(actionParam)"></btn>
+                                        <btn class="padded-5 drag-handle" icon="sort" title="Sort param"></btn>
+
+                                        <!-- "Take Off" DropDown menu -->
+                                        <span class="dropdown">
+                                            <btn class="padded-5 ara-command"
+                                                 @click="setCurrentDropDown(actionParam)"
+                                                 :label="actionParam.type"><!-- icon="caret-down" -->
+                                            </btn>
+                                            <div class="dropdown-list ara-command-panel"
+                                                 v-if="currentDropDown==actionParam"
+                                                 @click="selectActionType(actionParam, $event)">
+                                                <div v-for="(araCmd, araID) in hardcoded.AraCommands"
+                                                     v-html="araCmd.name"
+                                                     :class="actionParam.type==araCmd.name ? 'isSelected' : ''"
+                                                     :data-index="araID"></div>
+                                            </div>
+                                        </span>
+                                    </span>
+
+                                    <div class="nowrap head">
                                         <span class="nowrap action-header">
                                             <i>Time:</i>
                                             <input class="digits-3" v-model:value="actionParam.time">
@@ -89,19 +200,9 @@
                                             <i>Elevation:</i>
                                             <input class="digits-3" v-model:value="actionParam.elevation">
                                         </span>
-                                    </i>
-                                </div>
-                                
-                                <div class="dropdown">
-                                    <div class="btn ara-command"
-                                         @click.capture.stop.prevent="setCurrentDropDown(actionParam)"
-                                         v-html="actionParam.type.name">
-                                    </div>
-                                    <div class="dropdown-list ara-command-panel" v-if="currentDropDown==actionParam" @click="selectActionType(actionParam, $event)">
-                                        <div v-for="(araCmd, araID) in hardcoded.AraCommands" v-html="araCmd.name" :data-index="araID"></div>
                                     </div>
                                 </div>
-                                
+
                                 
                                 <br/>
                                 <i class="spacer-1 nowrap">
@@ -119,7 +220,7 @@
                                 <i>Wait For Yaw</i>
                                 </i>
                             </div>
-                        </div>
+                        </draggable>
 
                     </div>
                 </td>

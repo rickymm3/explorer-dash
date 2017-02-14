@@ -8,6 +8,9 @@ const Query = mongoose.Query;
 const ObjectID = Schema.ObjectId;
 
 module.exports = function(ERDS) {
+	trace("Mongo Disabled for now.".yellow);
+	return;
+
 	mongoose
 		.connect(ERDS.__mongodb)
 		.then(() => {

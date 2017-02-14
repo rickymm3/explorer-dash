@@ -25,6 +25,16 @@ Array.prototype.remove = function(item) {
 	return id;
 };
 
+Array._map_toKeyValues = function(name,i) {
+	return {value: i, name: name};
+};
+
+Array.prototype.toKeyValues = function() {
+	return this.map(Array._map_toKeyValues);
+};
+
+/////////////////
+
 String.prototype.has = function has(str) {
 	return this.indexOf(str)>-1;
 };
@@ -93,6 +103,10 @@ _.mapRename = function(obj, filter) {
 		newObj[filter(key)] = val;
 	});
 	return newObj;
+};
+
+_.jsonClone = function(data) {
+	return JSON.parse(JSON.stringify(data));
 };
 
 //////////////////////////////////////////////////////////////

@@ -8,7 +8,10 @@ body {
 @colorAraCommandBtn: rgba(105, 72, 177, 0.75);
 @colorModifiableBtn: rgba(57, 177, 77, 0.75);
 @colorSheetBtn: rgba(220, 216, 94, 0.75);
-@col-1-width: 150px;
+@colorSubpanel: rgba(0,0,255,0.5);
+@colWidth: 150px;
+@lightSize: 120px;
+
 
 .header {
   white-space: nowrap;
@@ -237,8 +240,8 @@ body {
   }
   
   .col-1 {
-    width: @col-1-width;
-    max-width: @col-1-width;
+    width: @colWidth;
+    max-width: @colWidth;
     //float: left;
   }
   
@@ -319,48 +322,104 @@ body {
 }
 
 .light-comp {
+  position: relative;
   background: #fff;
   padding: 10px;
-  .round();
-}
-
-.ring-light {
-  position: relative;
-  @size: 120px;
-  @sizeBulb: @size / 10;
-  @radius: @size * 0.3;
-  @radiusSmall: @radius * 0.66;
   width: 100%;
-  height: @size;
+  height: @lightSize * 1.5;
 
-  .ring-center {
+  .round();
+
+  .center {
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
   }
 
   .bulb {
     display: block;
     position: absolute;
-    width:@sizeBulb;
-    height:@sizeBulb;
     border: solid 2px #000;
-    border-radius: @sizeBulb/2;
-    background: #888;
+    background: #555;
 
     &:hover {
       border-color: #444;
     }
   }
+}
 
-  .n {left: 0; top: -@radius;}
-  .ne {left: @radiusSmall; top: -@radiusSmall;}
-  .e {left: @radius; top: 0;}
-  .se {left: @radiusSmall; top: @radiusSmall;}
-  .s {left: 0; top: @radius;}
-  .sw {left: -@radiusSmall; top: @radiusSmall;}
-  .w {left: -@radius; top: 0;}
-  .nw {left: -@radiusSmall; top: -@radiusSmall;}
+.ring-light {
+  @sizeBulb: @lightSize / 8;
+  @radius: @lightSize * 0.3;
+  @radiusSmall: @radius * 0.66;
+
+  .bulb {
+    width:@sizeBulb;
+    height:@sizeBulb;
+    border-radius: @sizeBulb/2;
+  }
+
+  .center { background: #f0f; }
+
+  .bulb-0 {left: 0; top: -@radius;}
+  .bulb-1 {left: @radiusSmall; top: -@radiusSmall;}
+  .bulb-2 {left: @radius; top: 0;}
+  .bulb-3 {left: @radiusSmall; top: @radiusSmall;}
+  .bulb-4 {left: 0; top: @radius;}
+  .bulb-5 {left: -@radiusSmall; top: @radiusSmall;}
+  .bulb-6 {left: -@radius; top: 0;}
+  .bulb-7 {left: -@radiusSmall; top: -@radiusSmall;}
+}
+
+.strip-light {
+  @sizeBulb: @lightSize / 10 * 2;
+  @spaceBulb: @sizeBulb * 1.1;
+  .bulb {
+    width:@sizeBulb;
+    height:@sizeBulb / 2;
+    border-radius: @sizeBulb/6;
+  }
+
+  .bulb-0 { left: @spaceBulb * -4; top: 0; }
+  .bulb-1 { left: @spaceBulb * -3; top: 0; }
+  .bulb-2 { left: @spaceBulb * -2; top: 0; }
+  .bulb-3 { left: @spaceBulb * -1; top: 0; }
+  .bulb-4 { left: @spaceBulb * 0; top: 0; }
+  .bulb-5 { left: @spaceBulb * 1; top: 0; }
+  .bulb-6 { left: @spaceBulb * 2; top: 0; }
+  .bulb-7 { left: @spaceBulb * 3; top: 0; }
+}
+
+.steps {
+  margin-top: 5px;
+  border: solid 1px rgba(0,0,0,0.5);
+  overflow: hidden;
+  .round();
+
+  .step {
+    border-bottom: solid 1px rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.2);
+    .padded-3;
+    .shadowy;
+
+    .btn {
+      padding: 3px;
+    }
+
+    &.isSelected {
+      background: rgba(255,255,255,0.5);
+      color: #fff;
+      .shadow-dark;
+    }
+  }
+
+  .step:last-child {
+    border-bottom: none;
+  }
+
+  //.step:nth-child(odd) {
+  //  background: rgba(255, 255, 255, 0.2);
+  //}
 }
 
 .subheader {
@@ -370,9 +429,19 @@ body {
 }
 
 .subpanel {
-  background: rgba(0,0,255,0.5);
+  background: @colorSubpanel;
   padding: 5px;
   .round();
+}
+
+.bulb-statuses {
+  font-family: monospace;
+  white-space: pre;
+}
+
+.bulb-stat {
+  padding: 2px;
+  //font-style: normal !important;
 }
 
 //////////////////////////////////////////////// MEDIA QUERIES
@@ -389,7 +458,7 @@ body {
   }
 }
 
-@media screen and (max-width: 760px) {
+@media screen and (max-width: 758px) {
   .ring-sequence, .strip-sequence {
     display: block !important;
     width: 100% !important;

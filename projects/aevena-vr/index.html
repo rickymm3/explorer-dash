@@ -1,5 +1,4 @@
 
-
 <div class="header">
     <h1 class="title padded-5">$projectName</h1>
 
@@ -76,72 +75,41 @@
                             <btn class="spacer-1" icon="play" label="Play All"></btn>
                         </div>
 
+                        <light-comp
+                                header="Ring Sequence"
+                                prefix="Ring"
+                                class_lightcomp="ring-light"
+                                class="ring-sequence"
+                                :obj="currentLightItem"
+                                :steps="currentLightItem.ringSteps"
+                                :loops="'ringSeqLooping'"
+                                :holds="'ringSeqHoldLast'">
+                        </light-comp>
 
-                        <div class="padded-3 subpanel ring-sequence">
-                            <i class="subheader nowrap v-align-mid-kids">
-                                <i>Ring Sequence</i>
-                                <i class="spacer-1">
-                                    <input type="checkbox" v-model:value="currentLightItem.ringSeqLooping"> &nbsp;
-                                    <i class="fa fa-refresh v-align-mid" title="Looping"></i>
-                                </i>
+                        <light-comp
+                                header="Strip Sequence"
+                                prefix="Strip"
+                                class_lightcomp="strip-light"
+                                class="strip-sequence"
+                                :obj="currentLightItem"
+                                :steps="currentLightItem.stripSteps"
+                                :loops="'stripSeqLooping'"
+                                :holds="'stripSeqHoldLast'">
+                        </light-comp>
 
-                                <i class="spacer-1">
-                                    <input type="checkbox" v-model:value="currentLightItem.ringSeqHoldLast"> &nbsp;
-                                    <i class="fa fa-pause v-align-mid" title="Hold Last"></i>
-                                </i>
+                        <!--<light-comp-->
+                                <!--header="Strip Sequence"-->
+                                <!--class="strip-sequence"-->
+                                <!--:obj="currentLightItem"-->
+                                <!--:steps="currentLightItem.stripSteps"-->
+                                <!--:isLooping="currentLightItem.stripSeqLooping"-->
+                                <!--:isHoldLast="currentLightItem.stripSeqHoldLast"-->
+                                <!--:currentStep="currentStripStep"-->
+                                <!--:clazzLightComp="'strip-light'">-->
 
-                                <i class="break">
-                                    <btn class="" icon="plus-square" label="Step"></btn>
-                                    <btn class="" icon="play"></btn>
-                                </i>
-                            </i> <br/>
+                        <!--</light-comp>-->
 
-                            <div class="light-comp ring-light">
-                                <div class="ring-center">
-                                    <i class="bulb n"></i>
-                                    <i class="bulb ne"></i>
-                                    <i class="bulb e"></i>
-                                    <i class="bulb se"></i>
-                                    <i class="bulb s"></i>
-                                    <i class="bulb sw"></i>
-                                    <i class="bulb w"></i>
-                                    <i class="bulb nw"></i>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="padded-3 subpanel strip-sequence">
-                            <i class="subheader nowrap v-align-mid-kids">
-                                <i>Strip Sequence</i>
-                                <i class="spacer-1">
-                                    <input type="checkbox" v-model:value="currentLightItem.stripSeqLooping"> &nbsp;
-                                    <i class="fa fa-refresh v-align-mid" title="Looping"></i>
-                                </i>
-
-                                <i class="spacer-1">
-                                    <input type="checkbox" v-model:value="currentLightItem.stripSeqHoldLast"> &nbsp;
-                                    <i class="fa fa-pause v-align-mid" title="Hold Last"></i>
-                                </i>
-
-                                <i class="break">
-                                    <btn class="" icon="plus-square" label="Step"></btn>
-                                    <btn class="" icon="play"></btn>
-                                </i>
-                            </i> <br/>
-
-                            <div class="light-comp strip-light">
-                                <div class="strip-center">
-                                    <i class="bulb n"></i>
-                                    <i class="bulb ne"></i>
-                                    <i class="bulb e"></i>
-                                    <i class="bulb se"></i>
-                                    <i class="bulb s"></i>
-                                    <i class="bulb sw"></i>
-                                    <i class="bulb w"></i>
-                                    <i class="bulb nw"></i>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </td>
             </tr>

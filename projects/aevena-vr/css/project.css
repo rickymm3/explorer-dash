@@ -250,63 +250,126 @@ body {
   padding-left: 20px;
 }
 .light-comp {
+  position: relative;
   background: #fff;
   padding: 10px;
+  width: 100%;
+  height: 180px;
   border-radius: 10px;
 }
-.ring-light {
-  position: relative;
-  width: 100%;
-  height: 120px;
-}
-.ring-light .ring-center {
+.light-comp .center {
   position: absolute;
-  top: 50%;
+  top: 60%;
   left: 50%;
 }
-.ring-light .bulb {
+.light-comp .bulb {
   display: block;
   position: absolute;
-  width: 12px;
-  height: 12px;
   border: solid 2px #000;
-  border-radius: 6px;
-  background: #888;
+  background: #555;
 }
-.ring-light .bulb:hover {
+.light-comp .bulb:hover {
   border-color: #444;
 }
-.ring-light .n {
+.ring-light .bulb {
+  width: 15px;
+  height: 15px;
+  border-radius: 7.5px;
+}
+.ring-light .center {
+  background: #f0f;
+}
+.ring-light .bulb-0 {
   left: 0;
   top: -36px;
 }
-.ring-light .ne {
+.ring-light .bulb-1 {
   left: 23.76px;
   top: -23.76px;
 }
-.ring-light .e {
+.ring-light .bulb-2 {
   left: 36px;
   top: 0;
 }
-.ring-light .se {
+.ring-light .bulb-3 {
   left: 23.76px;
   top: 23.76px;
 }
-.ring-light .s {
+.ring-light .bulb-4 {
   left: 0;
   top: 36px;
 }
-.ring-light .sw {
+.ring-light .bulb-5 {
   left: -23.76px;
   top: 23.76px;
 }
-.ring-light .w {
+.ring-light .bulb-6 {
   left: -36px;
   top: 0;
 }
-.ring-light .nw {
+.ring-light .bulb-7 {
   left: -23.76px;
   top: -23.76px;
+}
+.strip-light .bulb {
+  width: 24px;
+  height: 12px;
+  border-radius: 4px;
+}
+.strip-light .bulb-0 {
+  left: -105.6px;
+  top: 0;
+}
+.strip-light .bulb-1 {
+  left: -79.2px;
+  top: 0;
+}
+.strip-light .bulb-2 {
+  left: -52.8px;
+  top: 0;
+}
+.strip-light .bulb-3 {
+  left: -26.4px;
+  top: 0;
+}
+.strip-light .bulb-4 {
+  left: 0px;
+  top: 0;
+}
+.strip-light .bulb-5 {
+  left: 26.4px;
+  top: 0;
+}
+.strip-light .bulb-6 {
+  left: 52.8px;
+  top: 0;
+}
+.strip-light .bulb-7 {
+  left: 79.2px;
+  top: 0;
+}
+.steps {
+  margin-top: 5px;
+  border: solid 1px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  border-radius: 10px;
+}
+.steps .step {
+  border-bottom: solid 1px rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 5px;
+  text-shadow: #fff 0px 1px 2px;
+}
+.steps .step .btn {
+  padding: 3px;
+}
+.steps .step.isSelected {
+  background: rgba(255, 255, 255, 0.5);
+  color: #fff;
+  text-shadow: #222 1px 1px 1px;
+}
+.steps .step:last-child {
+  border-bottom: none;
 }
 .subheader {
   display: inline-block;
@@ -318,6 +381,13 @@ body {
   padding: 5px;
   border-radius: 10px;
 }
+.bulb-statuses {
+  font-family: monospace;
+  white-space: pre;
+}
+.bulb-stat {
+  padding: 2px;
+}
 @media screen and (max-width: 990px) {
   .ring-sequence .break,
   .strip-sequence .break {
@@ -327,7 +397,7 @@ body {
     margin-bottom: 5px;
   }
 }
-@media screen and (max-width: 760px) {
+@media screen and (max-width: 758px) {
   .ring-sequence,
   .strip-sequence {
     display: block !important;

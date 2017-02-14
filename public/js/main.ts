@@ -162,10 +162,6 @@ function registerComponents(compList) {
 		//Assume a default template ID naming convention if no raw HTML is used:
 		if(!tag.template || !tag.template.length) {
 			tag.template = '#'+compName+'-tmp';
-			var $tmp = $(tag.template);
-			if(!$tmp || !$tmp.length) {
-				return traceError("VUEJS ERROR: Cannot find template: " + tag.template);
-			}
 
 			trace("Registering tag: " + tag.template);
 		}

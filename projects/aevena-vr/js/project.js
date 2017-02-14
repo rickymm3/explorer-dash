@@ -92,7 +92,9 @@ function traceJSON(obj) {
             ],
             data: function () {
                 return {
-                    'currentStepID': 0
+                    'currentColor': '#f00',
+                    'currentStepID': 0,
+                    'currentFocus': 'Colors'
                 };
             },
             computed: {
@@ -103,14 +105,28 @@ function traceJSON(obj) {
                     if (this.currentStepID < 0 || this.currentStepID >= this.steps.length)
                         return null;
                     return this.steps[this.currentStepID];
+                },
+                isFocusColors: function () {
+                    return this.currentFocus == "Colors";
+                },
+                modes: function () {
+                    return __VUE.hardcoded.LightStates;
+                },
+                audioClips: function () {
+                    return __VUE.hardcoded.AudioClips;
+                },
+                currentDropDown: function () {
+                    return __VUE.currentDropDown;
                 }
             },
             methods: {
                 addStep: function () {
-                    trace("Add step...");
+                    this.steps.push(globalAddLightStep());
+                    this.currentStepID = this.steps.length - 1;
                 },
                 copyStep: function (item) {
-                    __VUE[this.currentStepName] = duplicateItem(item, this.steps);
+                    var newItem = duplicateItem(item, this.steps);
+                    this.currentStepID = this.steps.indexOf(newItem);
                     //this.currentLightItem.name += " (Copy)";
                 },
                 removeStep: function (item) {
@@ -119,9 +135,40 @@ function traceJSON(obj) {
                 setStepID: function (id) {
                     this.currentStepID = id;
                     //__VUE[this.currentStepName] = this.steps[id];
+                },
+                setCurrentDropDown: function (item) {
+                    __VUE.currentDropDown = item;
+                },
+                setCurrentFocus: function (e) {
+                    var id = $(e.target).data('index');
+                    if (isNaN(id))
+                        return;
+                    this.currentFocus = this.modes[id].name;
+                },
+                onClickBulb: function (light) {
+                    if (this.isFocusColors) {
+                        light.color = this.currentColor;
+                        return;
+                    }
+                    light.state = this.currentFocus;
+                },
+                convertStateToChar: function (light) {
+                    switch (light.state) {
+                        case "Colors": return "!";
+                        case "Off": return "_";
+                        case "Full": return "#";
+                        case "FadeIn": return "&uarr;";
+                        case "FadeOut": return "&darr;";
+                    }
+                },
+                setCurrentAudio: function (e) {
+                    if (!this.currentStep)
+                        return;
+                    var el = $(e.target);
+                    this.currentStep.audio = String(el[0].innerHTML);
                 }
             },
-            template: "\n\t\t\t<div class=\"padded-3 subpanel\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\n\t\t\t\t<br/>\n\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<btn class=\"audio\" icon=\"volume-up\"></btn>\n\t\t\t\t\t<input class=\"\" v-model:value=\"currentStep.audio\">\n\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i class=\"bulb bulb-0\" :style=\"{color: currentStep.lights[0].color}\"></i>\n\t\t\t\t\t\t<i class=\"bulb bulb-1\"></i>\n\t\t\t\t\t\t<i class=\"bulb bulb-2\"></i>\n\t\t\t\t\t\t<i class=\"bulb bulb-3\"></i>\n\t\t\t\t\t\t<i class=\"bulb bulb-4\"></i>\n\t\t\t\t\t\t<i class=\"bulb bulb-5\"></i>\n\t\t\t\t\t\t<i class=\"bulb bulb-6\"></i>\n\t\t\t\t\t\t<i class=\"bulb bulb-7\"></i>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\n\t\t\t\t<draggable class=\"steps\" :list=\"steps\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t:class=\"{isSelected: currentStepID==id}\"\n\t\t\t\t\t\t@click=\"setStepID(id)\"\n\t\t\t\t\t\tv-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\n\t\t\t\t\t\t<i>Time:</i>\n\t\t\t\t\t\t<input class=\"digits-3\" v-model:value=\"step.time\">\n\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\" :style=\"{color: light.color}\">#</i>\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>\n\t\t\t"
+            template: "\n\t\t\t<div class=\"padded-3 subpanel\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\n\t\t\t\t<br/>\n\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<!-- Audio -->\n\t\t\t\t\t<span class=\"dropdown\">\n\t\t\t\t\t\t<btn class=\"padded-5 audio\"\n\t\t\t\t\t\t\t @click=\"setCurrentDropDown(steps)\"\n\t\t\t\t\t\t\t icon=\"volume-up\">\n\t\t\t\t\t\t</btn>\n\t\t\t\t\t\t<div class=\"dropdown-list audio-list\"\n\t\t\t\t\t\t\t v-if=\"currentDropDown==steps\"\n\t\t\t\t\t\t\t @click=\"setCurrentAudio($event)\">\n\t\t\t\t\t\t\t<div v-for=\"(item, id) in audioClips\"\n\t\t\t\t\t\t\t\tv-html=\"item.name\"\n\t\t\t\t\t\t\t\t:class=\"{isSelected: currentStep.audio==item.name}\"\n\t\t\t\t\t\t\t\t:data-index=\"id\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</span>\n\n\t\t\t\t\t<input class=\"padded-2\" v-model:value=\"currentStep.audio\">\n\n\t\t\t\t\t<br/>\n\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<span class=\"dropdown\">\n\t\t\t\t\t\t\t<btn class=\"padded-5 color-names\"\n\t\t\t\t\t\t\t\t @click=\"setCurrentDropDown(currentStep)\"\n\t\t\t\t\t\t\t\t icon=\"paint-brush\">\n\t\t\t\t\t\t\t</btn>\n\t\t\t\t\t\t\t<div class=\"dropdown-list step-modes\"\n\t\t\t\t\t\t\t\t v-if=\"currentDropDown==currentStep\"\n\t\t\t\t\t\t\t\t @click=\"setCurrentFocus($event)\">\n\t\t\t\t\t\t\t\t<div v-for=\"(item, id) in modes\"\n\t\t\t\t\t\t\t\t\tv-html=\"item.name\"\n\t\t\t\t\t\t\t\t\t:class=\"{isSelected: currentFocus==item.name}\"\n\t\t\t\t\t\t\t\t\t:data-index=\"id\"></div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<i v-if=\"isFocusColors\">\n\t\t\t\t\t\t\t<i class=\"spacer-1\">Color:</i>\n\t\t\t\t\t\t\t<input class=\"color-picker\"\n\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\"\n\t\t\t\t\t\t\t\t\tv-model:value=\"currentColor\">\n\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t<i v-if=\"!isFocusColors\">\n\t\t\t\t\t\t\tPainting: \"{{currentFocus}}\"\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\n\n\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentStep.lights\"\n\t\t\t\t\t\t\t:class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t\t:style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t\t@click=\"onClickBulb(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\n\t\t\t\t<draggable class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t:class=\"{isSelected: currentStepID==id}\"\n\t\t\t\t\t\t@click=\"setStepID(id)\"\n\t\t\t\t\t\tv-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\n\t\t\t\t\t\t<i>Time:</i>\n\t\t\t\t\t\t<input class=\"digits-3\" v-model:value=\"step.time\">\n\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t\t:style=\"{color: light.color}\"\n\t\t\t\t\t\t\t\tv-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>\n\t\t\t"
         }
     });
     //Key modifier:
@@ -199,6 +246,7 @@ function traceJSON(obj) {
                         this.currentLightItem.name += " (Copy)";
                     },
                     removeLight: function (item) {
+                        trace("remove light...");
                         removeItem(item, __LIGHTS, "currentLightItem");
                     },
                     addAction: function () {
@@ -379,119 +427,14 @@ function traceJSON(obj) {
             type: 'light-item',
             name: 'Light ' + (__LIGHTS.length + 1),
             ringSeqLooping: false,
-            ringSeqHoldLast: true,
+            ringSeqHoldLast: false,
             ringSteps: [
-                {
-                    type: 'ring-step',
-                    time: 1,
-                    audioClip: null,
-                    //'light-n': {state: 'Full', color: '#f00'},
-                    //'light-ne': {state: 'Full', color: '#f00'},
-                    //'light-e': {state: 'Full', color: '#f00'},
-                    //'light-se': {state: 'Full', color: '#f00'},
-                    //'light-s': {state: 'Full', color: '#f00'},
-                    //'light-sw': {state: 'Full', color: '#f00'},
-                    //'light-w': {state: 'Full', color: '#f00'},
-                    //'light-nw': {state: 'Full', color: '#f00'},
-                    lights: [
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                    ]
-                },
-                {
-                    type: 'ring-step',
-                    time: 1,
-                    audioClip: null,
-                    //'light-n': {state: 'Full', color: '#f00'},
-                    //'light-ne': {state: 'Full', color: '#f00'},
-                    //'light-e': {state: 'Full', color: '#f00'},
-                    //'light-se': {state: 'Full', color: '#f00'},
-                    //'light-s': {state: 'Full', color: '#f00'},
-                    //'light-sw': {state: 'Full', color: '#f00'},
-                    //'light-w': {state: 'Full', color: '#f00'},
-                    //'light-nw': {state: 'Full', color: '#f00'},
-                    lights: [
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                    ]
-                },
-                {
-                    type: 'ring-step',
-                    time: 1,
-                    audioClip: null,
-                    //'light-n': {state: 'Full', color: '#f00'},
-                    //'light-ne': {state: 'Full', color: '#f00'},
-                    //'light-e': {state: 'Full', color: '#f00'},
-                    //'light-se': {state: 'Full', color: '#f00'},
-                    //'light-s': {state: 'Full', color: '#f00'},
-                    //'light-sw': {state: 'Full', color: '#f00'},
-                    //'light-w': {state: 'Full', color: '#f00'},
-                    //'light-nw': {state: 'Full', color: '#f00'},
-                    lights: [
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                    ]
-                },
-                {
-                    type: 'ring-step',
-                    time: 1,
-                    audioClip: null,
-                    //'light-n': {state: 'Full', color: '#f00'},
-                    //'light-ne': {state: 'Full', color: '#f00'},
-                    //'light-e': {state: 'Full', color: '#f00'},
-                    //'light-se': {state: 'Full', color: '#f00'},
-                    //'light-s': {state: 'Full', color: '#f00'},
-                    //'light-sw': {state: 'Full', color: '#f00'},
-                    //'light-w': {state: 'Full', color: '#f00'},
-                    //'light-nw': {state: 'Full', color: '#f00'},
-                    lights: [
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'FadeOut', color: '#ff0' },
-                    ]
-                }
+                globalAddLightStep()
             ],
             stripSeqLooping: false,
             stripSeqHoldLast: false,
             stripSteps: [
-                {
-                    type: 'strip-step',
-                    time: 1,
-                    audioClip: null,
-                    lights: [
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                        { state: 'Full', color: '#f00' },
-                    ]
-                }
+                globalAddLightStep()
             ]
         });
         __VUE.currentLightItem = __LIGHTS.last();
@@ -520,13 +463,32 @@ function traceJSON(obj) {
         //traceJSON(__VUE.currentActionItem.params);
         //__VUE.currentActionItem
     }
+    function globalAddLightStep() {
+        return {
+            type: 'light-step',
+            time: 1,
+            audio: "Off",
+            lights: [
+                { state: 'Full', color: '#f00' },
+                { state: 'Full', color: '#f00' },
+                { state: 'Full', color: '#f00' },
+                { state: 'Full', color: '#f00' },
+                { state: 'Full', color: '#f00' },
+                { state: 'Full', color: '#f00' },
+                { state: 'Full', color: '#f00' },
+                { state: 'Full', color: '#f00' },
+            ]
+        };
+    }
     function removeItem(item, list, vueProperty) {
         if (item)
             return list.remove(item);
-        if (!__VUE[vueProperty])
+        if (!__VUE[vueProperty]) {
+            traceError(vueProperty + " contains nothing!");
             return;
+        }
         var id = list.remove(__VUE[vueProperty]) - 1;
-        __VUE[vueProperty] = id < 0 ? list.first() : list[id];
+        __VUE[vueProperty] = id < 0 ? (list.length > 0 ? list.first() : null) : list[id];
     }
     function duplicateItem(item, list) {
         var id = list.indexOf(item);

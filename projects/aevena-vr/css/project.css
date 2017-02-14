@@ -9,6 +9,9 @@ body {
 .title {
   width: 180px;
 }
+.sheet-names {
+  width: 200px;
+}
 .sidebar,
 .topbar {
   display: inline-block;
@@ -254,7 +257,7 @@ body {
   background: #fff;
   padding: 10px;
   width: 100%;
-  height: 180px;
+  height: 266px;
   border-radius: 10px;
 }
 .light-comp .center {
@@ -267,69 +270,88 @@ body {
   position: absolute;
   border: solid 2px #000;
   background: #555;
+  cursor: pointer;
 }
 .light-comp .bulb:hover {
   border-color: #444;
 }
+.light-comp .bulb-off {
+  opacity: 0.5;
+  border: dotted 2px #888;
+}
+.light-comp .bulb-full {
+  box-shadow: 0px 0px 3px 2px #fa7;
+}
+.light-comp .bulb-fadein {
+  border-color: #000;
+}
+.light-comp .bulb-fadeout {
+  border-color: #aaa;
+  opacity: 0.75;
+}
 .ring-light .bulb {
-  width: 15px;
-  height: 15px;
-  border-radius: 7.5px;
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+}
+.ring-light .bulb-off {
+  width: 20px;
+  height: 20px;
 }
 .ring-light .center {
   background: #f0f;
 }
 .ring-light .bulb-0 {
   left: 0;
-  top: -36px;
+  top: -56px;
 }
 .ring-light .bulb-1 {
-  left: 23.76px;
-  top: -23.76px;
+  left: 36.96px;
+  top: -36.96px;
 }
 .ring-light .bulb-2 {
-  left: 36px;
+  left: 56px;
   top: 0;
 }
 .ring-light .bulb-3 {
-  left: 23.76px;
-  top: 23.76px;
+  left: 36.96px;
+  top: 36.96px;
 }
 .ring-light .bulb-4 {
   left: 0;
-  top: 36px;
+  top: 56px;
 }
 .ring-light .bulb-5 {
-  left: -23.76px;
-  top: 23.76px;
+  left: -36.96px;
+  top: 36.96px;
 }
 .ring-light .bulb-6 {
-  left: -36px;
+  left: -56px;
   top: 0;
 }
 .ring-light .bulb-7 {
-  left: -23.76px;
-  top: -23.76px;
+  left: -36.96px;
+  top: -36.96px;
 }
 .strip-light .bulb {
-  width: 24px;
-  height: 12px;
-  border-radius: 4px;
+  width: 28px;
+  height: 14px;
+  border-radius: 4.66666667px;
 }
 .strip-light .bulb-0 {
-  left: -105.6px;
+  left: -123.2px;
   top: 0;
 }
 .strip-light .bulb-1 {
-  left: -79.2px;
+  left: -92.4px;
   top: 0;
 }
 .strip-light .bulb-2 {
-  left: -52.8px;
+  left: -61.6px;
   top: 0;
 }
 .strip-light .bulb-3 {
-  left: -26.4px;
+  left: -30.8px;
   top: 0;
 }
 .strip-light .bulb-4 {
@@ -337,15 +359,15 @@ body {
   top: 0;
 }
 .strip-light .bulb-5 {
-  left: 26.4px;
+  left: 30.8px;
   top: 0;
 }
 .strip-light .bulb-6 {
-  left: 52.8px;
+  left: 61.6px;
   top: 0;
 }
 .strip-light .bulb-7 {
-  left: 79.2px;
+  left: 92.4px;
   top: 0;
 }
 .steps {
@@ -371,6 +393,9 @@ body {
 .steps .step:last-child {
   border-bottom: none;
 }
+.steps input {
+  color: #000 !important;
+}
 .subheader {
   display: inline-block;
   text-shadow: #fff 0px 1px 2px;
@@ -387,6 +412,21 @@ body {
 }
 .bulb-stat {
   padding: 2px;
+}
+.color-picker {
+  font-weight: bold;
+  display: inline-block;
+  width: 5em;
+  text-shadow: #fff 1px 1px 1px;
+  color: #000;
+}
+.step-modes {
+  column-count: 1;
+  width: 100px;
+}
+.audio-list {
+  column-count: 2;
+  width: 270px;
 }
 @media screen and (max-width: 990px) {
   .ring-sequence .break,

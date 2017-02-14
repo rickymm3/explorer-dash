@@ -111,7 +111,9 @@ function traceJSON(obj=null) {
 
 			data() {
 				return {
+					'currentColor': '#f00',
 					'currentStepID': 0,
+					'currentFocus': 'Colors'
 				};
 			},
 
@@ -123,17 +125,35 @@ function traceJSON(obj=null) {
 				currentStep() {
 					if(this.currentStepID<0 || this.currentStepID>=this.steps.length) return null;
 					return this.steps[this.currentStepID];
+				},
+
+				isFocusColors() {
+					return this.currentFocus=="Colors";
+				},
+
+				modes() {
+					return __VUE.hardcoded.LightStates;
+				},
+
+				audioClips() {
+					return __VUE.hardcoded.AudioClips;
+				},
+
+				currentDropDown() {
+					return __VUE.currentDropDown;
 				}
 			},
 
 			methods: {
 
 				addStep() {
-					trace("Add step...");
+					this.steps.push( globalAddLightStep() );
+					this.currentStepID = this.steps.length-1;
 				},
 
 				copyStep(item) {
-					__VUE[this.currentStepName] = duplicateItem(item, this.steps);
+					var newItem = duplicateItem(item, this.steps);
+					this.currentStepID = this.steps.indexOf(newItem);
 					//this.currentLightItem.name += " (Copy)";
 				},
 
@@ -144,6 +164,42 @@ function traceJSON(obj=null) {
 				setStepID(id) {
 					this.currentStepID = id;
 					//__VUE[this.currentStepName] = this.steps[id];
+				},
+
+				setCurrentDropDown(item) {
+					__VUE.currentDropDown = item;
+				},
+
+				setCurrentFocus(e) {
+					var id = $(e.target).data('index');
+					if(isNaN(id)) return;
+
+					this.currentFocus = this.modes[id].name;
+				},
+
+				onClickBulb(light) {
+					if(this.isFocusColors) {
+						light.color = this.currentColor;
+						return;
+					}
+
+					light.state = this.currentFocus;
+				},
+
+				convertStateToChar(light) {
+					switch(light.state) {
+						case "Colors": return "!";
+						case "Off": return "_";
+						case "Full": return "#";
+						case "FadeIn": return "&uarr;";
+						case "FadeOut": return "&darr;";
+					}
+				},
+
+				setCurrentAudio(e) {
+					if(!this.currentStep) return;
+					var el = $(e.target);
+					this.currentStep.audio = String(el[0].innerHTML);
 				}
 			},
 
@@ -171,22 +227,67 @@ function traceJSON(obj=null) {
 				<br/>
 
 				<div class="light-comp" v-if="currentStep" :class="class_lightcomp">
-					<btn class="audio" icon="volume-up"></btn>
-					<input class="" v-model:value="currentStep.audio">
+					<!-- Audio -->
+					<span class="dropdown">
+						<btn class="padded-5 audio"
+							 @click="setCurrentDropDown(steps)"
+							 icon="volume-up">
+						</btn>
+						<div class="dropdown-list audio-list"
+							 v-if="currentDropDown==steps"
+							 @click="setCurrentAudio($event)">
+							<div v-for="(item, id) in audioClips"
+								v-html="item.name"
+								:class="{isSelected: currentStep.audio==item.name}"
+								:data-index="id"></div>
+						</div>
+					</span>
 
+					<input class="padded-2" v-model:value="currentStep.audio">
+
+					<br/>
+
+					<i class="nowrap">
+						<span class="dropdown">
+							<btn class="padded-5 color-names"
+								 @click="setCurrentDropDown(currentStep)"
+								 icon="paint-brush">
+							</btn>
+							<div class="dropdown-list step-modes"
+								 v-if="currentDropDown==currentStep"
+								 @click="setCurrentFocus($event)">
+								<div v-for="(item, id) in modes"
+									v-html="item.name"
+									:class="{isSelected: currentFocus==item.name}"
+									:data-index="id"></div>
+							</div>
+						</span>
+
+						<i v-if="isFocusColors">
+							<i class="spacer-1">Color:</i>
+							<input class="color-picker"
+									:style="{backgroundColor: currentColor}"
+									v-model:value="currentColor">
+						</i>
+
+						<i v-if="!isFocusColors">
+							Painting: "{{currentFocus}}"
+						</i>
+					</i>
+
+
+
+					<!-- Draw Actual Component -->
 					<div class="center">
-						<i class="bulb bulb-0" :style="{color: currentStep.lights[0].color}"></i>
-						<i class="bulb bulb-1"></i>
-						<i class="bulb bulb-2"></i>
-						<i class="bulb bulb-3"></i>
-						<i class="bulb bulb-4"></i>
-						<i class="bulb bulb-5"></i>
-						<i class="bulb bulb-6"></i>
-						<i class="bulb bulb-7"></i>
+						<i v-for="(light, id) in currentStep.lights"
+							:class="['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]"
+							:style="{backgroundColor: light.color}"
+							@click="onClickBulb(light)">
+							</i>
 					</div>
 				</div>
 
-				<draggable class="steps" :list="steps">
+				<draggable class="steps" :list="steps" :options="{ handle: '.drag-handle' }">
 					<div class="step"
 						:class="{isSelected: currentStepID==id}"
 						@click="setStepID(id)"
@@ -199,7 +300,10 @@ function traceJSON(obj=null) {
 						<input class="digits-3" v-model:value="step.time">
 
 						<i class="bulb-short bulb-statuses" v-for="(light, id) in step.lights">
-							<i class="bulb-stat" :style="{color: light.color}">#</i>
+							<i class="bulb-stat"
+								:style="{color: light.color}"
+								v-html="convertStateToChar(light)">
+							</i>
 						</i>
 					</div>
 				</draggable>
@@ -286,6 +390,7 @@ function traceJSON(obj=null) {
 					},
 
 					removeLight(item) {
+						trace("remove light...");
 						removeItem(item, __LIGHTS, "currentLightItem");
 					},
 
@@ -511,120 +616,15 @@ function traceJSON(obj=null) {
 			name: 'Light ' + (__LIGHTS.length+1),
 
 			ringSeqLooping: false,
-			ringSeqHoldLast: true,
+			ringSeqHoldLast: false,
 			ringSteps: [
-				{
-					type: 'ring-step',
-					time: 1,
-					audioClip: null,
-					//'light-n': {state: 'Full', color: '#f00'},
-					//'light-ne': {state: 'Full', color: '#f00'},
-					//'light-e': {state: 'Full', color: '#f00'},
-					//'light-se': {state: 'Full', color: '#f00'},
-					//'light-s': {state: 'Full', color: '#f00'},
-					//'light-sw': {state: 'Full', color: '#f00'},
-					//'light-w': {state: 'Full', color: '#f00'},
-					//'light-nw': {state: 'Full', color: '#f00'},
-					lights: [
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-					]
-				},
-				{
-					type: 'ring-step',
-					time: 1,
-					audioClip: null,
-					//'light-n': {state: 'Full', color: '#f00'},
-					//'light-ne': {state: 'Full', color: '#f00'},
-					//'light-e': {state: 'Full', color: '#f00'},
-					//'light-se': {state: 'Full', color: '#f00'},
-					//'light-s': {state: 'Full', color: '#f00'},
-					//'light-sw': {state: 'Full', color: '#f00'},
-					//'light-w': {state: 'Full', color: '#f00'},
-					//'light-nw': {state: 'Full', color: '#f00'},
-					lights: [
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-					]
-				},
-				{
-					type: 'ring-step',
-					time: 1,
-					audioClip: null,
-					//'light-n': {state: 'Full', color: '#f00'},
-					//'light-ne': {state: 'Full', color: '#f00'},
-					//'light-e': {state: 'Full', color: '#f00'},
-					//'light-se': {state: 'Full', color: '#f00'},
-					//'light-s': {state: 'Full', color: '#f00'},
-					//'light-sw': {state: 'Full', color: '#f00'},
-					//'light-w': {state: 'Full', color: '#f00'},
-					//'light-nw': {state: 'Full', color: '#f00'},
-					lights: [
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-					]
-				},
-				{
-					type: 'ring-step',
-					time: 1,
-					audioClip: null,
-					//'light-n': {state: 'Full', color: '#f00'},
-					//'light-ne': {state: 'Full', color: '#f00'},
-					//'light-e': {state: 'Full', color: '#f00'},
-					//'light-se': {state: 'Full', color: '#f00'},
-					//'light-s': {state: 'Full', color: '#f00'},
-					//'light-sw': {state: 'Full', color: '#f00'},
-					//'light-w': {state: 'Full', color: '#f00'},
-					//'light-nw': {state: 'Full', color: '#f00'},
-					lights: [
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'FadeOut', color: '#ff0'},
-					]
-				}
+				globalAddLightStep()
 			],
 
 			stripSeqLooping: false,
 			stripSeqHoldLast: false,
 			stripSteps: [
-				{
-					type: 'strip-step',
-					time: 1,
-					audioClip: null,
-					lights: [
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-						{state: 'Full', color: '#f00'},
-					]
-				}
+				globalAddLightStep()
 			],
 		});
 
@@ -660,12 +660,33 @@ function traceJSON(obj=null) {
 		//__VUE.currentActionItem
 	}
 
+	function globalAddLightStep() {
+		return {
+			type: 'light-step',
+			time: 1,
+			audio: "Off",
+			lights: [
+				{state: 'Full', color: '#f00'},
+				{state: 'Full', color: '#f00'},
+				{state: 'Full', color: '#f00'},
+				{state: 'Full', color: '#f00'},
+				{state: 'Full', color: '#f00'},
+				{state: 'Full', color: '#f00'},
+				{state: 'Full', color: '#f00'},
+				{state: 'Full', color: '#f00'},
+			]
+		}
+	}
+
 	function removeItem(item, list, vueProperty) {
 		if(item) return list.remove(item);
-		if(!__VUE[vueProperty]) return;
+		if(!__VUE[vueProperty]) {
+			traceError(vueProperty + " contains nothing!");
+			return;
+		}
 
 		var id = list.remove(__VUE[vueProperty]) - 1;
-		__VUE[vueProperty] = id<0 ? list.first() : list[id];
+		__VUE[vueProperty] = id<0 ? (list.length > 0 ? list.first() : null) : list[id];
 	}
 
 	function duplicateItem(item, list) {

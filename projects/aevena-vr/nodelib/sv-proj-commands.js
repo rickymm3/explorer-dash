@@ -124,6 +124,7 @@ module.exports = function(PROJ) {
 			].toKeyValues(),
 
 			AudioClips: [
+				"Off",
 				"BeepHigh",
 				"Blip",
 				"Boop",
@@ -138,6 +139,14 @@ module.exports = function(PROJ) {
 				"TriToneUp",
 				"UpFlutter",
 				"UpwardBeep"
+			].toKeyValues(),
+
+			LightStates: [
+				"Colors",
+				"Off",
+				"Full",
+				"FadeIn",
+				"FadeOut"
 			].toKeyValues()
 		}
 	}

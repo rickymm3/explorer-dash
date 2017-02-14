@@ -17,6 +17,8 @@
                      :class="currentSheet==item ? 'isSelected' : ''"
                      :data-index="id"></div>
             </div>
+
+            <input class="" v-model:value="currentSheet.name">
         </span>
     </div>
 </div>
@@ -51,7 +53,7 @@
                     <div class="panel" v-if=currentLightItem>
 
                         <div class="padded-3">
-                            <btn class="padded-5" icon="trash-o" title="Delete item" @click="removeLight"></btn>
+                            <btn class="padded-5" icon="trash-o" title="Delete item" @click="removeLight()"></btn>
                             <btn class="padded-5" icon="clone" title="Clone item" @click="copyLight(currentLightItem)"></btn>
 
                             <i class="inline-block padded-3">
@@ -75,7 +77,7 @@
                             <btn class="spacer-1" icon="play" label="Play All"></btn>
                         </div>
 
-                        <light-comp
+                        <light-comp v-if="currentLightItem"
                                 header="Ring Sequence"
                                 prefix="Ring"
                                 class_lightcomp="ring-light"
@@ -86,7 +88,7 @@
                                 :holds="'ringSeqHoldLast'">
                         </light-comp>
 
-                        <light-comp
+                        <light-comp v-if="currentLightItem"
                                 header="Strip Sequence"
                                 prefix="Strip"
                                 class_lightcomp="strip-light"

@@ -98,6 +98,55 @@ function traceJSON(obj=null) {
 				</div>`
 		},
 
+		'dropdown': {
+			props: {
+				list: Array,
+				label: { type: String, default: '' },
+				icon: { default: "caret-down" },
+				is_selected: { type: Function, default() { return false; } },
+				dropdown_source: [Object,Array],
+				class_dropdown: { type: String, default: "default-dropdown" },
+				class_btn: { type: String, default: "default-btn" }
+			},
+			computed: {
+				currentDropDown() { return __VUE ? __VUE.currentDropDown : null; }
+			},
+			methods: {
+				isSelected(item) {
+					return this.is_selected && this.is_selected(item);
+				},
+				onButtonClick(e) {
+					__VUE.setCurrentDropDown(this.dropdown_source);
+					this.$emit('dropdown', e);
+				},
+				onSelectionClick(e) {
+					this.$emit('click', e);
+					var id = parseInt($(e.target).data('index'));
+					id = isNaN(id) ? -1 : id;
+					if(id==-1) return;
+					this.$emit('selected', this.list[id] );
+				}
+			},
+			template: //!!!
+				`<span class="dropdown">
+					<btn class="padded-5"
+						 :class="class_btn"
+						 @click="onButtonClick($event)"
+						 :icon="icon"
+						 :label="label">
+					</btn>
+					<div :class="class_dropdown"
+						class="dropdown-list"
+						 v-if="currentDropDown==dropdown_source"
+						 @click="onSelectionClick($event)">
+						<div v-for="(item, id) in list"
+							v-html="item.name"
+							:class="{isSelected: is_selected(item)}"
+							:data-index="id"></div>
+					</div>
+				</span>`
+		},
+
 		'light-comp': {
 			props: [
 				'obj',
@@ -170,13 +219,6 @@ function traceJSON(obj=null) {
 					__VUE.currentDropDown = item;
 				},
 
-				setCurrentFocus(e) {
-					var id = $(e.target).data('index');
-					if(isNaN(id)) return;
-
-					this.currentFocus = this.modes[id].name;
-				},
-
 				onClickBulb(light) {
 					if(this.isFocusColors) {
 						light.color = this.currentColor;
@@ -196,10 +238,22 @@ function traceJSON(obj=null) {
 					}
 				},
 
+				setCurrentFocus(e) {
+					if(!this.currentStep) return;
+					this.currentFocus = e.name;
+				},
+
 				setCurrentAudio(e) {
 					if(!this.currentStep) return;
-					var el = $(e.target);
-					this.currentStep.audio = String(el[0].innerHTML);
+					this.currentStep.audio = e.name;
+				},
+
+				isAudioSelected(item) {
+					return this.currentStep.audio==item.name;
+				},
+
+				isCurrentMode(item) {
+					return this.currentFocus == item.name;
 				}
 			},
 
@@ -227,41 +281,28 @@ function traceJSON(obj=null) {
 				<br/>
 
 				<div class="light-comp" v-if="currentStep" :class="class_lightcomp">
-					<!-- Audio -->
-					<span class="dropdown">
-						<btn class="padded-5 audio"
-							 @click="setCurrentDropDown(steps)"
-							 icon="volume-up">
-						</btn>
-						<div class="dropdown-list audio-list"
-							 v-if="currentDropDown==steps"
-							 @click="setCurrentAudio($event)">
-							<div v-for="(item, id) in audioClips"
-								v-html="item.name"
-								:class="{isSelected: currentStep.audio==item.name}"
-								:data-index="id"></div>
-						</div>
-					</span>
+					<dropdown	class_btn="audio"
+								class_dropdown="audio-list"
+								icon="volume-up"
+								:list="audioClips"
+								:dropdown_source="steps"
+								:is_selected="isAudioSelected"
+								@selected="setCurrentAudio($event)">
+					</dropdown>
 
 					<input class="padded-2" v-model:value="currentStep.audio">
 
 					<br/>
 
 					<i class="nowrap">
-						<span class="dropdown">
-							<btn class="padded-5 color-names"
-								 @click="setCurrentDropDown(currentStep)"
-								 icon="paint-brush">
-							</btn>
-							<div class="dropdown-list step-modes"
-								 v-if="currentDropDown==currentStep"
-								 @click="setCurrentFocus($event)">
-								<div v-for="(item, id) in modes"
-									v-html="item.name"
-									:class="{isSelected: currentFocus==item.name}"
-									:data-index="id"></div>
-							</div>
-						</span>
+						<dropdown	class_btn="color-names"
+									class_dropdown="step-modes"
+									icon="paint-brush"
+									:list="modes"
+									:dropdown_source="currentStep"
+									:is_selected="isCurrentMode"
+									@selected="setCurrentFocus($event)">
+						</dropdown>
 
 						<i v-if="isFocusColors">
 							<i class="spacer-1">Color:</i>
@@ -448,9 +489,14 @@ function traceJSON(obj=null) {
 					createNewSheet() {
 						this.currentSheetUpdate(__SHEETS.length);
 					},
+
+					isSheetSelected(sheet) {
+						trace(sheet);
+						return true;
+					},
 					
 					currentSheetUpdate(id) {
-						if(_.isObject(id) && id.target) {
+						if(_.isObject(id)) {
 							id = $(id.target).data('index');
 						}
 
@@ -493,16 +539,12 @@ function traceJSON(obj=null) {
 					},
 
 					selectActionType(actionParam, e) {
-						var index = $(e.target).data('index');
-						if(isNaN(index) || index >= __ARACOMMANDS.length) return;
-						actionParam.type = __ARACOMMANDS[index].name;
+						actionParam.type = e.name;
 					},
 
 					useSuggestedName(light, e, list, prefix) {
 						if(!prefix) prefix = "";
-						var index = $(e.target).data('index');
-						if(isNaN(index) || index >= list.length) return;
-						light.name = prefix + list[index].name;
+						light.name = prefix + e.name;
 					}
 				}
 			});

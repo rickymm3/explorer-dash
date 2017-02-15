@@ -4,10 +4,12 @@
 
     <div class="topbar v-align-mid">
         <btn class="padded-5" icon="plus-square" label="Sheet" @click="createNewSheet()"></btn>
+        <!-- SHEET -->
         <span class="dropdown">
             <btn class="padded-5 sheet-names"
                  @click="setCurrentDropDown(currentSheet)"
-                 icon="caret-down" :label="currentSheet.name">
+                 icon="caret-down"
+                 :label="currentSheet.name">
             </btn>
             <div class="dropdown-list suggested-names-panel"
                  v-if="currentDropDown==currentSheet"
@@ -17,9 +19,19 @@
                      :class="currentSheet==item ? 'isSelected' : ''"
                      :data-index="id"></div>
             </div>
-
-            <input class="" v-model:value="currentSheet.name">
         </span>
+
+        <!--
+        <dropdown   class_btn="sheet-names"
+                     class_dropdown="suggested-names-panel"
+                     :list="jsonData.sheets"
+                     :label="currentSheet.name"
+                     :dropdown_source="currentSheet"
+                     :is_selected="isSheetSelected"
+                     @selected="currentSheetUpdate($event)">
+        </dropdown> -->
+
+        <input class="" v-model:value="currentSheet.name">
     </div>
 </div>
 
@@ -62,17 +74,12 @@
                             </i>
 
                             <!-- Names Suggestion DropDown menu -->
-                            <span class="dropdown">
-                                <btn class="padded-5 action-names"
-                                     @click="setCurrentDropDown(currentLightItem)"
-                                     icon="caret-down">
-                                </btn>
-                                <div class="dropdown-list suggested-names-panel"
-                                     v-if="currentDropDown==currentLightItem"
-                                     @click="useSuggestedName(currentLightItem, $event, currentSheet.actionSequence)">
-                                    <div v-for="(item, id) in currentSheet.actionSequence" v-html="item.name" :data-index="id"></div>
-                                </div>
-                            </span>
+                            <dropdown	class_btn="action-names"
+                                         class_dropdown="suggested-names-panel"
+                                         :list="currentSheet.actionSequence"
+                                         :dropdown_source="currentLightItem"
+                                         @selected="useSuggestedName(currentLightItem, $event, currentSheet.actionSequence)">
+                            </dropdown>
 
                             <btn class="spacer-1" icon="play" label="Play All"></btn>
                         </div>
@@ -139,18 +146,14 @@
                                 <i>Name:</i>
                                 <input class="" v-model:value="currentActionItem.name">
                             </i>
+
                             <!-- Names Suggestion DropDown menu -->
-                            <span class="dropdown">
-                                <btn class="padded-5 action-names"
-                                     @click="setCurrentDropDown(currentActionItem)"
-                                     icon="caret-down">
-                                </btn>
-                                <div class="dropdown-list suggested-names-panel"
-                                     v-if="currentDropDown==currentActionItem"
-                                     @click="useSuggestedName(currentActionItem, $event, currentSheet.lightSequence)">
-                                    <div v-for="(item, id) in currentSheet.lightSequence" v-html="item.name" :data-index="id"></div>
-                                </div>
-                            </span>
+                            <dropdown	class_btn="action-names"
+                                         class_dropdown="suggested-names-panel"
+                                         :list="currentSheet.lightSequence"
+                                         :dropdown_source="currentActionItem"
+                                         @selected="useSuggestedName(currentActionItem, $event, currentSheet.lightSequence)">
+                            </dropdown>
 
                             <btn class="padded-5" icon="plus-square" title="Add an Action Parameter" label="Param" v-on:click="addActionParam()"></btn>
                         </div>
@@ -161,7 +164,7 @@
 
                         <draggable class="padded-3 strip-action"
                                    :list="currentActionItem.actions"
-                                    :options="{ handle: '.drag-handle' }">
+                                    :options="{ handle: '.drag-handle' }"> <!-- ERROR? strip-action class used here? -->
                             <div class="border padded-5 action-param"
                                  v-for="actionParam in currentActionItem.params">
 
@@ -171,11 +174,11 @@
                                         <btn class="padded-5" icon="clone" title="Clone param" @click="copyActionParam(actionParam)"></btn>
                                         <btn class="padded-5 drag-handle" icon="sort" title="Sort param"></btn>
 
-                                        <!-- "Take Off" DropDown menu -->
+                                        <!-- "Take Off" DropDown menu
                                         <span class="dropdown">
                                             <btn class="padded-5 ara-command"
                                                  @click="setCurrentDropDown(actionParam)"
-                                                 :label="actionParam.type"><!-- icon="caret-down" -->
+                                                 >
                                             </btn>
                                             <div class="dropdown-list ara-command-panel"
                                                  v-if="currentDropDown==actionParam"
@@ -185,7 +188,15 @@
                                                      :class="actionParam.type==araCmd.name ? 'isSelected' : ''"
                                                      :data-index="araID"></div>
                                             </div>
-                                        </span>
+                                        </span>-->
+
+                                        <dropdown	class_btn="ara-command"
+                                                     class_dropdown="ara-command-panel"
+                                                     :list="hardcoded.AraCommands"
+                                                     :label="actionParam.type"
+                                                     :dropdown_source="actionParam"
+                                                     @selected="selectActionType(actionParam, $event)">
+                                        </dropdown>
                                     </span>
 
                                     <div class="nowrap head">

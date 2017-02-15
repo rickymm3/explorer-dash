@@ -64,6 +64,39 @@ function traceJSON(obj) {
             methods: { click: function (e) { this.$emit('click', e); } },
             template: "<div class=\"btn\" v-on:click.capture.stop.prevent=\"click\">\n\t\t\t\t\t<i v-if=\"emoji\" :class=\"'v-align-mid em em-'+emoji\" aria-hidden=\"true\"></i>\n\t\t\t\t\t<i v-if=\"icon\" :class=\"'v-align-mid icon fa fa-'+icon\" aria-hidden=\"true\"></i>\n\t\t\t\t\t<i v-html=\"label\"></i>\n\t\t\t\t</div>"
         },
+        'dropdown': {
+            props: {
+                list: Array,
+                label: { type: String, "default": '' },
+                icon: { "default": "caret-down" },
+                is_selected: { type: Function, "default": function () { return false; } },
+                dropdown_source: [Object, Array],
+                class_dropdown: { type: String, "default": "default-dropdown" },
+                class_btn: { type: String, "default": "default-btn" }
+            },
+            computed: {
+                currentDropDown: function () { return __VUE ? __VUE.currentDropDown : null; }
+            },
+            methods: {
+                isSelected: function (item) {
+                    return this.is_selected && this.is_selected(item);
+                },
+                onButtonClick: function (e) {
+                    __VUE.setCurrentDropDown(this.dropdown_source);
+                    this.$emit('dropdown', e);
+                },
+                onSelectionClick: function (e) {
+                    this.$emit('click', e);
+                    var id = parseInt($(e.target).data('index'));
+                    id = isNaN(id) ? -1 : id;
+                    if (id == -1)
+                        return;
+                    this.$emit('selected', this.list[id]);
+                }
+            },
+            template: //!!!
+            "<span class=\"dropdown\">\n\t\t\t\t\t<btn class=\"padded-5\"\n\t\t\t\t\t\t :class=\"class_btn\"\n\t\t\t\t\t\t @click=\"onButtonClick($event)\"\n\t\t\t\t\t\t :icon=\"icon\"\n\t\t\t\t\t\t :label=\"label\">\n\t\t\t\t\t</btn>\n\t\t\t\t\t<div :class=\"class_dropdown\"\n\t\t\t\t\t\tclass=\"dropdown-list\"\n\t\t\t\t\t\t v-if=\"currentDropDown==dropdown_source\"\n\t\t\t\t\t\t @click=\"onSelectionClick($event)\">\n\t\t\t\t\t\t<div v-for=\"(item, id) in list\"\n\t\t\t\t\t\t\tv-html=\"item.name\"\n\t\t\t\t\t\t\t:class=\"{isSelected: is_selected(item)}\"\n\t\t\t\t\t\t\t:data-index=\"id\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</span>"
+        },
         'light-comp': {
             props: [
                 'obj',
@@ -123,12 +156,6 @@ function traceJSON(obj) {
                 setCurrentDropDown: function (item) {
                     __VUE.currentDropDown = item;
                 },
-                setCurrentFocus: function (e) {
-                    var id = $(e.target).data('index');
-                    if (isNaN(id))
-                        return;
-                    this.currentFocus = this.modes[id].name;
-                },
                 onClickBulb: function (light) {
                     if (this.isFocusColors) {
                         light.color = this.currentColor;
@@ -145,14 +172,24 @@ function traceJSON(obj) {
                         case "FadeOut": return "&darr;";
                     }
                 },
+                setCurrentFocus: function (e) {
+                    if (!this.currentStep)
+                        return;
+                    this.currentFocus = e.name;
+                },
                 setCurrentAudio: function (e) {
                     if (!this.currentStep)
                         return;
-                    var el = $(e.target);
-                    this.currentStep.audio = String(el[0].innerHTML);
+                    this.currentStep.audio = e.name;
+                },
+                isAudioSelected: function (item) {
+                    return this.currentStep.audio == item.name;
+                },
+                isCurrentMode: function (item) {
+                    return this.currentFocus == item.name;
                 }
             },
-            template: "<div class=\"padded-3 subpanel\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\n\t\t\t\t<br/>\n\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<!-- Audio -->\n\t\t\t\t\t<span class=\"dropdown\">\n\t\t\t\t\t\t<btn class=\"padded-5 audio\"\n\t\t\t\t\t\t\t @click=\"setCurrentDropDown(steps)\"\n\t\t\t\t\t\t\t icon=\"volume-up\">\n\t\t\t\t\t\t</btn>\n\t\t\t\t\t\t<div class=\"dropdown-list audio-list\"\n\t\t\t\t\t\t\t v-if=\"currentDropDown==steps\"\n\t\t\t\t\t\t\t @click=\"setCurrentAudio($event)\">\n\t\t\t\t\t\t\t<div v-for=\"(item, id) in audioClips\"\n\t\t\t\t\t\t\t\tv-html=\"item.name\"\n\t\t\t\t\t\t\t\t:class=\"{isSelected: currentStep.audio==item.name}\"\n\t\t\t\t\t\t\t\t:data-index=\"id\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</span>\n\n\t\t\t\t\t<input class=\"padded-2\" v-model:value=\"currentStep.audio\">\n\n\t\t\t\t\t<br/>\n\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<span class=\"dropdown\">\n\t\t\t\t\t\t\t<btn class=\"padded-5 color-names\"\n\t\t\t\t\t\t\t\t @click=\"setCurrentDropDown(currentStep)\"\n\t\t\t\t\t\t\t\t icon=\"paint-brush\">\n\t\t\t\t\t\t\t</btn>\n\t\t\t\t\t\t\t<div class=\"dropdown-list step-modes\"\n\t\t\t\t\t\t\t\t v-if=\"currentDropDown==currentStep\"\n\t\t\t\t\t\t\t\t @click=\"setCurrentFocus($event)\">\n\t\t\t\t\t\t\t\t<div v-for=\"(item, id) in modes\"\n\t\t\t\t\t\t\t\t\tv-html=\"item.name\"\n\t\t\t\t\t\t\t\t\t:class=\"{isSelected: currentFocus==item.name}\"\n\t\t\t\t\t\t\t\t\t:data-index=\"id\"></div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<i v-if=\"isFocusColors\">\n\t\t\t\t\t\t\t<i class=\"spacer-1\">Color:</i>\n\t\t\t\t\t\t\t<input class=\"color-picker\"\n\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\"\n\t\t\t\t\t\t\t\t\tv-model:value=\"currentColor\">\n\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t<i v-if=\"!isFocusColors\">\n\t\t\t\t\t\t\tPainting: \"{{currentFocus}}\"\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\n\n\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentStep.lights\"\n\t\t\t\t\t\t\t:class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t\t:style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t\t@click=\"onClickBulb(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\n\t\t\t\t<draggable class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t:class=\"{isSelected: currentStepID==id}\"\n\t\t\t\t\t\t@click=\"setStepID(id)\"\n\t\t\t\t\t\tv-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\n\t\t\t\t\t\t<i>Time:</i>\n\t\t\t\t\t\t<input class=\"digits-3\" v-model:value=\"step.time\">\n\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t\t:style=\"{color: light.color}\"\n\t\t\t\t\t\t\t\tv-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>"
+            template: "<div class=\"padded-3 subpanel\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\n\t\t\t\t<br/>\n\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<dropdown\tclass_btn=\"audio\"\n\t\t\t\t\t\t\t\tclass_dropdown=\"audio-list\"\n\t\t\t\t\t\t\t\ticon=\"volume-up\"\n\t\t\t\t\t\t\t\t:list=\"audioClips\"\n\t\t\t\t\t\t\t\t:dropdown_source=\"steps\"\n\t\t\t\t\t\t\t\t:is_selected=\"isAudioSelected\"\n\t\t\t\t\t\t\t\t@selected=\"setCurrentAudio($event)\">\n\t\t\t\t\t</dropdown>\n\n\t\t\t\t\t<input class=\"padded-2\" v-model:value=\"currentStep.audio\">\n\n\t\t\t\t\t<br/>\n\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<dropdown\tclass_btn=\"color-names\"\n\t\t\t\t\t\t\t\t\tclass_dropdown=\"step-modes\"\n\t\t\t\t\t\t\t\t\ticon=\"paint-brush\"\n\t\t\t\t\t\t\t\t\t:list=\"modes\"\n\t\t\t\t\t\t\t\t\t:dropdown_source=\"currentStep\"\n\t\t\t\t\t\t\t\t\t:is_selected=\"isCurrentMode\"\n\t\t\t\t\t\t\t\t\t@selected=\"setCurrentFocus($event)\">\n\t\t\t\t\t\t</dropdown>\n\n\t\t\t\t\t\t<i v-if=\"isFocusColors\">\n\t\t\t\t\t\t\t<i class=\"spacer-1\">Color:</i>\n\t\t\t\t\t\t\t<input class=\"color-picker\"\n\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\"\n\t\t\t\t\t\t\t\t\tv-model:value=\"currentColor\">\n\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t<i v-if=\"!isFocusColors\">\n\t\t\t\t\t\t\tPainting: \"{{currentFocus}}\"\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\n\n\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentStep.lights\"\n\t\t\t\t\t\t\t:class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t\t:style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t\t@click=\"onClickBulb(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\n\t\t\t\t<draggable class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t:class=\"{isSelected: currentStepID==id}\"\n\t\t\t\t\t\t@click=\"setStepID(id)\"\n\t\t\t\t\t\tv-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\n\t\t\t\t\t\t<i>Time:</i>\n\t\t\t\t\t\t<input class=\"digits-3\" v-model:value=\"step.time\">\n\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t\t:style=\"{color: light.color}\"\n\t\t\t\t\t\t\t\tv-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>"
         }
     });
     //Key modifier:
@@ -281,8 +318,12 @@ function traceJSON(obj) {
                     createNewSheet: function () {
                         this.currentSheetUpdate(__SHEETS.length);
                     },
+                    isSheetSelected: function (sheet) {
+                        trace(sheet);
+                        return true;
+                    },
                     currentSheetUpdate: function (id) {
-                        if (_.isObject(id) && id.target) {
+                        if (_.isObject(id)) {
                             id = $(id.target).data('index');
                         }
                         id = parseInt(id);
@@ -317,18 +358,12 @@ function traceJSON(obj) {
                         this.currentDropDown = item;
                     },
                     selectActionType: function (actionParam, e) {
-                        var index = $(e.target).data('index');
-                        if (isNaN(index) || index >= __ARACOMMANDS.length)
-                            return;
-                        actionParam.type = __ARACOMMANDS[index].name;
+                        actionParam.type = e.name;
                     },
                     useSuggestedName: function (light, e, list, prefix) {
                         if (!prefix)
                             prefix = "";
-                        var index = $(e.target).data('index');
-                        if (isNaN(index) || index >= list.length)
-                            return;
-                        light.name = prefix + list[index].name;
+                        light.name = prefix + e.name;
                     }
                 }
             });

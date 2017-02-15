@@ -36,14 +36,14 @@ function traceJSON(obj=null) {
 		'numeric-prop': {
 			props: ['obj'],
 			template:
-				'<div class="numeric-prop">\
-					<div class="col-1">\
-						<i v-html="obj.name.camelToTitleCase()"></i>:\
-					</div>\
-					<div class="col-2">\
-						<input type="text" v-model:value="obj.value" />\
-					</div>\
-				</div>'
+				`<div class="numeric-prop">
+					<div class="col-1">
+						<i v-html="obj.name.camelToTitleCase()"></i>:
+					</div>
+					<div class="col-2">
+						<input type="text" v-model:value="obj.value" />
+					</div>
+				</div>`
 		},
 
 		'light-item': {
@@ -61,10 +61,10 @@ function traceJSON(obj=null) {
 				}
 			},
 			template:
-				'<div class="item light-item" :class="isSelected">\
-					<btn :label="obj.name" v-on:click="showPanel()" />\
-					<slot></slot>\
-				</div>'
+				`<div class="item light-item" :class="isSelected">
+					<btn :label="obj.name" v-on:click="showPanel()" />
+					<slot></slot>
+				</div>`
 		},
 
 		'action-item': {
@@ -82,20 +82,20 @@ function traceJSON(obj=null) {
 				}
 			},
 			template:
-				'<div class="item action-item" :class="isSelected">\
-					<btn :label="obj.name" v-on:click="showPanel()"></btn><slot></slot>\
-				</div>'
+				`<div class="item action-item" :class="isSelected">
+					<btn :label="obj.name" v-on:click="showPanel()"></btn><slot></slot>
+				</div>`
 		},
 
 		'btn': {
 			props: ['obj', 'label', 'emoji', 'icon'],
 			methods: { click(e) { this.$emit('click', e); } },
 			template:
-				'<div class="btn" v-on:click.capture.stop.prevent="click">\
-					<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>\
-					<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>\
-					<i v-html="label"></i>\
-				</div>'
+				`<div class="btn" v-on:click.capture.stop.prevent="click">
+					<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>
+					<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>
+					<i v-html="label"></i>
+				</div>`
 		},
 
 		'light-comp': {
@@ -203,8 +203,8 @@ function traceJSON(obj=null) {
 				}
 			},
 
-			template: `
-			<div class="padded-3 subpanel">
+			template:
+			`<div class="padded-3 subpanel">
 				<i class="subheader nowrap v-align-mid-kids">
 					<i v-html="header"></i>
 
@@ -307,8 +307,7 @@ function traceJSON(obj=null) {
 						</i>
 					</div>
 				</draggable>
-			</div>
-			`
+			</div>`
 		}
 	});
 

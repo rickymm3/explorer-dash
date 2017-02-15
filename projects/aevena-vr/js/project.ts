@@ -486,8 +486,22 @@ function traceJSON(obj=null) {
 						projectCommand('recoverJSON', null);
 					},
 
-					createNewSheet() {
-						this.currentSheetUpdate(__SHEETS.length);
+					addSheet() {
+						createNewSheetAt(__SHEETS.length, null);
+						this.currentSheetUpdate(__SHEETS.length-1);
+					},
+
+					copySheet() {
+						var sheet = createNewSheetAt(__SHEETS.length, this.currentSheet);
+						sheet.name += " Copy";
+						this.currentSheetUpdate(__SHEETS.length-1);
+					},
+
+					removeSheet() {
+						if(!this.currentSheet || this.currentSheetID<0) return;
+						var id = this.jsonData.sheets.remove(this.currentSheet);
+						this.currentSheetID = -1;
+						this.currentSheetUpdate(id-1);
 					},
 
 					isSheetSelected(sheet) {
@@ -507,7 +521,8 @@ function traceJSON(obj=null) {
 						if(this.currentSheetID===id) return;
 						if(id<0 || isNaN(id)) id = 0;
 						if(id>=__SHEETS.length) {
-							createNewSheetAt(__SHEETS.length, null);
+							this.currentSheet = null;
+							return;
 						}
 
 						this.currentSheetID = id;

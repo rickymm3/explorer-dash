@@ -315,8 +315,21 @@ function traceJSON(obj) {
                     recoverJSON: function () {
                         projectCommand('recoverJSON', null);
                     },
-                    createNewSheet: function () {
-                        this.currentSheetUpdate(__SHEETS.length);
+                    addSheet: function () {
+                        createNewSheetAt(__SHEETS.length, null);
+                        this.currentSheetUpdate(__SHEETS.length - 1);
+                    },
+                    copySheet: function () {
+                        var sheet = createNewSheetAt(__SHEETS.length, this.currentSheet);
+                        sheet.name += " Copy";
+                        this.currentSheetUpdate(__SHEETS.length - 1);
+                    },
+                    removeSheet: function () {
+                        if (!this.currentSheet || this.currentSheetID < 0)
+                            return;
+                        var id = this.jsonData.sheets.remove(this.currentSheet);
+                        this.currentSheetID = -1;
+                        this.currentSheetUpdate(id - 1);
                     },
                     isSheetSelected: function (sheet) {
                         trace(sheet);
@@ -333,7 +346,8 @@ function traceJSON(obj) {
                         if (id < 0 || isNaN(id))
                             id = 0;
                         if (id >= __SHEETS.length) {
-                            createNewSheetAt(__SHEETS.length, null);
+                            this.currentSheet = null;
+                            return;
                         }
                         this.currentSheetID = id;
                         TweenMax.fromTo($$$.details, 0.5, { alpha: 0 }, { alpha: 1 });

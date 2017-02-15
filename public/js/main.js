@@ -142,3 +142,11 @@ function fadeIn(el, time, cb) {
     el.show && el.show();
     TweenMax.fromTo(el, time, { alpha: 0 }, { alpha: 1, onComplete: cb });
 }
+function downloadJSON(jsonData, fileName) {
+    if (fileName === void 0) { fileName = "download.json"; }
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonData));
+    var $downloads = $('#download-links');
+    $downloads.attr("href", dataStr);
+    $downloads.attr("download", fileName);
+    $downloads[0].click();
+}

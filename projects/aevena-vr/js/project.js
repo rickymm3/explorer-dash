@@ -13,6 +13,19 @@ function traceJSON(obj) {
     $$$.boxInfo.showBox(result);
     return result;
 }
+function showPopup(header, message, options) {
+    if (!options)
+        options = {};
+    options = _.assign(options, { header: header, message: message });
+    if (!options.dismiss) {
+        options.dismiss = { ok: true, cancel: true };
+        if (options.ok)
+            options.dismiss.ok = options.ok;
+        if (options.cancel)
+            options.dismiss.cancel = options.cancel;
+    }
+    __VUE.popup = options;
+}
 (function (ERDS) {
     registerComponents({
         comp: {
@@ -25,14 +38,7 @@ function traceJSON(obj) {
         },
         'numeric-prop': {
             props: ['obj'],
-            template: '<div class="numeric-prop">\
-					<div class="col-1">\
-						<i v-html="obj.name.camelToTitleCase()"></i>:\
-					</div>\
-					<div class="col-2">\
-						<input type="text" v-model:value="obj.value" />\
-					</div>\
-				</div>'
+            template: "<div class=\"numeric-prop\">\n\t\t\t\t\t<div class=\"col-1\">\n\t\t\t\t\t\t<i v-html=\"obj.name.camelToTitleCase()\"></i>:\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"col-2\">\n\t\t\t\t\t\t<input type=\"text\" v-model:value=\"obj.value\" />\n\t\t\t\t\t</div>\n\t\t\t\t</div>"
         },
         'light-item': {
             props: ['obj'],
@@ -48,10 +54,7 @@ function traceJSON(obj) {
                     };
                 }
             },
-            template: '<div class="item light-item" :class="isSelected">\
-					<btn :label="obj.name" v-on:click="showPanel()" />\
-					<slot></slot>\
-				</div>'
+            template: "<div class=\"item light-item\" :class=\"isSelected\">\n\t\t\t\t\t<btn :label=\"obj.name\" v-on:click=\"showPanel()\" />\n\t\t\t\t\t<slot></slot>\n\t\t\t\t</div>"
         },
         'action-item': {
             props: ['obj'],
@@ -67,18 +70,45 @@ function traceJSON(obj) {
                     };
                 }
             },
-            template: '<div class="item action-item" :class="isSelected">\
-					<btn :label="obj.name" v-on:click="showPanel()"></btn><slot></slot>\
-				</div>'
+            template: "<div class=\"item action-item\" :class=\"isSelected\">\n\t\t\t\t\t<btn :label=\"obj.name\" v-on:click=\"showPanel()\"></btn><slot></slot>\n\t\t\t\t</div>"
         },
         'btn': {
             props: ['obj', 'label', 'emoji', 'icon'],
             methods: { click: function (e) { this.$emit('click', e); } },
-            template: '<div class="btn" v-on:click.capture.stop.prevent="click">\
-					<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>\
-					<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>\
-					<i v-html="label"></i>\
-				</div>'
+            template: "<div class=\"btn\" v-on:click.capture.stop.prevent=\"click\">\n\t\t\t\t\t<i v-if=\"emoji\" :class=\"'v-align-mid em em-'+emoji\" aria-hidden=\"true\"></i>\n\t\t\t\t\t<i v-if=\"icon\" :class=\"'v-align-mid icon fa fa-'+icon\" aria-hidden=\"true\"></i>\n\t\t\t\t\t<i v-html=\"label\"></i>\n\t\t\t\t</div>"
+        },
+        'dropdown': {
+            props: {
+                list: Array,
+                label: { type: String, "default": '' },
+                icon: { "default": "caret-down" },
+                is_selected: { type: Function, "default": function () { return false; } },
+                dropdown_source: [Object, Array],
+                class_dropdown: { type: String, "default": "default-dropdown" },
+                class_btn: { type: String, "default": "default-btn" }
+            },
+            computed: {
+                currentDropDown: function () { return __VUE ? __VUE.currentDropDown : null; }
+            },
+            methods: {
+                isSelected: function (item) {
+                    return this.is_selected && this.is_selected(item);
+                },
+                onButtonClick: function (e) {
+                    __VUE.setCurrentDropDown(this.dropdown_source);
+                    this.$emit('dropdown', e);
+                },
+                onSelectionClick: function (e) {
+                    this.$emit('click', e);
+                    var id = parseInt($(e.target).data('index'));
+                    id = isNaN(id) ? -1 : id;
+                    if (id == -1)
+                        return;
+                    this.$emit('selected', this.list[id]);
+                }
+            },
+            template: //!!!
+            "<span class=\"dropdown\">\n\t\t\t\t\t<btn class=\"padded-5\"\n\t\t\t\t\t\t :class=\"class_btn\"\n\t\t\t\t\t\t @click=\"onButtonClick($event)\"\n\t\t\t\t\t\t :icon=\"icon\"\n\t\t\t\t\t\t :label=\"label\">\n\t\t\t\t\t</btn>\n\t\t\t\t\t<div :class=\"class_dropdown\"\n\t\t\t\t\t\tclass=\"dropdown-list\"\n\t\t\t\t\t\t v-if=\"currentDropDown==dropdown_source\"\n\t\t\t\t\t\t @click=\"onSelectionClick($event)\">\n\t\t\t\t\t\t<div v-for=\"(item, id) in list\"\n\t\t\t\t\t\t\tv-html=\"item.name\"\n\t\t\t\t\t\t\t:class=\"{isSelected: is_selected(item)}\"\n\t\t\t\t\t\t\t:data-index=\"id\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</span>"
         },
         'light-comp': {
             props: [
@@ -139,12 +169,6 @@ function traceJSON(obj) {
                 setCurrentDropDown: function (item) {
                     __VUE.currentDropDown = item;
                 },
-                setCurrentFocus: function (e) {
-                    var id = $(e.target).data('index');
-                    if (isNaN(id))
-                        return;
-                    this.currentFocus = this.modes[id].name;
-                },
                 onClickBulb: function (light) {
                     if (this.isFocusColors) {
                         light.color = this.currentColor;
@@ -161,14 +185,24 @@ function traceJSON(obj) {
                         case "FadeOut": return "&darr;";
                     }
                 },
+                setCurrentFocus: function (e) {
+                    if (!this.currentStep)
+                        return;
+                    this.currentFocus = e.name;
+                },
                 setCurrentAudio: function (e) {
                     if (!this.currentStep)
                         return;
-                    var el = $(e.target);
-                    this.currentStep.audio = String(el[0].innerHTML);
+                    this.currentStep.audio = e.name;
+                },
+                isAudioSelected: function (item) {
+                    return this.currentStep.audio == item.name;
+                },
+                isCurrentMode: function (item) {
+                    return this.currentFocus == item.name;
                 }
             },
-            template: "\n\t\t\t<div class=\"padded-3 subpanel\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\n\t\t\t\t<br/>\n\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<!-- Audio -->\n\t\t\t\t\t<span class=\"dropdown\">\n\t\t\t\t\t\t<btn class=\"padded-5 audio\"\n\t\t\t\t\t\t\t @click=\"setCurrentDropDown(steps)\"\n\t\t\t\t\t\t\t icon=\"volume-up\">\n\t\t\t\t\t\t</btn>\n\t\t\t\t\t\t<div class=\"dropdown-list audio-list\"\n\t\t\t\t\t\t\t v-if=\"currentDropDown==steps\"\n\t\t\t\t\t\t\t @click=\"setCurrentAudio($event)\">\n\t\t\t\t\t\t\t<div v-for=\"(item, id) in audioClips\"\n\t\t\t\t\t\t\t\tv-html=\"item.name\"\n\t\t\t\t\t\t\t\t:class=\"{isSelected: currentStep.audio==item.name}\"\n\t\t\t\t\t\t\t\t:data-index=\"id\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</span>\n\n\t\t\t\t\t<input class=\"padded-2\" v-model:value=\"currentStep.audio\">\n\n\t\t\t\t\t<br/>\n\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<span class=\"dropdown\">\n\t\t\t\t\t\t\t<btn class=\"padded-5 color-names\"\n\t\t\t\t\t\t\t\t @click=\"setCurrentDropDown(currentStep)\"\n\t\t\t\t\t\t\t\t icon=\"paint-brush\">\n\t\t\t\t\t\t\t</btn>\n\t\t\t\t\t\t\t<div class=\"dropdown-list step-modes\"\n\t\t\t\t\t\t\t\t v-if=\"currentDropDown==currentStep\"\n\t\t\t\t\t\t\t\t @click=\"setCurrentFocus($event)\">\n\t\t\t\t\t\t\t\t<div v-for=\"(item, id) in modes\"\n\t\t\t\t\t\t\t\t\tv-html=\"item.name\"\n\t\t\t\t\t\t\t\t\t:class=\"{isSelected: currentFocus==item.name}\"\n\t\t\t\t\t\t\t\t\t:data-index=\"id\"></div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<i v-if=\"isFocusColors\">\n\t\t\t\t\t\t\t<i class=\"spacer-1\">Color:</i>\n\t\t\t\t\t\t\t<input class=\"color-picker\"\n\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\"\n\t\t\t\t\t\t\t\t\tv-model:value=\"currentColor\">\n\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t<i v-if=\"!isFocusColors\">\n\t\t\t\t\t\t\tPainting: \"{{currentFocus}}\"\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\n\n\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentStep.lights\"\n\t\t\t\t\t\t\t:class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t\t:style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t\t@click=\"onClickBulb(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\n\t\t\t\t<draggable class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t:class=\"{isSelected: currentStepID==id}\"\n\t\t\t\t\t\t@click=\"setStepID(id)\"\n\t\t\t\t\t\tv-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\n\t\t\t\t\t\t<i>Time:</i>\n\t\t\t\t\t\t<input class=\"digits-3\" v-model:value=\"step.time\">\n\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t\t:style=\"{color: light.color}\"\n\t\t\t\t\t\t\t\tv-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>\n\t\t\t"
+            template: "<div class=\"padded-3 subpanel\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\n\t\t\t\t<br/>\n\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<dropdown\tclass_btn=\"audio\"\n\t\t\t\t\t\t\t\tclass_dropdown=\"audio-list\"\n\t\t\t\t\t\t\t\ticon=\"volume-up\"\n\t\t\t\t\t\t\t\t:list=\"audioClips\"\n\t\t\t\t\t\t\t\t:dropdown_source=\"steps\"\n\t\t\t\t\t\t\t\t:is_selected=\"isAudioSelected\"\n\t\t\t\t\t\t\t\t@selected=\"setCurrentAudio($event)\">\n\t\t\t\t\t</dropdown>\n\n\t\t\t\t\t<input class=\"padded-2\" v-model:value=\"currentStep.audio\">\n\n\t\t\t\t\t<br/>\n\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<dropdown\tclass_btn=\"color-names\"\n\t\t\t\t\t\t\t\t\tclass_dropdown=\"step-modes\"\n\t\t\t\t\t\t\t\t\ticon=\"paint-brush\"\n\t\t\t\t\t\t\t\t\t:list=\"modes\"\n\t\t\t\t\t\t\t\t\t:dropdown_source=\"currentStep\"\n\t\t\t\t\t\t\t\t\t:is_selected=\"isCurrentMode\"\n\t\t\t\t\t\t\t\t\t@selected=\"setCurrentFocus($event)\">\n\t\t\t\t\t\t</dropdown>\n\n\t\t\t\t\t\t<i v-if=\"isFocusColors\">\n\t\t\t\t\t\t\t<i class=\"spacer-1\">Color:</i>\n\t\t\t\t\t\t\t<input class=\"color-picker\"\n\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\"\n\t\t\t\t\t\t\t\t\tv-model:value=\"currentColor\">\n\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t<i v-if=\"!isFocusColors\">\n\t\t\t\t\t\t\tPainting: \"{{currentFocus}}\"\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\n\n\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentStep.lights\"\n\t\t\t\t\t\t\t:class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t\t:style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t\t@click=\"onClickBulb(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\n\t\t\t\t<draggable class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t:class=\"{isSelected: currentStepID==id}\"\n\t\t\t\t\t\t@click=\"setStepID(id)\"\n\t\t\t\t\t\tv-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\n\t\t\t\t\t\t<i>Time:</i>\n\t\t\t\t\t\t<input class=\"digits-3\" v-model:value=\"step.time\">\n\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t\t:style=\"{color: light.color}\"\n\t\t\t\t\t\t\t\tv-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>"
         }
     });
     //Key modifier:
@@ -190,17 +224,30 @@ function traceJSON(obj) {
         __VUE.statusKeyModifiers = (e.shiftKey ? __KEYS.SHIFT : 0) |
             (ctrlOrAlt ? __KEYS.CTRL : 0);
         //| (e.altKey ? __KEYS.ALT : 0);
+        var isEnter = false, isTab = false, isEscape = false;
+        switch (e.which) {
+            case 27:
+                isEscape = true;
+                break;
+            case 13:
+                isEnter = true;
+                break;
+            case 9:
+                isTab = true;
+                break;
+            default: return; //trace(e.which);
+        }
         //Handle the dropdown menus:
-        if (__VUE.currentDropDown != null) {
-            switch (e.which) {
-                case 13: // __VUE.currentDropDown = null; return;
-                case 9: // __VUE.currentDropDown = null; return;
-                //ESCAPE
-                case 27:
-                    __VUE.currentDropDown = null;
-                    return;
+        if (__VUE.currentDropDown != null && isEscape) {
+            return __VUE.currentDropDown = null;
+        }
+        if (__VUE.popup != null) {
+            if (isEscape)
+                return __VUE.popup = null;
+            if (isEnter) {
+                __VUE.popup.onEnter && __VUE.popup.onEnter();
+                return __VUE.popup = null;
             }
-            trace(e.which);
         }
     });
     $(document).on('click', function (e) {
@@ -224,6 +271,7 @@ function traceJSON(obj) {
                     statusKeyModifiers: 0,
                     statusSaveButton: 'Save',
                     isBusy: false,
+                    popup: null,
                     hardcoded: {},
                     jsonData: {
                         sheets: []
@@ -294,11 +342,43 @@ function traceJSON(obj) {
                     recoverJSON: function () {
                         projectCommand('recoverJSON', null);
                     },
-                    createNewSheet: function () {
-                        this.currentSheetUpdate(__SHEETS.length);
+                    addSheet: function () {
+                        createNewSheetAt(__SHEETS.length, null);
+                        this.currentSheetUpdate(__SHEETS.length - 1);
+                    },
+                    copySheet: function () {
+                        var sheet = createNewSheetAt(__SHEETS.length, this.currentSheet);
+                        sheet.name += " Copy";
+                        this.currentSheetUpdate(__SHEETS.length - 1);
+                    },
+                    removeSheet: function () {
+                        if (!this.currentSheet || this.currentSheetID < 0)
+                            return;
+                        var id = this.jsonData.sheets.remove(this.currentSheet);
+                        this.currentSheetID = -1;
+                        this.currentSheetUpdate(id - 1);
+                    },
+                    exportSheetsPopup: function () {
+                        showPopup("Export Sheet(s)", "Select the sheets you would like to export:", {
+                            checkboxes: __SHEETS.map(function (sheet, id) { return { name: sheet.name, id: id }; }),
+                            ok: function (options) {
+                                //Filter out the uneeded sheets:
+                                var mySheetIDs = options.checkboxes
+                                    .filter(function (sheet) { return sheet.value; })
+                                    .map(function (sheet) { return sheet.name; });
+                                var mySheets = _.jsonClone(__SHEETS)
+                                    .filter(function (sheet) { return mySheetIDs.has(sheet.name); });
+                                //Now do a client-side file download:
+                                downloadJSON({ sheets: mySheets }, ERDS.projectName + ".json");
+                            }
+                        });
+                    },
+                    isSheetSelected: function (sheet) {
+                        trace(sheet);
+                        return true;
                     },
                     currentSheetUpdate: function (id) {
-                        if (_.isObject(id) && id.target) {
+                        if (_.isObject(id)) {
                             id = $(id.target).data('index');
                         }
                         id = parseInt(id);
@@ -308,7 +388,8 @@ function traceJSON(obj) {
                         if (id < 0 || isNaN(id))
                             id = 0;
                         if (id >= __SHEETS.length) {
-                            createNewSheetAt(__SHEETS.length, null);
+                            this.currentSheet = null;
+                            return;
                         }
                         this.currentSheetID = id;
                         TweenMax.fromTo($$$.details, 0.5, { alpha: 0 }, { alpha: 1 });
@@ -333,18 +414,24 @@ function traceJSON(obj) {
                         this.currentDropDown = item;
                     },
                     selectActionType: function (actionParam, e) {
-                        var index = $(e.target).data('index');
-                        if (isNaN(index) || index >= __ARACOMMANDS.length)
-                            return;
-                        actionParam.type = __ARACOMMANDS[index].name;
+                        actionParam.type = e.name;
                     },
                     useSuggestedName: function (light, e, list, prefix) {
                         if (!prefix)
                             prefix = "";
-                        var index = $(e.target).data('index');
-                        if (isNaN(index) || index >= list.length)
+                        light.name = prefix + e.name;
+                    },
+                    showPopup: function (header, message, options) {
+                        showPopup(header, message, options);
+                    },
+                    onPopupDismiss: function (buttonName) {
+                        var popup = this.popup;
+                        var btn = popup.dismiss[buttonName];
+                        this.popup = null;
+                        if (btn == null)
                             return;
-                        light.name = prefix + list[index].name;
+                        if (_.isFunction(btn))
+                            btn(popup);
                     }
                 }
             });
@@ -406,8 +493,7 @@ function traceJSON(obj) {
         if (duplicate) {
             $$$.boxInfo.showBox("Duplicating Sheet...");
             //Do a quick JSON -to-and-from- to deep clone all the data without the Vue garbage around it.
-            var jsonStr = JSON.stringify(duplicate);
-            sheet = JSON.parse(jsonStr);
+            sheet = _.jsonClone(duplicate);
         }
         else {
             $$$.boxInfo.showBox("Creating New Sheet...");

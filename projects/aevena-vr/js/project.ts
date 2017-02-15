@@ -19,6 +19,19 @@ function traceJSON(obj=null) {
 	return result;
 }
 
+function showPopup(header, message, options) {
+	if(!options) options = {};
+	options = _.assign(options, {header: header, message: message});
+
+	if(!options.dismiss) {
+		options.dismiss = {ok:true,cancel:true};
+		if(options.ok) options.dismiss.ok = options.ok;
+		if(options.cancel) options.dismiss.cancel = options.cancel;
+	}
+	__VUE.popup = options;
+}
+
+
 (function(ERDS) {
 	registerComponents({
 		comp: {
@@ -36,14 +49,14 @@ function traceJSON(obj=null) {
 		'numeric-prop': {
 			props: ['obj'],
 			template:
-				'<div class="numeric-prop">\
-					<div class="col-1">\
-						<i v-html="obj.name.camelToTitleCase()"></i>:\
-					</div>\
-					<div class="col-2">\
-						<input type="text" v-model:value="obj.value" />\
-					</div>\
-				</div>'
+				`<div class="numeric-prop">
+					<div class="col-1">
+						<i v-html="obj.name.camelToTitleCase()"></i>:
+					</div>
+					<div class="col-2">
+						<input type="text" v-model:value="obj.value" />
+					</div>
+				</div>`
 		},
 
 		'light-item': {
@@ -61,10 +74,10 @@ function traceJSON(obj=null) {
 				}
 			},
 			template:
-				'<div class="item light-item" :class="isSelected">\
-					<btn :label="obj.name" v-on:click="showPanel()" />\
-					<slot></slot>\
-				</div>'
+				`<div class="item light-item" :class="isSelected">
+					<btn :label="obj.name" v-on:click="showPanel()" />
+					<slot></slot>
+				</div>`
 		},
 
 		'action-item': {
@@ -82,20 +95,69 @@ function traceJSON(obj=null) {
 				}
 			},
 			template:
-				'<div class="item action-item" :class="isSelected">\
-					<btn :label="obj.name" v-on:click="showPanel()"></btn><slot></slot>\
-				</div>'
+				`<div class="item action-item" :class="isSelected">
+					<btn :label="obj.name" v-on:click="showPanel()"></btn><slot></slot>
+				</div>`
 		},
 
 		'btn': {
 			props: ['obj', 'label', 'emoji', 'icon'],
 			methods: { click(e) { this.$emit('click', e); } },
 			template:
-				'<div class="btn" v-on:click.capture.stop.prevent="click">\
-					<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>\
-					<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>\
-					<i v-html="label"></i>\
-				</div>'
+				`<div class="btn" v-on:click.capture.stop.prevent="click">
+					<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>
+					<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>
+					<i v-html="label"></i>
+				</div>`
+		},
+
+		'dropdown': {
+			props: {
+				list: Array,
+				label: { type: String, default: '' },
+				icon: { default: "caret-down" },
+				is_selected: { type: Function, default() { return false; } },
+				dropdown_source: [Object,Array],
+				class_dropdown: { type: String, default: "default-dropdown" },
+				class_btn: { type: String, default: "default-btn" }
+			},
+			computed: {
+				currentDropDown() { return __VUE ? __VUE.currentDropDown : null; }
+			},
+			methods: {
+				isSelected(item) {
+					return this.is_selected && this.is_selected(item);
+				},
+				onButtonClick(e) {
+					__VUE.setCurrentDropDown(this.dropdown_source);
+					this.$emit('dropdown', e);
+				},
+				onSelectionClick(e) {
+					this.$emit('click', e);
+					var id = parseInt($(e.target).data('index'));
+					id = isNaN(id) ? -1 : id;
+					if(id==-1) return;
+					this.$emit('selected', this.list[id] );
+				}
+			},
+			template: //!!!
+				`<span class="dropdown">
+					<btn class="padded-5"
+						 :class="class_btn"
+						 @click="onButtonClick($event)"
+						 :icon="icon"
+						 :label="label">
+					</btn>
+					<div :class="class_dropdown"
+						class="dropdown-list"
+						 v-if="currentDropDown==dropdown_source"
+						 @click="onSelectionClick($event)">
+						<div v-for="(item, id) in list"
+							v-html="item.name"
+							:class="{isSelected: is_selected(item)}"
+							:data-index="id"></div>
+					</div>
+				</span>`
 		},
 
 		'light-comp': {
@@ -170,13 +232,6 @@ function traceJSON(obj=null) {
 					__VUE.currentDropDown = item;
 				},
 
-				setCurrentFocus(e) {
-					var id = $(e.target).data('index');
-					if(isNaN(id)) return;
-
-					this.currentFocus = this.modes[id].name;
-				},
-
 				onClickBulb(light) {
 					if(this.isFocusColors) {
 						light.color = this.currentColor;
@@ -196,15 +251,27 @@ function traceJSON(obj=null) {
 					}
 				},
 
+				setCurrentFocus(e) {
+					if(!this.currentStep) return;
+					this.currentFocus = e.name;
+				},
+
 				setCurrentAudio(e) {
 					if(!this.currentStep) return;
-					var el = $(e.target);
-					this.currentStep.audio = String(el[0].innerHTML);
+					this.currentStep.audio = e.name;
+				},
+
+				isAudioSelected(item) {
+					return this.currentStep.audio==item.name;
+				},
+
+				isCurrentMode(item) {
+					return this.currentFocus == item.name;
 				}
 			},
 
-			template: `
-			<div class="padded-3 subpanel">
+			template:
+			`<div class="padded-3 subpanel">
 				<i class="subheader nowrap v-align-mid-kids">
 					<i v-html="header"></i>
 
@@ -227,41 +294,28 @@ function traceJSON(obj=null) {
 				<br/>
 
 				<div class="light-comp" v-if="currentStep" :class="class_lightcomp">
-					<!-- Audio -->
-					<span class="dropdown">
-						<btn class="padded-5 audio"
-							 @click="setCurrentDropDown(steps)"
-							 icon="volume-up">
-						</btn>
-						<div class="dropdown-list audio-list"
-							 v-if="currentDropDown==steps"
-							 @click="setCurrentAudio($event)">
-							<div v-for="(item, id) in audioClips"
-								v-html="item.name"
-								:class="{isSelected: currentStep.audio==item.name}"
-								:data-index="id"></div>
-						</div>
-					</span>
+					<dropdown	class_btn="audio"
+								class_dropdown="audio-list"
+								icon="volume-up"
+								:list="audioClips"
+								:dropdown_source="steps"
+								:is_selected="isAudioSelected"
+								@selected="setCurrentAudio($event)">
+					</dropdown>
 
 					<input class="padded-2" v-model:value="currentStep.audio">
 
 					<br/>
 
 					<i class="nowrap">
-						<span class="dropdown">
-							<btn class="padded-5 color-names"
-								 @click="setCurrentDropDown(currentStep)"
-								 icon="paint-brush">
-							</btn>
-							<div class="dropdown-list step-modes"
-								 v-if="currentDropDown==currentStep"
-								 @click="setCurrentFocus($event)">
-								<div v-for="(item, id) in modes"
-									v-html="item.name"
-									:class="{isSelected: currentFocus==item.name}"
-									:data-index="id"></div>
-							</div>
-						</span>
+						<dropdown	class_btn="color-names"
+									class_dropdown="step-modes"
+									icon="paint-brush"
+									:list="modes"
+									:dropdown_source="currentStep"
+									:is_selected="isCurrentMode"
+									@selected="setCurrentFocus($event)">
+						</dropdown>
 
 						<i v-if="isFocusColors">
 							<i class="spacer-1">Color:</i>
@@ -307,8 +361,7 @@ function traceJSON(obj=null) {
 						</i>
 					</div>
 				</draggable>
-			</div>
-			`
+			</div>`
 		}
 	});
 
@@ -326,17 +379,26 @@ function traceJSON(obj=null) {
 		__VUE.statusKeyModifiers =	(e.shiftKey ? __KEYS.SHIFT : 0) |
 									(ctrlOrAlt ? __KEYS.CTRL : 0);
 									//| (e.altKey ? __KEYS.ALT : 0);
-		
+
+		var isEnter = false, isTab = false, isEscape = false;
+		switch(e.which) {
+			case 27: isEscape = true; break;
+			case 13: isEnter = true; break;
+			case 9: isTab = true; break;
+			default: return; //trace(e.which);
+		}
+
 		//Handle the dropdown menus:
-		if(__VUE.currentDropDown!=null) {
-			switch(e.which) {
-				case 13:// __VUE.currentDropDown = null; return;
-				case 9:// __VUE.currentDropDown = null; return;
-				//ESCAPE
-				case 27: __VUE.currentDropDown = null; return;
+		if(__VUE.currentDropDown!=null && isEscape) {
+			return __VUE.currentDropDown = null;
+		}
+
+		if(__VUE.popup!=null) {
+			if(isEscape) return __VUE.popup = null;
+			if(isEnter) {
+				__VUE.popup.onEnter && __VUE.popup.onEnter();
+				return __VUE.popup = null;
 			}
-			
-			trace(e.which);
 		}
 	});
 	
@@ -362,6 +424,12 @@ function traceJSON(obj=null) {
 					statusKeyModifiers: 0,
 					statusSaveButton: 'Save',
 					isBusy: false,
+					popup: null, /*{
+						header: "Header Test",
+						message: "Testing message",
+						checkboxes: [{name:"test"},{name:"one"},{name:"two"}],
+						dismiss: {ok:true, cancel:true}
+					},*/
 					hardcoded: {},
 					jsonData: {
 						sheets: []
@@ -446,12 +514,49 @@ function traceJSON(obj=null) {
 						projectCommand('recoverJSON', null);
 					},
 
-					createNewSheet() {
-						this.currentSheetUpdate(__SHEETS.length);
+					addSheet() {
+						createNewSheetAt(__SHEETS.length, null);
+						this.currentSheetUpdate(__SHEETS.length-1);
+					},
+
+					copySheet() {
+						var sheet = createNewSheetAt(__SHEETS.length, this.currentSheet);
+						sheet.name += " Copy";
+						this.currentSheetUpdate(__SHEETS.length-1);
+					},
+
+					removeSheet() {
+						if(!this.currentSheet || this.currentSheetID<0) return;
+						var id = this.jsonData.sheets.remove(this.currentSheet);
+						this.currentSheetID = -1;
+						this.currentSheetUpdate(id-1);
+					},
+
+					exportSheetsPopup() {
+						showPopup("Export Sheet(s)", "Select the sheets you would like to export:", {
+							checkboxes: __SHEETS.map((sheet, id) => {return {name:sheet.name, id: id}}),
+							ok(options) {
+								//Filter out the uneeded sheets:
+								var mySheetIDs = options.checkboxes
+									.filter(sheet => sheet.value)
+									.map(sheet => sheet.name);
+
+								var mySheets = _.jsonClone(__SHEETS)
+									.filter(sheet => mySheetIDs.has(sheet.name));
+
+								//Now do a client-side file download:
+								downloadJSON({sheets: mySheets}, ERDS.projectName + ".json");
+							}
+						});
+					},
+
+					isSheetSelected(sheet) {
+						trace(sheet);
+						return true;
 					},
 					
 					currentSheetUpdate(id) {
-						if(_.isObject(id) && id.target) {
+						if(_.isObject(id)) {
 							id = $(id.target).data('index');
 						}
 
@@ -462,7 +567,8 @@ function traceJSON(obj=null) {
 						if(this.currentSheetID===id) return;
 						if(id<0 || isNaN(id)) id = 0;
 						if(id>=__SHEETS.length) {
-							createNewSheetAt(__SHEETS.length, null);
+							this.currentSheet = null;
+							return;
 						}
 
 						this.currentSheetID = id;
@@ -494,16 +600,26 @@ function traceJSON(obj=null) {
 					},
 
 					selectActionType(actionParam, e) {
-						var index = $(e.target).data('index');
-						if(isNaN(index) || index >= __ARACOMMANDS.length) return;
-						actionParam.type = __ARACOMMANDS[index].name;
+						actionParam.type = e.name;
 					},
 
 					useSuggestedName(light, e, list, prefix) {
 						if(!prefix) prefix = "";
-						var index = $(e.target).data('index');
-						if(isNaN(index) || index >= list.length) return;
-						light.name = prefix + list[index].name;
+						light.name = prefix + e.name;
+					},
+
+					showPopup(header, message, options) {
+						showPopup(header, message, options);
+					},
+
+					onPopupDismiss(buttonName) {
+						var popup = this.popup;
+						var btn = popup.dismiss[buttonName];
+						this.popup = null;
+
+						if(btn==null) return;
+
+						if(_.isFunction(btn)) btn(popup);
 					}
 				}
 			});
@@ -578,8 +694,7 @@ function traceJSON(obj=null) {
 			$$$.boxInfo.showBox("Duplicating Sheet...");
 			
 			//Do a quick JSON -to-and-from- to deep clone all the data without the Vue garbage around it.
-			var jsonStr = JSON.stringify(duplicate);
-			sheet = JSON.parse(jsonStr);
+			sheet = _.jsonClone(duplicate);
 		} else {
 			$$$.boxInfo.showBox("Creating New Sheet...");
 

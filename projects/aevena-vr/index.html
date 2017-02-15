@@ -41,11 +41,12 @@
     <btn class="btn-sidebar" :class="{ active: view==0 }" @click="changeView(0)" label="Definable<br/>Values"></btn>
     <btn class="btn-sidebar" :class="{ active: view==1 }" @click="changeView(1)" label="Light<br/>Sequence"></btn>
     <btn class="btn-sidebar" :class="{ active: view==2 }" @click="changeView(2)" label="Action<br/>Sequence"></btn>
+    <btn class="btn-sidebar" @click="exportSheetsPopup" label="Export<br/>Sheet(s)"></btn>
     <btn class="v-align-top btn-large" :class="[statusSaveButton.toLowerCase(), isBusy ? 'busy' : '']"
          @click="handleSaveButton($event)"
          v-html="statusSaveButton"
          label="Save"></btn>
-    <btn class="btn-sidebar"></btn>
+
 </div>
 
 <div id="details">
@@ -244,3 +245,26 @@
     </view-tab>
 </div>
 
+<div v-if="popup" class="modal" :class="popup!=null ? 'showing' : ''">
+    <div class="popup">
+        <h3 class="header" v-html="popup.header"></h3>
+
+        <div class="content">
+            <div class="message" v-html="popup.message"></div>
+
+            <div v-if="popup.checkboxes">
+                <div class="nowrap checkbox" v-for="(check, id) in popup.checkboxes">
+                    <label>
+                    <input type="checkbox" v-model:value="check.value" :label="check.name">
+                    <div v-html="check.name"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="popup.dismiss" class="buttons">
+            <btn v-if="popup.dismiss.ok" label="OK" @click="onPopupDismiss('ok')"></btn>
+            <btn v-if="popup.dismiss.cancel" label="CANCEL" @click="onPopupDismiss('cancel')"></btn>
+        </div>
+    </div>
+</div>

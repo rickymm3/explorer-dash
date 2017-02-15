@@ -19,6 +19,19 @@ function traceJSON(obj=null) {
 	return result;
 }
 
+function showPopup(header, message, options) {
+	if(!options) options = {};
+	options = _.assign(options, {header: header, message: message});
+
+	if(!options.dismiss) {
+		options.dismiss = {ok:true,cancel:true};
+		if(options.ok) options.dismiss.ok = options.ok;
+		if(options.cancel) options.dismiss.cancel = options.cancel;
+	}
+	__VUE.popup = options;
+}
+
+
 (function(ERDS) {
 	registerComponents({
 		comp: {
@@ -366,17 +379,26 @@ function traceJSON(obj=null) {
 		__VUE.statusKeyModifiers =	(e.shiftKey ? __KEYS.SHIFT : 0) |
 									(ctrlOrAlt ? __KEYS.CTRL : 0);
 									//| (e.altKey ? __KEYS.ALT : 0);
-		
+
+		var isEnter = false, isTab = false, isEscape = false;
+		switch(e.which) {
+			case 27: isEscape = true; break;
+			case 13: isEnter = true; break;
+			case 9: isTab = true; break;
+			default: return; //trace(e.which);
+		}
+
 		//Handle the dropdown menus:
-		if(__VUE.currentDropDown!=null) {
-			switch(e.which) {
-				case 13:// __VUE.currentDropDown = null; return;
-				case 9:// __VUE.currentDropDown = null; return;
-				//ESCAPE
-				case 27: __VUE.currentDropDown = null; return;
+		if(__VUE.currentDropDown!=null && isEscape) {
+			return __VUE.currentDropDown = null;
+		}
+
+		if(__VUE.popup!=null) {
+			if(isEscape) return __VUE.popup = null;
+			if(isEnter) {
+				__VUE.popup.onEnter && __VUE.popup.onEnter();
+				return __VUE.popup = null;
 			}
-			
-			trace(e.which);
 		}
 	});
 	
@@ -402,6 +424,12 @@ function traceJSON(obj=null) {
 					statusKeyModifiers: 0,
 					statusSaveButton: 'Save',
 					isBusy: false,
+					popup: null, /*{
+						header: "Header Test",
+						message: "Testing message",
+						checkboxes: [{name:"test"},{name:"one"},{name:"two"}],
+						dismiss: {ok:true, cancel:true}
+					},*/
 					hardcoded: {},
 					jsonData: {
 						sheets: []
@@ -504,6 +532,24 @@ function traceJSON(obj=null) {
 						this.currentSheetUpdate(id-1);
 					},
 
+					exportSheetsPopup() {
+						showPopup("Export Sheet(s)", "Select the sheets you would like to export:", {
+							checkboxes: __SHEETS.map((sheet, id) => {return {name:sheet.name, id: id}}),
+							ok(options) {
+								//Filter out the uneeded sheets:
+								var mySheetIDs = options.checkboxes
+									.filter(sheet => sheet.value)
+									.map(sheet => sheet.name);
+
+								var mySheets = _.jsonClone(__SHEETS)
+									.filter(sheet => mySheetIDs.has(sheet.name));
+
+								//Now do a client-side file download:
+								downloadJSON({sheets: mySheets}, ERDS.projectName + ".json");
+							}
+						});
+					},
+
 					isSheetSelected(sheet) {
 						trace(sheet);
 						return true;
@@ -560,6 +606,20 @@ function traceJSON(obj=null) {
 					useSuggestedName(light, e, list, prefix) {
 						if(!prefix) prefix = "";
 						light.name = prefix + e.name;
+					},
+
+					showPopup(header, message, options) {
+						showPopup(header, message, options);
+					},
+
+					onPopupDismiss(buttonName) {
+						var popup = this.popup;
+						var btn = popup.dismiss[buttonName];
+						this.popup = null;
+
+						if(btn==null) return;
+
+						if(_.isFunction(btn)) btn(popup);
 					}
 				}
 			});
@@ -634,8 +694,7 @@ function traceJSON(obj=null) {
 			$$$.boxInfo.showBox("Duplicating Sheet...");
 			
 			//Do a quick JSON -to-and-from- to deep clone all the data without the Vue garbage around it.
-			var jsonStr = JSON.stringify(duplicate);
-			sheet = JSON.parse(jsonStr);
+			sheet = _.jsonClone(duplicate);
 		} else {
 			$$$.boxInfo.showBox("Creating New Sheet...");
 

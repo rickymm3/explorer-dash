@@ -13,6 +13,19 @@ function traceJSON(obj) {
     $$$.boxInfo.showBox(result);
     return result;
 }
+function showPopup(header, message, options) {
+    if (!options)
+        options = {};
+    options = _.assign(options, { header: header, message: message });
+    if (!options.dismiss) {
+        options.dismiss = { ok: true, cancel: true };
+        if (options.ok)
+            options.dismiss.ok = options.ok;
+        if (options.cancel)
+            options.dismiss.cancel = options.cancel;
+    }
+    __VUE.popup = options;
+}
 (function (ERDS) {
     registerComponents({
         comp: {
@@ -211,17 +224,30 @@ function traceJSON(obj) {
         __VUE.statusKeyModifiers = (e.shiftKey ? __KEYS.SHIFT : 0) |
             (ctrlOrAlt ? __KEYS.CTRL : 0);
         //| (e.altKey ? __KEYS.ALT : 0);
+        var isEnter = false, isTab = false, isEscape = false;
+        switch (e.which) {
+            case 27:
+                isEscape = true;
+                break;
+            case 13:
+                isEnter = true;
+                break;
+            case 9:
+                isTab = true;
+                break;
+            default: return; //trace(e.which);
+        }
         //Handle the dropdown menus:
-        if (__VUE.currentDropDown != null) {
-            switch (e.which) {
-                case 13: // __VUE.currentDropDown = null; return;
-                case 9: // __VUE.currentDropDown = null; return;
-                //ESCAPE
-                case 27:
-                    __VUE.currentDropDown = null;
-                    return;
+        if (__VUE.currentDropDown != null && isEscape) {
+            return __VUE.currentDropDown = null;
+        }
+        if (__VUE.popup != null) {
+            if (isEscape)
+                return __VUE.popup = null;
+            if (isEnter) {
+                __VUE.popup.onEnter && __VUE.popup.onEnter();
+                return __VUE.popup = null;
             }
-            trace(e.which);
         }
     });
     $(document).on('click', function (e) {
@@ -245,6 +271,7 @@ function traceJSON(obj) {
                     statusKeyModifiers: 0,
                     statusSaveButton: 'Save',
                     isBusy: false,
+                    popup: null,
                     hardcoded: {},
                     jsonData: {
                         sheets: []
@@ -331,6 +358,21 @@ function traceJSON(obj) {
                         this.currentSheetID = -1;
                         this.currentSheetUpdate(id - 1);
                     },
+                    exportSheetsPopup: function () {
+                        showPopup("Export Sheet(s)", "Select the sheets you would like to export:", {
+                            checkboxes: __SHEETS.map(function (sheet, id) { return { name: sheet.name, id: id }; }),
+                            ok: function (options) {
+                                //Filter out the uneeded sheets:
+                                var mySheetIDs = options.checkboxes
+                                    .filter(function (sheet) { return sheet.value; })
+                                    .map(function (sheet) { return sheet.name; });
+                                var mySheets = _.jsonClone(__SHEETS)
+                                    .filter(function (sheet) { return mySheetIDs.has(sheet.name); });
+                                //Now do a client-side file download:
+                                downloadJSON({ sheets: mySheets }, ERDS.projectName + ".json");
+                            }
+                        });
+                    },
                     isSheetSelected: function (sheet) {
                         trace(sheet);
                         return true;
@@ -378,6 +420,18 @@ function traceJSON(obj) {
                         if (!prefix)
                             prefix = "";
                         light.name = prefix + e.name;
+                    },
+                    showPopup: function (header, message, options) {
+                        showPopup(header, message, options);
+                    },
+                    onPopupDismiss: function (buttonName) {
+                        var popup = this.popup;
+                        var btn = popup.dismiss[buttonName];
+                        this.popup = null;
+                        if (btn == null)
+                            return;
+                        if (_.isFunction(btn))
+                            btn(popup);
                     }
                 }
             });
@@ -439,8 +493,7 @@ function traceJSON(obj) {
         if (duplicate) {
             $$$.boxInfo.showBox("Duplicating Sheet...");
             //Do a quick JSON -to-and-from- to deep clone all the data without the Vue garbage around it.
-            var jsonStr = JSON.stringify(duplicate);
-            sheet = JSON.parse(jsonStr);
+            sheet = _.jsonClone(duplicate);
         }
         else {
             $$$.boxInfo.showBox("Creating New Sheet...");

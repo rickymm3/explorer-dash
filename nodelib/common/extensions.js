@@ -25,6 +25,10 @@ Array.prototype.remove = function(item) {
 	return id;
 };
 
+Array.prototype.has = function(item) {
+	return this.indexOf(item)>-1;
+};
+
 Array._map_toKeyValues = function(name,i) {
 	return {value: i, name: name};
 };

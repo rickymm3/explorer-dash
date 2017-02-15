@@ -84,6 +84,10 @@ function toEmoji(str) {
 	return str.replace(regexEmoji, '<i class="em em-$1"></i>');
 }
 
+function toIcon(str) {
+	return str.replace(regexEmoji, '<i class="fa fa-$1"></i>')
+}
+
 String.prototype.camelToTitleCase = function() {
 	var text = this.toString();
 	var result = text.replace( /([A-Z])/g, " $1" );

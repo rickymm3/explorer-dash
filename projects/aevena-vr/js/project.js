@@ -179,10 +179,12 @@ function showPopup(header, message, options) {
                 convertStateToChar: function (light) {
                     switch (light.state) {
                         case "Colors": return "!";
-                        case "Off": return "_";
-                        case "Full": return "#";
-                        case "FadeIn": return "&uarr;";
-                        case "FadeOut": return "&darr;";
+                        case "Off": return toIcon(":battery-0:");
+                        case "Full": return toIcon(":battery-full:");
+                        case "Half": return toIcon(":battery-2:");
+                        case "Quarter": return toIcon(":battery-1:");
+                        case "FadeIn": return "&#x25E2;";
+                        case "FadeOut": return "&#x25E3;";
                     }
                 },
                 setCurrentFocus: function (e) {

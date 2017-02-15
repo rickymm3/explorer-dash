@@ -10,7 +10,7 @@ body {
 @colorSheetBtn: rgba(220, 216, 94, 0.75);
 @colorSubpanel: rgba(0,0,255,0.5);
 @colWidth: 150px;
-@lightSize: 140px;
+@lightSize: 150px;
 
 
 .header {
@@ -346,6 +346,12 @@ body {
     border: solid 2px #000;
     background: #555;
     cursor: pointer;
+    text-align: center;
+
+    &::after {
+      .shadowy();
+      font-weight: bold;
+    }
 
     &:hover {
       border-color: #444;
@@ -357,22 +363,24 @@ body {
     border: dotted 2px #888;
   }
 
-  .bulb-full {
-    box-shadow: 0px 0px 3px 2px #fa7;
-  }
+  .bulb-full { &::after { .fontAwesome('\00f0eb'); } }
+  .bulb-half { &::after { content: '\0000bd'; } }
+  .bulb-quarter { &::after { content: '\0000bc'; } }
+  .bulb-fadein { &::after { content: '\0025E2'; } }
+  .bulb-fadeout { &::after { content: '\0025E3'; } }
+}
 
-  .bulb-fadein {
-    border-color: #000;
-  }
-
-  .bulb-fadeout {
-    border-color: #aaa;
-    opacity: 0.75;
-  }
+.fontAwesome(@content) {
+  content: @content;
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  text-decoration: inherit
 }
 
 .ring-light {
-  @sizeBulb: @lightSize / 7;
+  @sizeBulb: @lightSize / 6;
   @radius: @lightSize * 0.4;
   @radiusSmall: @radius * 0.66;
 
@@ -404,7 +412,7 @@ body {
   @spaceBulb: @sizeBulb * 1.1;
   .bulb {
     width:@sizeBulb;
-    height:@sizeBulb / 2;
+    height:@sizeBulb / 1.2;
     border-radius: @sizeBulb/6;
   }
 
@@ -477,8 +485,9 @@ body {
 }
 
 .bulb-stat {
+  display: inline-block;
+  width: 25px;
   padding: 2px;
-  font-size: 120%;
   font-weight: bold;
   //font-style: normal !important;
 }

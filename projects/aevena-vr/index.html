@@ -46,10 +46,13 @@
          @click="handleSaveButton($event)"
          v-html="statusSaveButton"
          label="Save"></btn>
-
+    <label class="padded-3 shadow-lite">
+        <input type="checkbox" v-model:value="forceWideView" @click="onForceWideView">
+        Force Wide View
+    </label>
 </div>
 
-<div id="details">
+<div id="details" :class="forceWideView ? 'force-wide' : ''">
     <view-tab v-if="view==0" class="view definable-values">
         <comp v-for="def in currentSheet.definableValues" v-bind:obj="def"></comp>
     </view-tab>

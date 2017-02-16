@@ -298,10 +298,10 @@ body {
 .light-comp .bulb-quarter::after {
   content: '\0000bc';
 }
-.light-comp .bulb-fadein::after {
+.light-comp .bulb-fadeon::after {
   content: '\0025E2';
 }
-.light-comp .bulb-fadeout::after {
+.light-comp .bulb-fadeoff::after {
   content: '\0025E3';
 }
 .light-comp .bulb-fadehalf::after {
@@ -456,6 +456,11 @@ body {
 .audio-name {
   width: 100px;
   font-size: 75%;
+}
+.force-wide .ring-sequence,
+.force-wide .strip-sequence {
+  display: block !important;
+  width: 100% !important;
 }
 @media screen and (max-width: 990px) {
   .ring-sequence .break,

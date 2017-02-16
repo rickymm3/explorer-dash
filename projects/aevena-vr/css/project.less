@@ -366,8 +366,8 @@ body {
   .bulb-full { &::after { .fontAwesome('\00f0eb'); } }
   .bulb-half { &::after { content: '\0000bd'; } }
   .bulb-quarter { &::after { content: '\0000bc'; } }
-  .bulb-fadein { &::after { content: '\0025E2'; } }
-  .bulb-fadeout { &::after { content: '\0025E3'; } }
+  .bulb-fadeon { &::after { content: '\0025E2'; } }
+  .bulb-fadeoff { &::after { content: '\0025E3'; } }
   .bulb-fadehalf { &::after { content: '\0025B3'; } }
 }
 
@@ -517,6 +517,13 @@ body {
 }
 
 //////////////////////////////////////////////// MEDIA QUERIES
+
+.force-wide {
+  .ring-sequence, .strip-sequence {
+    display: block !important;
+    width: 100% !important;
+  }
+}
 
 @media screen and (max-width: 990px) {
   .ring-sequence, .strip-sequence {

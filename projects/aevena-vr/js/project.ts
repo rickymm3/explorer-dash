@@ -728,7 +728,9 @@ function showPopup(header, message, options) {
 				{type: 'numeric-prop', name: 'timeToStart', value: 5},
 				{type: 'numeric-prop', name: 'timeToStop', value: 1},
 				{type: 'numeric-prop', name: 'maxTiltRange', value: 5},
-				{type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1}
+				{type: 'numeric-prop', name: 'mainUIPanelDistance', value: 1},
+				{type: 'numeric-prop', name: 'baseMass', value: 1},
+				{type: 'numeric-prop', name: 'swingDampening', value: 1}
 			);
 			
 			globalAddLight();

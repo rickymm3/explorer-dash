@@ -147,8 +147,8 @@ module.exports = function(PROJ) {
 				"Full",
 				"Half",
 				"Quarter",
-				"FadeIn",
-				"FadeOut",
+				"FadeOn",
+				"FadeOff",
 				"FadeHalf"
 			].toKeyValues()
 		}

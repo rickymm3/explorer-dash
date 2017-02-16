@@ -248,8 +248,8 @@ function showPopup(header, message, options) {
 						case "Full": return toIcon(":battery-full:");
 						case "Half": return toIcon(":battery-2:");
 						case "Quarter": return toIcon(":battery-1:");
-						case "FadeIn": return "&#x25E2;";
-						case "FadeOut": return "&#x25E3;";
+						case "FadeOn": return "&#x25E2;";
+						case "FadeOff": return "&#x25E3;";
 					}
 				},
 
@@ -439,6 +439,7 @@ function showPopup(header, message, options) {
 					statusKeyModifiers: 0,
 					statusSaveButton: 'Save',
 					isBusy: false,
+					forceWideView: getCookie('forceWideView')=='true',
 					popup: null, /*{
 						header: "Header Test",
 						message: "Testing message",
@@ -635,6 +636,10 @@ function showPopup(header, message, options) {
 						if(btn==null) return;
 
 						if(_.isFunction(btn)) btn(popup);
+					},
+
+					onForceWideView() {
+						setCookie('forceWideView', this.forceWideView);
 					}
 				}
 			});

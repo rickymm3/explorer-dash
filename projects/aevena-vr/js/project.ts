@@ -175,7 +175,8 @@ function showPopup(header, message, options) {
 				return {
 					'currentColor': '#f00',
 					'currentStepID': 0,
-					'currentFocus': 'Colors'
+					'currentFocus': 'Colors',
+					'isMouseDown': false
 				};
 			},
 
@@ -232,15 +233,6 @@ function showPopup(header, message, options) {
 					__VUE.currentDropDown = item;
 				},
 
-				onClickBulb(light) {
-					if(this.isFocusColors) {
-						light.color = this.currentColor;
-						return;
-					}
-
-					light.state = this.currentFocus;
-				},
-
 				convertStateToChar(light) {
 					switch(light.state) {
 						case "Colors": return "!";
@@ -276,7 +268,28 @@ function showPopup(header, message, options) {
 				},
 
 				setNav() {
-					__VUE.nav = this;
+					var _this = this;
+					__VUE.nav = _this;
+
+					_this.isMouseDown = true;
+					$(window).one('mouseup', function() {
+						trace("Mouse is up now");
+						_this.isMouseDown = false;
+					})
+				},
+
+				onClickBulb(light) {
+					if(this.isFocusColors) {
+						light.color = this.currentColor;
+						return;
+					}
+
+					light.state = this.currentFocus;
+				},
+
+				onHoverBulb(light) {
+					if(!this.isMouseDown) return;
+					this.onClickBulb(light);
 				},
 
 				goUp(e) {
@@ -292,7 +305,7 @@ function showPopup(header, message, options) {
 					e.preventDefault();
 					e.stopImmediatePropagation();
 					e.stopPropagation();
-					
+
 					if(this.currentStepID>=(this.steps.length-1)) return;
 					this.currentStepID++;
 				}
@@ -369,7 +382,8 @@ function showPopup(header, message, options) {
 						<i v-for="(light, id) in currentStep.lights"
 							:class="['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]"
 							:style="{backgroundColor: light.color}"
-							@click="onClickBulb(light)">
+							@mouseover="onHoverBulb(light)"
+							@mousedown="onClickBulb(light)">
 							</i>
 					</div>
 				</div>

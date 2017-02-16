@@ -124,7 +124,8 @@ function showPopup(header, message, options) {
                 return {
                     'currentColor': '#f00',
                     'currentStepID': 0,
-                    'currentFocus': 'Colors'
+                    'currentFocus': 'Colors',
+                    'isMouseDown': false
                 };
             },
             computed: {
@@ -169,13 +170,6 @@ function showPopup(header, message, options) {
                 setCurrentDropDown: function (item) {
                     __VUE.currentDropDown = item;
                 },
-                onClickBulb: function (light) {
-                    if (this.isFocusColors) {
-                        light.color = this.currentColor;
-                        return;
-                    }
-                    light.state = this.currentFocus;
-                },
                 convertStateToChar: function (light) {
                     switch (light.state) {
                         case "Colors": return "!";
@@ -207,7 +201,25 @@ function showPopup(header, message, options) {
                     return parseFloat(num).toFixed(1);
                 },
                 setNav: function () {
-                    __VUE.nav = this;
+                    var _this = this;
+                    __VUE.nav = _this;
+                    _this.isMouseDown = true;
+                    $(window).one('mouseup', function () {
+                        trace("Mouse is up now");
+                        _this.isMouseDown = false;
+                    });
+                },
+                onClickBulb: function (light) {
+                    if (this.isFocusColors) {
+                        light.color = this.currentColor;
+                        return;
+                    }
+                    light.state = this.currentFocus;
+                },
+                onHoverBulb: function (light) {
+                    if (!this.isMouseDown)
+                        return;
+                    this.onClickBulb(light);
                 },
                 goUp: function (e) {
                     e.preventDefault();
@@ -226,7 +238,7 @@ function showPopup(header, message, options) {
                     this.currentStepID++;
                 }
             },
-            template: "<div class=\"padded-3 subpanel\" @mousedown.capture=\"setNav()\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\n\t\t\t\t<br/>\n\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<dropdown\tclass_btn=\"audio\"\n\t\t\t\t\t\t\t\tclass_dropdown=\"audio-list\"\n\t\t\t\t\t\t\t\ticon=\"volume-up\"\n\t\t\t\t\t\t\t\t:list=\"audioClips\"\n\t\t\t\t\t\t\t\t:dropdown_source=\"steps\"\n\t\t\t\t\t\t\t\t:is_selected=\"isAudioSelected\"\n\t\t\t\t\t\t\t\t@selected=\"setCurrentAudio($event)\">\n\t\t\t\t\t</dropdown>\n\n\t\t\t\t\t<input class=\"padded-2 audio-name\" v-model:value=\"currentStep.audioClipName\" />\n\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<i>Volume</i>\n\t\t\t\t\t\t<input class=\"digits-2\" v-model:value=\"currentStep.audioVolume\">\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<br/>\n\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<dropdown\tclass_btn=\"color-names\"\n\t\t\t\t\t\t\t\t\tclass_dropdown=\"step-modes\"\n\t\t\t\t\t\t\t\t\ticon=\"paint-brush\"\n\t\t\t\t\t\t\t\t\t:list=\"modes\"\n\t\t\t\t\t\t\t\t\t:dropdown_source=\"currentStep\"\n\t\t\t\t\t\t\t\t\t:is_selected=\"isCurrentMode\"\n\t\t\t\t\t\t\t\t\t@selected=\"setCurrentFocus($event)\">\n\t\t\t\t\t\t</dropdown>\n\n\t\t\t\t\t\t<i v-if=\"isFocusColors\">\n\t\t\t\t\t\t\t<i class=\"spacer-1\">Color:</i>\n\t\t\t\t\t\t\t<input class=\"color-picker\"\n\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\"\n\t\t\t\t\t\t\t\t\tv-model:value=\"currentColor\">\n\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t<i v-if=\"!isFocusColors\">\n\t\t\t\t\t\t\tPainting: \"{{currentFocus}}\"\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\n\n\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentStep.lights\"\n\t\t\t\t\t\t\t:class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t\t:style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t\t@click=\"onClickBulb(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\n\t\t\t\t<draggable class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t:class=\"{isSelected: currentStepID==id}\"\n\t\t\t\t\t\t@click=\"setStepID(id)\"\n\t\t\t\t\t\tv-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\n\t\t\t\t\t\t<i>Time:</i>\n\t\t\t\t\t\t<input class=\"digits-3\" v-model:value=\"step.time\">\n\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t\t:style=\"{color: light.color}\"\n\t\t\t\t\t\t\t\tv-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t<i v-if=\"step.audioClipName!='Off'\" class=\"fa fa-volume-up\" :title=\"step.audioClipName\">\n\t\t\t\t\t\t\t({{showDecimals(step.audioVolume)}})\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>"
+            template: "<div class=\"padded-3 subpanel\" @mousedown.capture=\"setNav()\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\n\t\t\t\t<br/>\n\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<dropdown\tclass_btn=\"audio\"\n\t\t\t\t\t\t\t\tclass_dropdown=\"audio-list\"\n\t\t\t\t\t\t\t\ticon=\"volume-up\"\n\t\t\t\t\t\t\t\t:list=\"audioClips\"\n\t\t\t\t\t\t\t\t:dropdown_source=\"steps\"\n\t\t\t\t\t\t\t\t:is_selected=\"isAudioSelected\"\n\t\t\t\t\t\t\t\t@selected=\"setCurrentAudio($event)\">\n\t\t\t\t\t</dropdown>\n\n\t\t\t\t\t<input class=\"padded-2 audio-name\" v-model:value=\"currentStep.audioClipName\" />\n\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<i>Volume</i>\n\t\t\t\t\t\t<input class=\"digits-2\" v-model:value=\"currentStep.audioVolume\">\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<br/>\n\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<dropdown\tclass_btn=\"color-names\"\n\t\t\t\t\t\t\t\t\tclass_dropdown=\"step-modes\"\n\t\t\t\t\t\t\t\t\ticon=\"paint-brush\"\n\t\t\t\t\t\t\t\t\t:list=\"modes\"\n\t\t\t\t\t\t\t\t\t:dropdown_source=\"currentStep\"\n\t\t\t\t\t\t\t\t\t:is_selected=\"isCurrentMode\"\n\t\t\t\t\t\t\t\t\t@selected=\"setCurrentFocus($event)\">\n\t\t\t\t\t\t</dropdown>\n\n\t\t\t\t\t\t<i v-if=\"isFocusColors\">\n\t\t\t\t\t\t\t<i class=\"spacer-1\">Color:</i>\n\t\t\t\t\t\t\t<input class=\"color-picker\"\n\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\"\n\t\t\t\t\t\t\t\t\tv-model:value=\"currentColor\">\n\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t<i v-if=\"!isFocusColors\">\n\t\t\t\t\t\t\tPainting: \"{{currentFocus}}\"\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\n\n\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentStep.lights\"\n\t\t\t\t\t\t\t:class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t\t:style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t\t@mouseover=\"onHoverBulb(light)\"\n\t\t\t\t\t\t\t@mousedown=\"onClickBulb(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\n\t\t\t\t<draggable class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t:class=\"{isSelected: currentStepID==id}\"\n\t\t\t\t\t\t@click=\"setStepID(id)\"\n\t\t\t\t\t\tv-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\n\t\t\t\t\t\t<i>Time:</i>\n\t\t\t\t\t\t<input class=\"digits-3\" v-model:value=\"step.time\">\n\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t\t:style=\"{color: light.color}\"\n\t\t\t\t\t\t\t\tv-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t<i v-if=\"step.audioClipName!='Off'\" class=\"fa fa-volume-up\" :title=\"step.audioClipName\">\n\t\t\t\t\t\t\t({{showDecimals(step.audioVolume)}})\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>"
         }
     });
     //Key modifier:

@@ -173,7 +173,7 @@ function showPopup(header, message, options) {
 
 			data() {
 				return {
-					'currentColor': '#f00',
+					'currentColor': '#fff',
 					'currentStepID': 0,
 					'currentFocus': 'Colors',
 					'isMouseDown': false
@@ -292,6 +292,12 @@ function showPopup(header, message, options) {
 					this.onClickBulb(light);
 				},
 
+				applyAll() {
+					var t = this;
+					if(!t.currentStep || !t.currentStep.lights) return;
+					t.currentStep.lights.forEach(light => t.onClickBulb(light));
+				},
+
 				goUp(e) {
 					e.preventDefault();
 					e.stopImmediatePropagation();
@@ -373,6 +379,12 @@ function showPopup(header, message, options) {
 						<i v-if="!isFocusColors">
 							Painting: "{{currentFocus}}"
 						</i>
+					</i>
+
+					<br/>
+
+					<i class="nowrap">
+						<btn label="Apply All" @click="applyAll" />
 					</i>
 
 
@@ -846,14 +858,14 @@ function showPopup(header, message, options) {
 			audioClipName: "Off",
 			audioVolume: 1.0,
 			lights: [
-				{state: 'Full', color: '#f00'},
-				{state: 'Full', color: '#f00'},
-				{state: 'Full', color: '#f00'},
-				{state: 'Full', color: '#f00'},
-				{state: 'Full', color: '#f00'},
-				{state: 'Full', color: '#f00'},
-				{state: 'Full', color: '#f00'},
-				{state: 'Full', color: '#f00'},
+				{state: 'Full', color: '#fff'},
+				{state: 'Full', color: '#fff'},
+				{state: 'Full', color: '#fff'},
+				{state: 'Full', color: '#fff'},
+				{state: 'Full', color: '#fff'},
+				{state: 'Full', color: '#fff'},
+				{state: 'Full', color: '#fff'},
+				{state: 'Full', color: '#fff'},
 			]
 		}
 	}

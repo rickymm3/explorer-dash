@@ -273,11 +273,33 @@ function showPopup(header, message, options) {
 
 				showDecimals(num) {
 					return parseFloat(num).toFixed(1);
+				},
+
+				setNav() {
+					__VUE.nav = this;
+				},
+
+				goUp(e) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					e.stopPropagation();
+
+					if(this.currentStepID<=0) return;
+					this.currentStepID--;
+				},
+
+				goDown(e) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					e.stopPropagation();
+					
+					if(this.currentStepID>=(this.steps.length-1)) return;
+					this.currentStepID++;
 				}
 			},
 
 			template:
-			`<div class="padded-3 subpanel">
+			`<div class="padded-3 subpanel" @mousedown.capture="setNav()">
 				<i class="subheader nowrap v-align-mid-kids">
 					<i v-html="header"></i>
 
@@ -395,12 +417,17 @@ function showPopup(header, message, options) {
 									(ctrlOrAlt ? __KEYS.CTRL : 0);
 									//| (e.altKey ? __KEYS.ALT : 0);
 
+		if(e.type=="keyup") return;
+
 		var isEnter = false, isTab = false, isEscape = false;
+		var ARROW_UP = 38, ARROW_DOWN = 40, ARROW_LEFT = 37, ARROW_RIGHT = 39;
 		switch(e.which) {
 			case 27: isEscape = true; break;
 			case 13: isEnter = true; break;
 			case 9: isTab = true; break;
-			default: return; //trace(e.which);
+			case ARROW_UP: return __VUE.nav && __VUE.nav.goUp(e);
+			case ARROW_DOWN: return __VUE.nav && __VUE.nav.goDown(e);
+			default: return trace(e.which);
 		}
 
 		//Handle the dropdown menus:
@@ -438,6 +465,7 @@ function showPopup(header, message, options) {
 					currentStripStep: null,
 					statusKeyModifiers: 0,
 					statusSaveButton: 'Save',
+					nav: null,
 					isBusy: false,
 					forceWideView: getCookie('forceWideView')=='true',
 					popup: null, /*{

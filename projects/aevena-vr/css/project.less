@@ -368,6 +368,7 @@ body {
   .bulb-quarter { &::after { content: '\0000bc'; } }
   .bulb-fadein { &::after { content: '\0025E2'; } }
   .bulb-fadeout { &::after { content: '\0025E3'; } }
+  .bulb-fadehalf { &::after { content: '\0025B3'; } }
 }
 
 .fontAwesome(@content) {
@@ -508,6 +509,11 @@ body {
 .audio-list {
   column-count: 2;
   width: 270px;
+}
+
+.audio-name {
+  width: 100px;
+  font-size: 75%;
 }
 
 //////////////////////////////////////////////// MEDIA QUERIES

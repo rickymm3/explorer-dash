@@ -260,15 +260,19 @@ function showPopup(header, message, options) {
 
 				setCurrentAudio(e) {
 					if(!this.currentStep) return;
-					this.currentStep.audio = e.name;
+					this.currentStep.audioClipName = e.name;
 				},
 
 				isAudioSelected(item) {
-					return this.currentStep.audio==item.name;
+					return this.currentStep.audioClipName==item.name;
 				},
 
 				isCurrentMode(item) {
 					return this.currentFocus == item.name;
+				},
+
+				showDecimals(num) {
+					return parseFloat(num).toFixed(1);
 				}
 			},
 
@@ -305,7 +309,12 @@ function showPopup(header, message, options) {
 								@selected="setCurrentAudio($event)">
 					</dropdown>
 
-					<input class="padded-2" v-model:value="currentStep.audio">
+					<input class="padded-2 audio-name" v-model:value="currentStep.audioClipName" />
+
+					<i class="nowrap">
+						<i>Volume</i>
+						<input class="digits-2" v-model:value="currentStep.audioVolume">
+					</i>
 
 					<br/>
 
@@ -360,6 +369,10 @@ function showPopup(header, message, options) {
 								:style="{color: light.color}"
 								v-html="convertStateToChar(light)">
 							</i>
+						</i>
+
+						<i v-if="step.audioClipName!='Off'" class="fa fa-volume-up" :title="step.audioClipName">
+							({{showDecimals(step.audioVolume)}})
 						</i>
 					</div>
 				</draggable>
@@ -781,7 +794,8 @@ function showPopup(header, message, options) {
 		return {
 			type: 'light-step',
 			time: 1,
-			audio: "Off",
+			audioClipName: "Off",
+			audioVolume: 1.0,
 			lights: [
 				{state: 'Full', color: '#f00'},
 				{state: 'Full', color: '#f00'},

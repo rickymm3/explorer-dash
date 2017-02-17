@@ -31,7 +31,7 @@ case $1 in
 		git pull > /dev/null
 		git add -A
 		git commit -m "Pushed from server at $now" > /dev/null
-		git push
+		git push origin
 		echo "${CLR_YELLOW}Pushed all server changes to Master.${CLR_NORMAL}"
 		;;
 	"pull")

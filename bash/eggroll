@@ -28,12 +28,12 @@ case $1 in
 	"stop") stop ;;
 	"start") start ;;
 	"push")
-		git pull
+		git pull > /dev/null
 		git add -A
-		git commit -m "Pushed from server at $now"
+		git commit -m "Pushed from server at $now" > /dev/null
 		git push
-		stop
-		start ;;
+		echo "${CLR_YELLOW}Pushed all server changes to Master.${CLR_NORMAL}"
+		;;
 	"pull")
 		git pull
 		stop

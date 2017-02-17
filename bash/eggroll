@@ -20,6 +20,7 @@ start() {
 	echo "${CLR_YELLOW}Started.${CLR_NORMAL}"
 }
 
+# Here's the switch statement:
 case $1 in
 	"restart")
 		stop

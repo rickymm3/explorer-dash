@@ -37,7 +37,7 @@ module.exports = function(ERDS) {
 
 	function getCachedRoot() {
 		var siteReps = {
-			gitInfo: ERDS.git.branch + " : " + ERDS.git.tag
+			gitInfo: 'Last Updated: <i class="git-date">$2</i> <i class="git-hash">($0 : $1)</i>'.rep([ERDS.git.branch, ERDS.git.short, ERDS.git.date])
 		};
 
 		return ERDS.fileRead(ERDS.__indexhtml).rep(siteReps);

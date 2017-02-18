@@ -6,9 +6,36 @@ const Schema = mongoose.Schema;
 const Model = mongoose.Model;
 const Query = mongoose.Query;
 const ObjectID = Schema.ObjectId;
+const Redis = require('redis');
 
 module.exports = function(ERDS) {
-	trace("Mongo Disabled for now.".yellow);
+	startRedisClient();
+	
+	function startRedisClient() {
+		trace("Attempting to connect on Redis...");
+		
+		var client = ERDS.redis = Redis.createClient({
+			retry_strategy(options) {
+				if(options.error) return options.error;
+				if(options.attempt<2) {
+					trace("Reattempt... ($0)".rep(options.attempt));
+					return Math.min(options.attempt * 100, 2000);
+				}
+				
+				return new Error("Redis Error: Retry Attempts failed, abandon connection.");
+			}
+		});
+		client.on('error', function(err) {
+			traceError("Redis failed to start: " + err);
+		});
+
+		client.on('connect', function() {
+			trace("Connected Redis! :)");
+		});
+	}
+	
+	trace("(Mongo Disabled for now)".yellow);
+	
 	return;
 
 	mongoose

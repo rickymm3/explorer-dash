@@ -3,7 +3,6 @@
  */
 const fs = require('fs-extra');
 const mkdirp = require('mkdirp');
-const decache = require('decache');
 const path = require('path');
 const FILE_ENCODING = {encoding: 'utf8'};
 
@@ -166,8 +165,10 @@ module.exports = function(ERDS) {
 		svScripts.forEach( mod => {
 			if(ERDS.isModuleLoaded(mod)) {
 				if(!reload) return;
-
-				decache(mod);
+				
+				if(ERDS.isDev) {
+					require('decache')(mod);
+				}
 			}
 
 			require(mod)(NS);

@@ -1,4 +1,4 @@
-declare var ERDS, Vue, trace, traceError, io, $, _, TweenMax, Back, Cookies;
+declare var ERDS, Howl, Vue, trace, traceError, io, $, _, TweenMax, Back, Cookies;
 
 var $$$:any = {};
 
@@ -8,7 +8,13 @@ window.addEventListener('load', function() {
 	//Vue.config.debug = true;
 	Cookies._prefix = "erds.web.";
 
+	ERDS.beep = new Howl({
+		src: ['/media/coin.mp3'],
+		volume: 0.25
+	});
+
 	ERDS.io = io(); //Create a socket connection:
+	ERDS.io.on('beep', onBeep);
 	ERDS.io.on("echo", response => $$$.boxInfo.showBox(response));
 	ERDS.io.on("server-error", response => $$$.boxError.showBox(response));
 	ERDS.io.on('file-changed', onFileChanged);
@@ -181,4 +187,17 @@ function downloadJSON(jsonData, fileName="download.json") {
 	$downloads.attr("href", dataStr);
 	$downloads.attr("download", fileName);
 	$downloads[0].click();
+}
+
+function onBeep() {
+	if(ERDS.$restart) return;
+	trace("BEEPING!");
+
+	ERDS.beep.play();
+	ERDS.$restart = $('<a class="server-restart" href="javascript:;">RESTART SERVER!</a>');
+	ERDS.$restart.click(function() {
+		ERDS.io.emit('kill');
+	});
+	
+	$('.git-info').append(ERDS.$restart);
 }

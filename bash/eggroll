@@ -7,16 +7,29 @@ now=$(date +"%T")
 . ./bash/colors
 
 stop() {
+<<<<<<< HEAD
 	echo "${CLR_RED}Stopping Redis-Server and PM2...${CLR_NORMAL}"
 	redis-cli -p 6969 shutdown > /dev/null
 	pm2 stop all
+=======
+	echo "${CLR_RED}Stopping Redis-Server and Forever...${CLR_NORMAL}"
+	redis-cli -p 6969 shutdown
+	forever stopall
+>>>>>>> 3de5ddab8278c2d5bc44c240b85b6aeed9c044b3
 	echo "${CLR_RED}Stopped.${CLR_NORMAL}"
+	# > /dev/null
 }
 
 start() {
+<<<<<<< HEAD
 	echo "${CLR_YELLOW}Starting Redis-Server (port 6969) and PM2 (app.js)${CLR_NORMAL}"
 	redis-server redis.conf --port 6969 > /dev/null
 	pm2 start app.js
+=======
+	echo "${CLR_YELLOW}Starting Redis-Server (port 6969) and Forever (app.js)${CLR_NORMAL}"
+	redis-server bash/redis.conf --port 6969 # > /dev/null
+	forever start app.js # > /dev/null
+>>>>>>> 3de5ddab8278c2d5bc44c240b85b6aeed9c044b3
 	echo "${CLR_YELLOW}Started.${CLR_NORMAL}"
 	
 	# > /dev/null
@@ -24,9 +37,6 @@ start() {
 
 # Here's the switch statement:
 case $1 in
-	"restart")
-		stop
-		start ;;
 	"stop") stop ;;
 	"start") start ;;
 	"push")

@@ -3,7 +3,12 @@ ERDS.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
 window.addEventListener('load', function () {
     //Vue.config.debug = true;
     Cookies._prefix = "erds.web.";
+    ERDS.beep = new Howl({
+        src: ['/media/coin.mp3'],
+        volume: 0.25
+    });
     ERDS.io = io(); //Create a socket connection:
+    ERDS.io.on('beep', onBeep);
     ERDS.io.on("echo", function (response) { return $$$.boxInfo.showBox(response); });
     ERDS.io.on("server-error", function (response) { return $$$.boxError.showBox(response); });
     ERDS.io.on('file-changed', onFileChanged);
@@ -149,4 +154,15 @@ function downloadJSON(jsonData, fileName) {
     $downloads.attr("href", dataStr);
     $downloads.attr("download", fileName);
     $downloads[0].click();
+}
+function onBeep() {
+    if (ERDS.$restart)
+        return;
+    trace("BEEPING!");
+    ERDS.beep.play();
+    ERDS.$restart = $('<a class="server-restart" href="javascript:;">RESTART SERVER!</a>');
+    ERDS.$restart.click(function () {
+        ERDS.io.emit('kill');
+    });
+    $('.git-info').append(ERDS.$restart);
 }

@@ -3,12 +3,20 @@
  */
 
 const git = require('git-rev-sync');
+const dateFormat = require('dateformat');
 
 module.exports = function(ERDS, next) {
+	
+	var gitDate = new Date(git.date());
+	
 	ERDS.git = _.assign(ERDS.git || {}, {
 		clientID: process.env.GITHUB_CLIENT,
 		clientSecret: process.env.GITHUB_SECRET,
 		branch: git.branch(),
-		tag: git.long()
+		long: git.long(),
+		short: git.short(),
+		tag: git.tag(),
+		date: dateFormat(gitDate)
 	});
+
 };

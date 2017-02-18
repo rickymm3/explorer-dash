@@ -97,7 +97,23 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
   font-size: 10px;
   border-radius: 10px;
   background-color: #888;
-  a { color: #fff; .shadow-dark; }
+  a { color: #ccc; .shadow-dark; }
+  
+  .git-date {
+    color: #fc8;
+  }
+  .git-hash {
+    color: #8cf;
+  }
+  .server-restart {
+    color: #f00;
+    font-weight: bold;
+    font-size: 120%;
+    text-shadow: 1px 0 2px #000,
+                -1px 0 2px #000,
+                  0 1px 2px #000,
+                  0 -1px 2px #000;
+  }
 }
 
 
@@ -115,8 +131,6 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
     display: block;
   }
 }
-
-
 
 .popup {
   @popupMarginV: 50px;

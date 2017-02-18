@@ -51,6 +51,7 @@ module.exports = function(PROJ) {
 		saveJSON(cmd) {
 			var jsonPath = cmd.proj.__json;
 			ERDS.makeDir(jsonPath);
+			
 			ERDS.fileWrite(jsonPath, cmd.params, (err) => {
 				if(err) {
 					isBusy(cmd, false);

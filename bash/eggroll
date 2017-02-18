@@ -28,9 +28,11 @@ case $1 in
 	"stop") stop ;;
 	"start") start ;;
 	"push")
-		git pull > /dev/null
+		echo "Pulling first..."
+                git pull
+		echo "Adding, Committing and Pushing to origin 'master'..."
 		git add -A
-		git commit -m "Pushed from server at $now" > /dev/null
+		git commit -m "Pushed from server at $now"
 		git push origin
 		echo "${CLR_YELLOW}Pushed all server changes to Master.${CLR_NORMAL}"
 		;;

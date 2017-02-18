@@ -7,18 +7,20 @@ now=$(date +"%T")
 . ./bash/colors
 
 stop() {
-	echo "${CLR_RED}Stopping Redis-Server and Forever...${CLR_NORMAL}"
-	redis-cli -p 6969 shutdown
-	forever stopall
+	echo "${CLR_RED}Stopping Redis-Server and PM2...${CLR_NORMAL}"
+	redis-cli -p 6969 shutdown > /dev/null
+	pm2 stop all
 	echo "${CLR_RED}Stopped.${CLR_NORMAL}"
 	# > /dev/null
 }
 
 start() {
-	echo "${CLR_YELLOW}Starting Redis-Server (port 6969) and Forever (app.js)${CLR_NORMAL}"
-	redis-server bash/redis.conf --port 6969 # > /dev/null
-	forever start app.js # > /dev/null
+	echo "${CLR_YELLOW}Starting Redis-Server (port 6969) and PM2 (app.js)${CLR_NORMAL}"
+	redis-server redis.conf --port 6969 > /dev/null
+	pm2 start app.js
 	echo "${CLR_YELLOW}Started.${CLR_NORMAL}"
+	
+	# > /dev/null
 }
 
 # Here's the switch statement:
@@ -35,8 +37,9 @@ case $1 in
 		echo "${CLR_YELLOW}Pushed all server changes to Master.${CLR_NORMAL}"
 		;;
 	"pull")
-		git pull
 		stop
+		git pull > /dev/null
+		yarn > /dev/null
 		start ;;
 	*)
 		stop

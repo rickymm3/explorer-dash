@@ -4,6 +4,7 @@
 const fs = require('fs-extra');
 const mkdirp = require('mkdirp');
 const path = require('path');
+const dateFormat = require('dateformat');
 const FILE_ENCODING = {encoding: 'utf8'};
 
 module.exports = function(ERDS) {
@@ -57,6 +58,15 @@ module.exports = function(ERDS) {
 	
 	ERDS.fileRename = function(path, path2, cb) {
 		fs.move(path, path2,  {overwrite: true}, cb);
+	};
+	
+	ERDS.fileCopyNow = function(path, cb) {
+		var pathinfo = path.toPath();
+		var pathCopy = pathinfo.path +
+						pathinfo.filename +
+						dateFormat(new Date(), ".yy-mm-dd.HH_MM").replace('_','h') + //-ss
+						pathinfo.ext;
+		fs.copy(path, pathCopy, cb);
 	};
 
 	ERDS.fileExists = function(dirOrFile) {

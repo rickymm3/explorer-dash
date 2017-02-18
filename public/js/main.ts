@@ -19,6 +19,7 @@ window.addEventListener('load', function() {
 	ERDS.io.on("server-error", response => $$$.boxError.showBox(response));
 	ERDS.io.on('file-changed', onFileChanged);
 	ERDS.io.on('project-fetch', onProjectFetch);
+	ERDS.io.on('has-many-backups', onHasManyBackups);
 	ERDS.io.emit('project-fetch', ERDS.projectName);
 });
 
@@ -200,4 +201,8 @@ function onBeep() {
 	});
 	
 	$('.git-info').append(ERDS.$restart);
+}
+
+function onHasManyBackups(numBackups) {
+	$$$.boxInfo.showBox("ATTENTION: There are currently $0 backups on the server!".rep([numBackups]));
 }

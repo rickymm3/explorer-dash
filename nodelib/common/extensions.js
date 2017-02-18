@@ -66,6 +66,14 @@ String.prototype.fixSlashes = function() {
 	return str.endsWith("/") ? str.substr(0,str.length-1) : str;
 };
 
+String.prototype.toPath = function() {
+	return {
+		ext: this.substring(this.lastIndexOf('.')),
+		path: this.substring(0, this.lastIndexOf('/')+1),
+		filename: this.substring(this.lastIndexOf('/')+1, this.lastIndexOf('.'))
+	}
+};
+
 "".endsWith || (function() {
 	String.prototype.endsWith = function(searchString, position) {
 		var subjectString = this.toString();

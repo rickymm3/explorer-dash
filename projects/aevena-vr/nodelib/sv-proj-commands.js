@@ -17,6 +17,18 @@ module.exports = function(PROJ) {
 	function isBusy(cmd, status) {
 		cmd.client.emit('isBusy', status);
 	}
+
+	function checkFileCount(jsonPath) {
+		var pathinfo = jsonPath.toPath();
+		var count = 0;
+		ERDS.filesFilter(pathinfo.path, (file) => {
+			count++;
+		});
+
+		if(count>30) {
+			ERDS.io.emit("has-many-backups", count);
+		}
+	}
 	
 	PROJ.commands = {
 		clearJSON(cmd) {
@@ -52,14 +64,28 @@ module.exports = function(PROJ) {
 			var jsonPath = cmd.proj.__json;
 			ERDS.makeDir(jsonPath);
 			
-			ERDS.fileWrite(jsonPath, cmd.params, (err) => {
+			if(ERDS.fileExists(jsonPath)) {
+				return ERDS.fileCopyNow(jsonPath, doSave);
+			}
+			
+			doSave();
+			
+			function doSave(err) {
 				if(err) {
-					isBusy(cmd, false);
-					return ERDS.sendServerError(cmd.client, "Could not write JSON file!");
+					throw err;
 				}
 				
-				echo(cmd, 'JSON data saved to the server! <i class="em em---1"></i>');
-			});
+				ERDS.fileWrite(jsonPath, cmd.params, (err) => {
+					if(err) {
+						isBusy(cmd, false);
+						return ERDS.sendServerError(cmd.client, "Could not write JSON file!");
+					}
+
+					echo(cmd, 'JSON data saved to the server! <i class="em em---1"></i>');
+
+					checkFileCount(jsonPath);
+				});
+			}
 		},
 
 		recoverJSON(cmd) {

@@ -9,16 +9,16 @@ now=$(date +"%T")
 stop() {
 	echo "${CLR_RED}Stopping Redis-Server and PM2...${CLR_NORMAL}"
 	redis-cli -p 6969 shutdown > /dev/null
-	pm2 stop all
+	pm2 stop all > /dev/null
 	echo "${CLR_RED}Stopped.${CLR_NORMAL}"
 	# > /dev/null
 }
 
 start() {
-	echo "${CLR_YELLOW}Starting Redis-Server (port 6969) and PM2 (app.js)${CLR_NORMAL}"
+	echo "${CLR_GREEN}Starting Redis-Server (port 6969) and PM2 (app.js)${CLR_NORMAL}"
 	redis-server redis.conf --port 6969 > /dev/null
-	pm2 start app.js
-	echo "${CLR_YELLOW}Started.${CLR_NORMAL}"
+	pm2 start app.js > /dev/null
+	echo "${CLR_GREEN}Started.${CLR_NORMAL}"
 	
 	# > /dev/null
 }

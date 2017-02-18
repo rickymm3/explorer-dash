@@ -13,7 +13,7 @@ module.exports = function(ERDS) {
 	clients = ERDS.clients = [];
 
 	ERDS.projects = {};
-	
+	//test
 	io.on('connection', client => {
 		trace((" >>> " + client.id).yellow);
 		//clients.push(client);
@@ -22,7 +22,15 @@ module.exports = function(ERDS) {
 		client.on('disconnect', onDisconnect);
 		client.on('project-fetch', onProjectFetch);
 		client.on('project-command', onProjectCommand);
+		
+		if(ERDS.isDev) {
+			client.on('kill', () => process.exit());
+		}
 	});
+	
+	ERDS.beep = function() {
+		ERDS.io.emit('beep');
+	};
 
 	ERDS.sendServerError = function(client, msg) {
 		traceError(msg);

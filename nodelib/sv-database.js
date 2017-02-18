@@ -12,7 +12,19 @@ module.exports = function(ERDS) {
 	startRedisClient();
 	
 	function startRedisClient() {
-		var client = ERDS.redis = Redis.createClient();
+		trace("Attempting to connect on Redis...");
+		
+		var client = ERDS.redis = Redis.createClient({
+			retry_strategy(options) {
+				if(options.error) return options.error;
+				if(options.attempt<2) {
+					trace("Reattempt... ($0)".rep(options.attempt));
+					return Math.min(options.attempt * 100, 2000);
+				}
+				
+				return new Error("Redis Error: Retry Attempts failed, abandon connection.");
+			}
+		});
 		client.on('error', function(err) {
 			traceError("Redis failed to start: " + err);
 		});

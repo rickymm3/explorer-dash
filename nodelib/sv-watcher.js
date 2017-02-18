@@ -7,6 +7,8 @@ module.exports = function(ERDS) {
     
     var timeoutID = -1;
     
+    var requiresRestart = false;
+    
     // One-liner for current directory, ignores .dotfiles 
     chokidar.watch([ERDS.__nodelib, ERDS.__projects, ERDS.__public], {ignored: /[\/\\]\./}).on('all', (event, path) => {
         path = path.fixSlashes();
@@ -15,18 +17,30 @@ module.exports = function(ERDS) {
             path.endsWith('.ts') ||
             path.endsWith('.less')) return;
         
-        if(path.has('/nodelib/')) return traceError("CHANGED server-side node JS file:\n  " + path);
+        if(path.has('/nodelib/')) {
+            ERDS.beep();
+            requiresRestart = true;
+            return traceError("CHANGED server-side node JS file:\n  " + path);
+        }
         
         if(!ERDS.io) return;
-
+        
         if(timeoutID>-1) clearTimeout(timeoutID);
-        timeoutID = setTimeout(() => {
-			timeoutID = -1;
-			ERDS.io.emit('file-changed', path);
-		}, 500);
+        fileChanged(path);
     });
-
-	function onFileChanged() {
-
-	}
+    
+    function fileChanged(path, time) {
+        if(requiresRestart) return;
+        ERDS.beep();
+        
+        timeoutID = setTimeout(() => {
+            timeoutID = -1;
+            
+            if(requiresRestart) return;
+            ERDS.io.emit('file-changed', path);
+        }, time || 500);
+    }
+    
+    //First initial REFRESH call:
+    fileChanged('');
 };

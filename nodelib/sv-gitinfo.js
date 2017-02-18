@@ -9,6 +9,9 @@ module.exports = function(ERDS, next) {
 		clientID: process.env.GITHUB_CLIENT,
 		clientSecret: process.env.GITHUB_SECRET,
 		branch: git.branch(),
-		tag: git.long()
+		tag: git.long(),
+		date: git.date()
 	});
+	
+	trace(ERDS.git);
 };

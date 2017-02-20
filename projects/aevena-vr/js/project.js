@@ -6,10 +6,6 @@ function traceJSON(obj) {
     if (obj === void 0) { obj = null; }
     var result = JSON.stringify(obj || __JSONDATA, null, ' ');
     trace(result);
-    //$$$.boxInfo.show();
-    //TweenMax.set($$$.boxInfo, {alpha: 1});
-    //
-    //trace( $$$.boxInfo[0] == $('.box-info')[0] );
     $$$.boxInfo.showBox(result);
     return result;
 }

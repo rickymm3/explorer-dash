@@ -9,23 +9,25 @@ function isNode() {
 	return typeof module !== 'undefined' && module.exports;
 }
 
-Array.prototype.last = function() {
+var p = Array.prototype;
+
+p.first = function() {
 	if(this.length>0) return this[0];
 	return null;
 };
 
-Array.prototype.last = function() {
+p.last = function() {
 	if(this.length>0) return this[this.length-1];
 	return null
 };
 
-Array.prototype.remove = function(item) {
+p.remove = function(item) {
 	var id = this.indexOf(item);
 	if(id>-1) this.splice(id, 1);
 	return id;
 };
 
-Array.prototype.has = function(item) {
+p.has = function(item) {
 	return this.indexOf(item)>-1;
 };
 
@@ -33,17 +35,19 @@ Array._map_toKeyValues = function(name,i) {
 	return {value: i, name: name};
 };
 
-Array.prototype.toKeyValues = function() {
+p.toKeyValues = function() {
 	return this.map(Array._map_toKeyValues);
 };
 
 /////////////////
 
-String.prototype.has = function has(str) {
+p = String.prototype;
+
+p.has = function has(str) {
 	return this.indexOf(str)>-1;
 };
 
-String.prototype.rep = function rep(obj) {
+p.rep = function rep(obj) {
 	var regex, str = this.toString();
 	
 	if(_.isArray(obj)) {
@@ -61,12 +65,12 @@ String.prototype.rep = function rep(obj) {
 	return str;
 };
 
-String.prototype.fixSlashes = function() {
+p.fixSlashes = function() {
 	var str = this.toString().replace(/\\/g, "/");
 	return str.endsWith("/") ? str.substr(0,str.length-1) : str;
 };
 
-String.prototype.toPath = function() {
+p.toPath = function() {
 	return {
 		ext: this.substring(this.lastIndexOf('.')),
 		path: this.substring(0, this.lastIndexOf('/')+1),
@@ -75,7 +79,7 @@ String.prototype.toPath = function() {
 };
 
 "".endsWith || (function() {
-	String.prototype.endsWith = function(searchString, position) {
+	p.endsWith = function(searchString, position) {
 		var subjectString = this.toString();
 		if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
 			position = subjectString.length;
@@ -96,11 +100,13 @@ function toIcon(str) {
 	return str.replace(regexEmoji, '<i class="fa fa-$1"></i>')
 }
 
-String.prototype.camelToTitleCase = function() {
+p.camelToTitleCase = function() {
 	var text = this.toString();
 	var result = text.replace( /([A-Z])/g, " $1" );
 	return result.charAt(0).toUpperCase() + result.slice(1);
 };
+
+//////////////////////////////////////////////////////////////
 
 Function.prototype.defer = function() {
 	var _this = this, args = arguments;

@@ -1,12 +1,16 @@
 
 <div class="header">
     <h1 class="title padded-5">$projectName</h1>
+    <a class="padded-5 json-link" href="/p/$projectName/json" target="_blank">Go to '/JSON' file</a>
+</div>
 
-    <div class="topbar v-align-mid">
-        <btn icon="trash-o" @click="removeSheet()"></btn>
-        <btn icon="clone" @click="copySheet()"></btn>
-        <btn icon="plus-square" label="Sheet" @click="addSheet()"></btn>
-        <!-- SHEET -->
+<div class="topbar v-align-mid">
+    <btn icon="trash-o" @click="removeSheet()"></btn>
+    <btn icon="clone" @click="copySheet()"></btn>
+    <btn icon="plus-square" label="Sheet" @click="addSheet()"></btn>
+    <btn icon="i-cursor" label="Rename" @click="renameSheet()"></btn>
+
+    <!-- SHEET -->
         <span class="dropdown">
             <btn class="sheet-names"
                  @click="setCurrentDropDown(currentSheet)"
@@ -23,18 +27,17 @@
             </div>
         </span>
 
-        <!--
-        <dropdown   class_btn="sheet-names"
-                     class_dropdown="suggested-names-panel"
-                     :list="jsonData.sheets"
-                     :label="currentSheet.name"
-                     :dropdown_source="currentSheet"
-                     :is_selected="isSheetSelected"
-                     @selected="currentSheetUpdate($event)">
-        </dropdown> -->
+    <!--
+    <dropdown   class_btn="sheet-names"
+                 class_dropdown="suggested-names-panel"
+                 :list="jsonData.sheets"
+                 :label="currentSheet.name"
+                 :dropdown_source="currentSheet"
+                 :is_selected="isSheetSelected"
+                 @selected="currentSheetUpdate($event)">
+    </dropdown>
 
-        <input class="" v-model:value="currentSheet.name">
-    </div>
+    <input class="" v-model:value="currentSheet.name">-->
 </div>
 
 <div class="sidebar">
@@ -113,18 +116,6 @@
                                 :holds="'stripSeqHoldLast'">
                         </light-comp>
 
-                        <!--<light-comp-->
-                                <!--header="Strip Sequence"-->
-                                <!--class="strip-sequence"-->
-                                <!--:obj="currentLightItem"-->
-                                <!--:steps="currentLightItem.stripSteps"-->
-                                <!--:isLooping="currentLightItem.stripSeqLooping"-->
-                                <!--:isHoldLast="currentLightItem.stripSeqHoldLast"-->
-                                <!--:currentStep="currentStripStep"-->
-                                <!--:clazzLightComp="'strip-light'">-->
-
-                        <!--</light-comp>-->
-
 
                     </div>
                 </td>
@@ -180,22 +171,6 @@
                                         <btn class="padded-5" icon="trash-o" title="Delete param" @click="removeActionParam(actionParam)"></btn>
                                         <btn class="padded-5" icon="clone" title="Clone param" @click="copyActionParam(actionParam)"></btn>
                                         <btn class="padded-5 drag-handle" icon="sort" title="Sort param"></btn>
-
-                                        <!-- "Take Off" DropDown menu
-                                        <span class="dropdown">
-                                            <btn class="padded-5 ara-command"
-                                                 @click="setCurrentDropDown(actionParam)"
-                                                 >
-                                            </btn>
-                                            <div class="dropdown-list ara-command-panel"
-                                                 v-if="currentDropDown==actionParam"
-                                                 @click="selectActionType(actionParam, $event)">
-                                                <div v-for="(araCmd, araID) in hardcoded.AraCommands"
-                                                     v-html="araCmd.name"
-                                                     :class="actionParam.type==araCmd.name ? 'isSelected' : ''"
-                                                     :data-index="araID"></div>
-                                            </div>
-                                        </span>-->
 
                                         <dropdown	class_btn="ara-command"
                                                      class_dropdown="ara-command-panel"

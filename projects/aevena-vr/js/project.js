@@ -6,10 +6,6 @@ function traceJSON(obj) {
     if (obj === void 0) { obj = null; }
     var result = JSON.stringify(obj || __JSONDATA, null, ' ');
     trace(result);
-    //$$$.boxInfo.show();
-    //TweenMax.set($$$.boxInfo, {alpha: 1});
-    //
-    //trace( $$$.boxInfo[0] == $('.box-info')[0] );
     $$$.boxInfo.showBox(result);
     return result;
 }
@@ -394,6 +390,10 @@ function showPopup(header, message, options) {
                     addSheet: function () {
                         createNewSheetAt(__SHEETS.length, null);
                         this.currentSheetUpdate(__SHEETS.length - 1);
+                    },
+                    renameSheet: function () {
+                        var response = prompt("Rename the sheet to...", this.currentSheet.name);
+                        this.currentSheet.name = response;
                     },
                     copySheet: function () {
                         var sheet = createNewSheetAt(__SHEETS.length, this.currentSheet);

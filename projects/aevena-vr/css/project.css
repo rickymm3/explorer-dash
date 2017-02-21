@@ -9,6 +9,12 @@ body {
 .title {
   width: 180px;
 }
+.json-link {
+  border-radius: 10px;
+  text-shadow: rgba(255, 255, 255, 0.8) 1px 1px 1px;
+  background: #888;
+  color: #000;
+}
 .sheet-names {
   width: 200px;
 }
@@ -33,7 +39,7 @@ body {
   padding: 6px;
 }
 .topbar {
-  margin-left: 10px;
+  margin-bottom: 5px;
 }
 .topbar .btn {
   background: rgba(220, 216, 94, 0.75);

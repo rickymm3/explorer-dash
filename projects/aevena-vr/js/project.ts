@@ -337,25 +337,9 @@ function showPopup(header, message, options) {
 				<br/>
 
 				<div class="light-comp" v-if="currentStep" :class="class_lightcomp">
-					<dropdown	class_btn="audio"
-								class_dropdown="audio-list"
-								icon="volume-up"
-								:list="audioClips"
-								:dropdown_source="steps"
-								:is_selected="isAudioSelected"
-								@selected="setCurrentAudio($event)">
-					</dropdown>
-
-					<input class="padded-2 audio-name" v-model:value="currentStep.audioClipName" />
-
 					<i class="nowrap">
-						<i>Volume</i>
-						<input class="digits-2" v-model:value="currentStep.audioVolume">
-					</i>
+						<btn class="padded-5" label="Apply All" @click="applyAll" />
 
-					<br/>
-
-					<i class="nowrap">
 						<dropdown	class_btn="color-names"
 									class_dropdown="step-modes"
 									icon="paint-brush"
@@ -365,22 +349,38 @@ function showPopup(header, message, options) {
 									@selected="setCurrentFocus($event)">
 						</dropdown>
 
-						<i v-if="isFocusColors">
-							<i class="spacer-1">Color:</i>
-							<input class="color-picker"
-									:style="{backgroundColor: currentColor}"
-									v-model:value="currentColor">
-						</i>
+						<i class="padded-5">
+							<i v-if="isFocusColors">
+								<i class="">Color:</i><!-- spacer-1 -->
+								<input class="color-picker"
+										:style="{backgroundColor: currentColor}"
+										v-model:value="currentColor">
+							</i>
 
-						<i v-if="!isFocusColors">
-							Painting: "{{currentFocus}}"
+							<i v-if="!isFocusColors">
+								Painting: "{{currentFocus}}"
+							</i>
 						</i>
 					</i>
 
 					<br/>
 
-					<i class="nowrap">
-						<btn label="Apply All" @click="applyAll" />
+					<dropdown	class_btn="audio"
+								class_dropdown="audio-list"
+								icon="volume-up"
+								:list="audioClips"
+								:dropdown_source="steps"
+								:is_selected="isAudioSelected"
+								@selected="setCurrentAudio($event)">
+					</dropdown>
+
+					<i v-if="currentStep.audioClipName!='Off'">
+						<input class="padded-2 audio-name" v-model:value="currentStep.audioClipName" />
+
+						<i class="nowrap">
+							<i>Volume</i>
+							<input class="digits-2" v-model:value="currentStep.audioVolume">
+						</i>
 					</i>
 
 

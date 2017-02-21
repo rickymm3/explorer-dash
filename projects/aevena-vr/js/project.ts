@@ -585,6 +585,11 @@ function showPopup(header, message, options) {
 						this.currentSheetUpdate(__SHEETS.length-1);
 					},
 
+					renameSheet() {
+						var response = prompt("Rename the sheet to...", this.currentSheet.name);
+						this.currentSheet.name = response;
+					},
+
 					copySheet() {
 						var sheet = createNewSheetAt(__SHEETS.length, this.currentSheet);
 						sheet.name += " Copy";

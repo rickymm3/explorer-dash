@@ -391,6 +391,10 @@ function showPopup(header, message, options) {
                         createNewSheetAt(__SHEETS.length, null);
                         this.currentSheetUpdate(__SHEETS.length - 1);
                     },
+                    renameSheet: function () {
+                        var response = prompt("Rename the sheet to...", this.currentSheet.name);
+                        this.currentSheet.name = response;
+                    },
                     copySheet: function () {
                         var sheet = createNewSheetAt(__SHEETS.length, this.currentSheet);
                         sheet.name += " Copy";

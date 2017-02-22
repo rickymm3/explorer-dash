@@ -126,7 +126,7 @@ module.exports = function(ERDS) {
 	function serveProjectJSON(req, res, next) {
 		var projectName = req.params.project;
 		var proj = projectsUtils.getProjectObj(projectName);
-		if(!proj) return status500(res, "Requested JSON of unknown project: " + projectName)
+		if(!proj) return status500(res, "Requested JSON of unknown project: " + projectName);
 		
 		switch(req.method) {
 			case 'PUT':

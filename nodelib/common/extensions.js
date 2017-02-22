@@ -131,6 +131,27 @@ _.jsonClone = function(data) {
 	return JSON.parse(JSON.stringify(data));
 };
 
+_.jsonPretty = function(obj, indent) {
+	if(!indent) indent = 2;
+
+	return JSON.stringify(obj, function(k,v) {
+		//Check if this is a leaf-object with no child Arrays or Objects:
+		for(var p in v) {
+			if(_.isArray(v[p]) || _.isObject(v[p])) {
+				return v;
+			}
+		}
+
+		return JSON.stringify(v);
+
+		//Cleanup the escaped strings mess the above generated:
+	}, indent).replace(/\\/g, '')
+		.replace(/\"\[/g, '[')
+		.replace(/\]\"/g,']')
+		.replace(/\"\{/g, '{')
+		.replace(/\}\"/g,'}');
+};
+
 //////////////////////////////////////////////////////////////
 
 GLOBALS.trace = console.log.bind(console);

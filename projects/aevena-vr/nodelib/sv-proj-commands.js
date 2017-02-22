@@ -74,8 +74,10 @@ module.exports = function(PROJ) {
 				if(err) {
 					throw err;
 				}
-				
-				ERDS.fileWrite(jsonPath, cmd.params, (err) => {
+
+				var jsonData = JSON.parse(cmd.params);
+
+				ERDS.fileWrite(jsonPath, _.jsonPretty(jsonData, "\t"), (err) => {
 					if(err) {
 						isBusy(cmd, false);
 						return ERDS.sendServerError(cmd.client, "Could not write JSON file!");

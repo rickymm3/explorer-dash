@@ -153,6 +153,7 @@ module.exports = function(PROJ) {
 			].toKeyValues(),
 
 			AudioClips: [
+				'Off',
 				'battery low',
 				'camera off',
 				'camera on',

@@ -12,14 +12,22 @@ module.exports = function(ERDS) {
 	function status500(res, msg) {
 		res.status(500).send(errorHeader + msg);
 	}
+
+	app.use(function(req, res, next) {
+		var url = req.url;
+		if(url.endsWith('/') && url.length > 1) {
+			trace("Redirect trailing slash!");
+			res.redirect(301, url.slice(0, -1));
+		} else
+			next();
+	});
 	
 	app.use('/test', express.static(ERDS.__test));
 	app.use('/', preprocessIndexHTML);
 	app.use('/', express.static(ERDS.__public));
 	app.use('/js', express.static(ERDS.__common));
-	app.use('/p/:project/js', serveStaticProjectFiles);
-	app.use('/p/:project/css', serveStaticProjectFiles);
 	app.use('/p/:project/json', serveProjectJSON);
+	app.use('/p/:project/*', serveStaticProjectFiles);
 	app.use('/p/:project', preprocessProject);
 
 	//Error Handler:
@@ -107,20 +115,14 @@ module.exports = function(ERDS) {
 		if(!proj) return next();
 
 		var url = req.originalUrl;
-		var matches = url.match(/\/(js|css)\//);
+		var urlEnd = url.replace('/p/' + proj.name, '');
+		var urlFile = proj.__path + urlEnd;
 
-		if(matches && matches.index>-1) {
-			var urlEnd = url.substr(matches.index);
-			var urlFile = proj.__path + urlEnd;
-
-			if(!ERDS.fileExists(urlFile)) {
-				return status500(res, 'Missing File: ' + urlEnd);
-			}
-
-			return res.sendFile(urlFile);
+		if(!ERDS.fileExists(urlFile)) {
+			return status500(res, 'Missing File: ' + urlEnd);
 		}
 
-		next();
+		return res.sendFile(urlFile);
 	}
 	
 	function serveProjectJSON(req, res, next) {

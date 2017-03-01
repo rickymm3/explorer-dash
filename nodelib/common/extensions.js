@@ -39,6 +39,19 @@ p.toKeyValues = function() {
 	return this.map(Array._map_toKeyValues);
 };
 
+p.rotate = (function() {
+	var unshift = Array.prototype.unshift,
+		splice = Array.prototype.splice;
+
+	return function(c) {
+		var len = this.length >>> 0,
+			count = c >> 0;
+
+		unshift.apply(this, splice.call(this, count % len, len));
+		return this;
+	};
+})();
+
 /////////////////
 
 p = String.prototype;

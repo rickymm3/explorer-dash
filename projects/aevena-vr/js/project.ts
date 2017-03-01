@@ -253,6 +253,7 @@ function showPopup(header, message, options) {
 				setCurrentAudio(e) {
 					if(!this.currentStep) return;
 					this.currentStep.audioClipName = e.name;
+					ERDS.audiosprite.play(this.currentStep.audioClipName);
 				},
 
 				isAudioSelected(item) {
@@ -765,6 +766,20 @@ function showPopup(header, message, options) {
 			ERDS.io.on('isBusy', function(status) {
 				__VUE.isBusy = status;
 			});
+
+			ERDS.__media = ERDS.projectName + '/media/';
+
+			$.ajax({
+				url: ERDS.__media + 'audiosprite.json',
+				success(json) {
+					if(!json) return;
+					json.src = json.src.map(file => ERDS.__media + file);
+					ERDS.audiosprite = new Howl(json);
+				},
+				error(err) {
+					$$$.boxError.showBox("Failed to load AudioSprite! :cry: :mute:");
+				}
+			});
 			
 			__VUE.$forceUpdate();
 		}
@@ -782,7 +797,7 @@ function showPopup(header, message, options) {
 
 	function checkHardcodedData(projectData) {
 		if(!projectData || !projectData.hardcoded) {
-			trace("NO HARDCODED DATA!")
+			trace("NO HARDCODED DATA!");
 			$$$.boxError.showBox('Oh no! We don\'t have any hardcoded data! :cry:');
 			return false;
 		}

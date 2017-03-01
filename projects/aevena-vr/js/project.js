@@ -189,6 +189,7 @@ function showPopup(header, message, options) {
                     if (!this.currentStep)
                         return;
                     this.currentStep.audioClipName = e.name;
+                    ERDS.audiosprite.play(this.currentStep.audioClipName);
                 },
                 isAudioSelected: function (item) {
                     return this.currentStep.audioClipName == item.name;
@@ -281,12 +282,6 @@ function showPopup(header, message, options) {
             return;
         var isEnter = false, isTab = false, isEscape = false;
         var ARROW_UP = 38, ARROW_DOWN = 40, ARROW_LEFT = 37, ARROW_RIGHT = 39;
-
-        function doNav(methodName, e) {
-            if(!__VUE.nav || !__VUE.nav[methodName]) return null;
-            return __VUE.nav[methodName](e);
-        }
-
         switch (e.which) {
             case 27:
                 isEscape = true;
@@ -297,10 +292,8 @@ function showPopup(header, message, options) {
             case 9:
                 isTab = true;
                 break;
-            case ARROW_UP: return doNav('goUp', e);
-            case ARROW_DOWN: return doNav('goDown', e);
-            case ARROW_LEFT: return doNav('goLeft', e);
-            case ARROW_RIGHT: return doNav('goRight', e);
+            case ARROW_UP: return __VUE.nav && __VUE.nav.goUp(e);
+            case ARROW_DOWN: return __VUE.nav && __VUE.nav.goDown(e);
             default: return trace(e.which);
         }
         //Handle the dropdown menus:
@@ -535,6 +528,19 @@ function showPopup(header, message, options) {
             ERDS.io.on("server-error", function () { __VUE.isBusy = false; });
             ERDS.io.on('isBusy', function (status) {
                 __VUE.isBusy = status;
+            });
+            ERDS.__media = ERDS.projectName + '/media/';
+            $.ajax({
+                url: ERDS.__media + 'audiosprite.json',
+                success: function (json) {
+                    if (!json)
+                        return;
+                    json.src = json.src.map(function (file) { return ERDS.__media + file; });
+                    ERDS.audiosprite = new Howl(json);
+                },
+                error: function (err) {
+                    $$$.boxError.showBox("Failed to load AudioSprite! :cry: :mute:");
+                }
             });
             __VUE.$forceUpdate();
         }

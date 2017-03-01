@@ -182,7 +182,11 @@ function showPopup(header, message, options) {
 				},
 
 				currentStep() {
-					if(this.currentStepID<0 || this.currentStepID>=this.steps.length) return null;
+					if(this.steps.length==0) return null;
+					if(this.currentStepID<0 || this.currentStepID>=this.steps.length) {
+						this.currentStepID = 0;
+						//return null;
+					}
 					return this.steps[this.currentStepID];
 				},
 
@@ -295,21 +299,37 @@ function showPopup(header, message, options) {
 				},
 
 				goUp(e) {
-					e.preventDefault();
-					e.stopImmediatePropagation();
-					e.stopPropagation();
+					stopEvent(e);
 
 					if(this.currentStepID<=0) return;
 					this.currentStepID--;
 				},
 
 				goDown(e) {
-					e.preventDefault();
-					e.stopImmediatePropagation();
-					e.stopPropagation();
+					stopEvent(e);
 
 					if(this.currentStepID>=(this.steps.length-1)) return;
 					this.currentStepID++;
+				},
+
+				goLeft(e) {
+					stopEvent(e);
+					this.rotateLeft();
+				},
+
+				goRight(e) {
+					stopEvent(e);
+					this.rotateRight();
+				},
+
+				rotateLeft() {
+					var step = this.currentStep;
+					step.lights = step.lights.concat().rotate(1);
+				},
+
+				rotateRight() {
+					var step = this.currentStep;
+					step.lights = step.lights.concat().rotate(-1);
 				}
 			},
 
@@ -335,6 +355,10 @@ function showPopup(header, message, options) {
 				</i>
 
 				<br/>
+
+				<div class="light-comp missing bg-disabled" v-if="!currentStep" :class="class_lightcomp">
+					No Sequence Data Found!
+				</div>
 
 				<div class="light-comp" v-if="currentStep" :class="class_lightcomp">
 					<i class="nowrap">
@@ -394,9 +418,20 @@ function showPopup(header, message, options) {
 							@mousedown="onClickBulb(light)">
 							</i>
 					</div>
+
+					<i class="bottom-bar">
+						<btn icon="rotate-left" @click="rotateLeft()" title="rotates LEDs left"></btn>
+						<btn icon="rotate-right" @click="rotateRight()" title="rotates LEDs right"></btn>
+
+					</i>
 				</div>
 
-				<draggable class="steps" :list="steps" :options="{ handle: '.drag-handle' }">
+				<div v-if="!currentStep" class="steps padded-3 v-align-mid shadowy">
+					<i class="padded-5 inline-block"><b>Add a Light Sequence Step:</b></i>
+					<btn class="v-align-mid" icon="plus-square" label="Step" @click="addStep"></btn>
+				</div>
+
+				<draggable v-if="currentStep" class="steps" :list="steps" :options="{ handle: '.drag-handle' }">
 					<div class="step"
 						:class="{isSelected: currentStepID==id}"
 						@click="setStepID(id)"
@@ -887,6 +922,12 @@ function showPopup(header, message, options) {
 		var dup = _.jsonClone(item);
 		list.splice(id+1, 0, dup);
 		return dup;
+	}
+
+	function stopEvent(e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		e.stopPropagation();
 	}
 	
 })(ERDS);

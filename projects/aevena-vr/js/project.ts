@@ -489,12 +489,19 @@ function showPopup(header, message, options) {
 
 		var isEnter = false, isTab = false, isEscape = false;
 		var ARROW_UP = 38, ARROW_DOWN = 40, ARROW_LEFT = 37, ARROW_RIGHT = 39;
+
+		function goMethod(name, e) {
+			if(!__VUE.nav || !__VUE.nav[name]) return null;
+			return __VUE.nav[name](e);
+		}
 		switch(e.which) {
 			case 27: isEscape = true; break;
 			case 13: isEnter = true; break;
 			case 9: isTab = true; break;
-			case ARROW_UP: return __VUE.nav && __VUE.nav.goUp(e);
-			case ARROW_DOWN: return __VUE.nav && __VUE.nav.goDown(e);
+			case ARROW_UP: return goMethod('goUp',e);
+			case ARROW_DOWN: return goMethod('goDown',e);
+			case ARROW_LEFT: return goMethod('goLeft',e);
+			case ARROW_RIGHT: return goMethod('goRight',e);
 			default: return trace(e.which);
 		}
 

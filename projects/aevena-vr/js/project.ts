@@ -226,6 +226,7 @@ function showPopup(header, message, options) {
 
 				setStepID(id) {
 					this.currentStepID = id;
+					this.playSFX();
 					//__VUE[this.currentStepName] = this.steps[id];
 				},
 
@@ -253,7 +254,14 @@ function showPopup(header, message, options) {
 				setCurrentAudio(e) {
 					if(!this.currentStep) return;
 					this.currentStep.audioClipName = e.name;
-					ERDS.audiosprite.play(this.currentStep.audioClipName);
+
+					this.playSFX();
+				},
+
+				playSFX(step) {
+					if(!step) step = this.currentStep;
+					var sfxID = ERDS.audiosprite.play(step.audioClipName);
+					ERDS.audiosprite.volume(step.audioVolume, sfxID);
 				},
 
 				isAudioSelected(item) {
@@ -400,11 +408,13 @@ function showPopup(header, message, options) {
 					</dropdown>
 
 					<i v-if="currentStep.audioClipName!='Off'">
-						<input class="padded-2 audio-name" v-model:value="currentStep.audioClipName" />
+						<input class="padded-2 audio-name" v-model:value="currentStep.audioClipName"
+							@click="playSFX()" @change="playSFX()"/>
 
 						<i class="nowrap">
 							<i>Volume</i>
-							<input class="digits-2" v-model:value="currentStep.audioVolume">
+							<input class="digits-2" v-model:value="currentStep.audioVolume"
+								@click="playSFX()" @change="playSFX()">
 						</i>
 					</i>
 

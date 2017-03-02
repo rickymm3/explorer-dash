@@ -349,21 +349,62 @@ function showPopup(header, message, options) {
 						this._tween = null;
 					}
 
-					var twn = this._tween = new TimelineMax();
 					var _this = this;
+					var twn = this._tween = new TimelineMax();
 					var len = this.steps.length;
+					var bulbs = this.$refs.lights;
+
+					twn.addLabel('start');
+					bulbs.forEach(bulb => {
+						twn.to(bulb, 0.2, {scale: 0.5, alpha: 0}, 'start');
+						twn.set(bulb, {scale:1.0});
+					});
+
+					twn.wait(0.2);
 
 					for(var s=0; s<len; s++) {
 						var step = this.steps[s];
+						var label = 'step'+s;
+						var lights = step.lights;
+
+						twn.addLabel(label);
 						twn.set(_this, {currentStepID: s});
-						twn.to({}, parseFloat(step.time), {});
+						for(var i=0; i<lights.length; i++) {
+							var light = lights[i];
+							var bulb = bulbs[i];
+							var twnTo:any = {};
+							var state = light.state.toLowerCase();
+							var doNow = false;
+
+							switch(state) {
+								case 'fadeon': twnTo.alpha = 1.0; break;
+								case 'fadeoff': twnTo.alpha = 0.0; break;
+								case 'fadehalf': twnTo.alpha = 0.5; break;
+								case 'quarter': twnTo.alpha = 0.25; doNow=true; break;
+								case 'half': twnTo.alpha = 0.5; doNow=true; break;
+								case 'full': twnTo.alpha = 1.0; doNow=true; break;
+								case 'off': twnTo.alpha = 0.0; doNow=true; break;
+							}
+
+							if(doNow) twn.set(bulb, twnTo, label);
+							else twn.to(bulb, parseFloat(step.time), twnTo, label);
+						}
+
+						twn.wait(step.time, label);
 					}
 
-					twn.to({}, 0.5, {});
+					twn.wait(0.5);
 
 					twn.call(function() {
 						_this.currentStepID = 0;
 					});
+
+					twn.addLabel('end');
+					bulbs.forEach(bulb => {
+						twn.set(bulb, {scale:0.5}, 'end');
+						twn.to(bulb, 0.2, {scale: 1.0, alpha: 1}, 'end');
+					});
+
 
 					twn.play();
 				}
@@ -449,7 +490,7 @@ function showPopup(header, message, options) {
 
 					<!-- Draw Actual Component -->
 					<div class="center">
-						<i v-for="(light, id) in currentStep.lights"
+						<i v-for="(light, id) in currentStep.lights" ref="lights"
 							:class="['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]"
 							:style="{backgroundColor: light.color}"
 							@mouseover="onHoverBulb(light)"

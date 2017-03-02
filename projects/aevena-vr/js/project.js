@@ -272,6 +272,7 @@ function showPopup(header, message, options) {
                     var twn = this._tween = new TimelineMax();
                     var len = this.steps.length;
                     var bulbs = this.$refs.lights;
+                    this.$el.classList.add('hide-icons');
                     twn.addLabel('start');
                     bulbs.forEach(function (bulb) {
                         twn.to(bulb, 0.2, { scale: 0.5, alpha: 0 }, 'start');
@@ -327,6 +328,7 @@ function showPopup(header, message, options) {
                     twn.wait(0.5);
                     twn.call(function () {
                         _this.currentStepID = 0;
+                        _this.$el.classList.remove('hide-icons');
                     });
                     twn.addLabel('end');
                     bulbs.forEach(function (bulb) {

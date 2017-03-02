@@ -91,10 +91,10 @@
                                          @selected="useSuggestedName(currentLightItem, $event, currentSheet.actionSequence)">
                             </dropdown>
 
-                            <btn class="spacer-1" icon="play" label="Play All"></btn>
+                            <btn class="spacer-1" icon="play" label="Play All" @click="playAll($event)"></btn>
                         </div>
 
-                        <light-comp v-if="currentLightItem"
+                        <light-comp v-if="currentLightItem" ref="ringLight"
                                 header="Ring Sequence"
                                 prefix="Ring"
                                 class_lightcomp="ring-light"
@@ -105,7 +105,7 @@
                                 :holds="'ringSeqHoldLast'">
                         </light-comp>
 
-                        <light-comp v-if="currentLightItem"
+                        <light-comp v-if="currentLightItem" ref="stripLight"
                                 header="Strip Sequence"
                                 prefix="Strip"
                                 class_lightcomp="strip-light"

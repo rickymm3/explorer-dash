@@ -1,7 +1,7 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
 
-declare var ERDS, _, $, $$$, Vue, TweenMax,
+declare var ERDS, _, $, $$$, Vue, TweenMax, TimelineMax,
 	trace, traceError, traceClear;
 
 var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS;

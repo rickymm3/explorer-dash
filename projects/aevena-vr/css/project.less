@@ -380,6 +380,8 @@ body {
   .bulb-fadehalf { &::after { content: '\0025B3'; } }
 }
 
+.hide-icons .bulb::after { content: none; }
+
 .fontAwesome(@content) {
   content: @content;
   font-family: FontAwesome;

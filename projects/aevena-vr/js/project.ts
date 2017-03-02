@@ -1,7 +1,7 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
 
-declare var ERDS, _, $, $$$, Vue, TweenMax,
+declare var ERDS, _, $, $$$, Vue, TweenMax, TimelineMax,
 	trace, traceError, traceClear;
 
 var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS;
@@ -354,7 +354,9 @@ function showPopup(header, message, options) {
 					var len = this.steps.length;
 					var bulbs = this.$refs.lights;
 
+					this.$el.classList.add('hide-icons');
 					twn.addLabel('start');
+
 					bulbs.forEach(bulb => {
 						twn.to(bulb, 0.2, {scale: 0.5, alpha: 0}, 'start');
 						twn.set(bulb, {scale:1.0});
@@ -397,6 +399,7 @@ function showPopup(header, message, options) {
 
 					twn.call(function() {
 						_this.currentStepID = 0;
+						_this.$el.classList.remove('hide-icons');
 					});
 
 					twn.addLabel('end');

@@ -313,6 +313,9 @@ body {
 .light-comp .bulb-fadehalf::after {
   content: '\0025B3';
 }
+.hide-icons .bulb::after {
+  content: none;
+}
 .ring-light .bulb {
   width: 32.5px;
   height: 32.5px;

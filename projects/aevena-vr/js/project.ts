@@ -339,6 +339,33 @@ function showPopup(header, message, options) {
 				rotateRight() {
 					var step = this.currentStep;
 					step.lights = step.lights.concat().rotate(-1);
+				},
+
+				playSequence(e) {
+					stopEvent(e);
+
+					if(this._tween) {
+						this._tween.kill();
+						this._tween = null;
+					}
+
+					var twn = this._tween = new TimelineMax();
+					var _this = this;
+					var len = this.steps.length;
+
+					for(var s=0; s<len; s++) {
+						var step = this.steps[s];
+						twn.set(_this, {currentStepID: s});
+						twn.to({}, parseFloat(step.time), {});
+					}
+
+					twn.to({}, 0.5, {});
+
+					twn.call(function() {
+						_this.currentStepID = 0;
+					});
+
+					twn.play();
 				}
 			},
 
@@ -359,7 +386,7 @@ function showPopup(header, message, options) {
 
 					<i class="break">
 						<btn class="" icon="plus-square" label="Step" @click="addStep"></btn>
-						<btn class="" icon="play"></btn>
+						<btn class="" icon="play" @click="playSequence($event)"></btn>
 					</i>
 				</i>
 
@@ -748,6 +775,12 @@ function showPopup(header, message, options) {
 
 					onForceWideView() {
 						setCookie('forceWideView', this.forceWideView);
+					},
+
+					playAll(e) {
+						stopEvent(e);
+						this.$refs.stripLight.playSequence();
+						this.$refs.ringLight.playSequence();
 					}
 				}
 			});
@@ -957,6 +990,7 @@ function showPopup(header, message, options) {
 	}
 
 	function stopEvent(e) {
+		if(!e) return;
 		e.preventDefault();
 		e.stopImmediatePropagation();
 		e.stopPropagation();

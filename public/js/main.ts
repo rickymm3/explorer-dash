@@ -206,3 +206,7 @@ function onBeep() {
 function onHasManyBackups(numBackups) {
 	$$$.boxInfo.showBox("ATTENTION: There are currently $0 backups on the server!".rep([numBackups]));
 }
+
+TimelineMax.prototype.wait = function (time, offset) {
+	return this.to({}, time, {}, offset);
+};

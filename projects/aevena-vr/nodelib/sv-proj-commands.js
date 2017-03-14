@@ -154,6 +154,7 @@ module.exports = function(PROJ) {
 
 			AudioClips: [
 				'Off',
+				'startup',
 				'battery low',
 				'camera off',
 				'camera on',

@@ -164,7 +164,7 @@ function setCookie(name, value, days = 7) {
     return Cookies.set(Cookies._prefix + name, value, {expires: days});
 }
 
-function getCookie(name, defaultVal) {
+function getCookie(name, defaultVal=null) {
     var val = Cookies.get(Cookies._prefix + name);
     if(val==null) return defaultVal;
     return val;

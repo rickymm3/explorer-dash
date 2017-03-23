@@ -2,7 +2,7 @@
 /// <reference path="../../../public/js/jquery-cookie.ts" />
 
 declare var ERDS, _, $, $$$, Vue, TweenMax, TimelineMax,
-	trace, traceError, traceClear;
+	trace, traceError, traceClear, toIcon, window, document, prompt;
 
 var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS;
 var __JSONDATA, __KEYS = {SHIFT: 1, CTRL: 2, ALT: 4};
@@ -624,6 +624,7 @@ function showPopup(header, message, options) {
 					},*/
 					hardcoded: {},
 					jsonData: {
+						currentSheetName: '',
 						sheets: []
 					}
 				},
@@ -787,6 +788,8 @@ function showPopup(header, message, options) {
 						__DEFS = __SHEET.definableValues;
 						__LIGHTS = __SHEET.lightSequence;
 						__ACTIONS = __SHEET.actionSequence;
+
+						__JSONDATA.currentSheetName = __SHEET.name;
 
 						//Try to preserve the selection index:
 						this.currentActionItem = trySameIndex(__ACTIONS, old.__ACTIONS, this.currentActionItem);

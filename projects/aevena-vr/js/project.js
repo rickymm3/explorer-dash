@@ -426,6 +426,7 @@ function showPopup(header, message, options) {
                     popup: null,
                     hardcoded: {},
                     jsonData: {
+                        currentSheetName: '',
                         sheets: []
                     }
                 },
@@ -562,6 +563,7 @@ function showPopup(header, message, options) {
                         __DEFS = __SHEET.definableValues;
                         __LIGHTS = __SHEET.lightSequence;
                         __ACTIONS = __SHEET.actionSequence;
+                        __JSONDATA.currentSheetName = __SHEET.name;
                         //Try to preserve the selection index:
                         this.currentActionItem = trySameIndex(__ACTIONS, old.__ACTIONS, this.currentActionItem);
                         this.currentLightItem = trySameIndex(__LIGHTS, old.__LIGHTS, this.currentLightItem);

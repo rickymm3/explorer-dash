@@ -143,7 +143,7 @@ function setCookie(name, value, days) {
     return Cookies.set(Cookies._prefix + name, value, { expires: days });
 }
 function getCookie(name, defaultVal) {
-    if (defaultVal === void 0) { defaultVal = null; }
+    //if (defaultVal === void 0) { defaultVal = null; }
     var val = Cookies.get(Cookies._prefix + name);
     if (val == null)
         return defaultVal;

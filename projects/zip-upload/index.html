@@ -1,0 +1,40 @@
+<div class="header">
+    <h1 class="title padded-5">$projectName</h1>
+    <p>ZIP upload to directory</p>
+    <ul v-show="json">
+        <li v-for="(proj, index) in json.projects">
+            <btn :label="'Upload ZIP for <b>' + proj.name + '</b> project'" @click="onUploadTo(proj)"></btn>
+            <a class="btn" :href="proj.url">Visit URL</a>
+        </li>
+    </ul>
+
+    <div v-if="json.zip">
+        <p>Here is the ZIP Content:</p>
+
+        <div class="directory zip">
+            <p>ZIP Directory:</p>
+            <ul class="filenames">
+                <li v-for="(file, id) in json.zip.fileNames">
+                    <b v-html="file"></b>
+                </li>
+            </ul>
+        </div>
+
+        <div class="directory target">
+            <p>Target Directory:</p>
+            <ul class="filenames" v-if="json.zip.target">
+                <li v-for="(file, id) in json.zip.target.fileNames">
+                    <b v-html="file"></b>
+                </li>
+            </ul>
+        </div>
+
+        <br/><br/>
+
+        <btn @click="copyRoot" :label="'Copy ZIP\'s /'+json.zip.rootFolder+'/ root content'" v-if="json.zip.rootFolder"></btn>
+        <btn @click="copyAsIs" label="Copy ZIP as is"></btn>
+        <btn @click="clearTarget" label="Clear target directory"></btn>
+    </div>
+
+    <input id="upload-input" type="file" name="uploads[]" multiple="multiple">
+</div>

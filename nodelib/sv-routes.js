@@ -9,6 +9,8 @@ module.exports = function(ERDS) {
 	const express = ERDS.express;
 	const errorHeader = '<h1>Something broke!</h1><br/>';
 
+	const privateProjects = process.env.PRIVATE_PROJECTS;
+
 	function status500(res, msg) {
 		res.status(500).send(errorHeader + msg);
 	}
@@ -69,14 +71,15 @@ module.exports = function(ERDS) {
 		if(req.url!="/") return next();
 
 		ERDS.getDirs(ERDS.__projects, (dirs) => {
-			var projectLinks = dirs
+			var isNotPrivate = (dir) => !privateProjects.toLowerCase().has(dir.toLowerCase());
+			var projectLinks = dirs.filter(isNotPrivate)
 				.map( d => {
-					return '<a href="/p/$0">$1</a>'.rep([d, d]);
+					return '<li><a href="/p/$0">$1</a></li>'.rep([d, d]);
 				})
 				.join('\n');
 
 			res.send(getCached().rep({
-				pageHTML: projectLinks,
+				pageHTML: `<ul>${projectLinks}</ul>`,
 				pageCSS: '',
 				pageJS: '',
 				projectName: ''

@@ -1,0 +1,61 @@
+@import (reference) "../../../public/css/main.less";
+
+body { background: #caefd0; }
+
+
+@colorModifiableBtn: #f80;
+
+.btn {
+  background: @colorModifiableBtn;
+  margin-bottom: 4px;
+  margin-right: 4px;
+
+  &:hover {
+    background: @colorModifiableBtn * 1.1;
+    //font-weight: bold;
+    box-shadow: 0px 0px 3px #fff, 0px 0px 3px #fff, 0px 0px 3px #fff;
+    text-shadow: 0px 0px 3px #000, 0px 0px 3px #000, 0px 0px 3px #000;
+    color: #fff;
+  }
+
+  .round();
+  .shadowy();
+
+  .icon {
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+    //font-size: 100%;
+  }
+}
+
+#upload-input {
+  display: none;
+}
+
+.directory {
+  .round();
+  display: inline-block;
+  padding: 10px;
+  min-height: 100px;
+  vertical-align: top;
+}
+
+.filenames {
+  .round();
+  display: inline-block;
+  padding: 10px;
+  background: #fff;
+  line-height: 120%;
+
+  li::before {
+    content: ' - ';
+  }
+}
+
+.zip {
+  background: #ffa;
+}
+
+.target {
+  background: #faa;
+}

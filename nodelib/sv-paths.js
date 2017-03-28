@@ -1,5 +1,6 @@
 const os = require('os');
 const mkdirp = require('mkdirp');
+const argv = require('yargs').argv;
 
 module.exports = function(ERDS) {
 	//Store a bunch of common useful root & subfolder paths:
@@ -28,4 +29,5 @@ module.exports = function(ERDS) {
 
 	ERDS.isTest = _.isTruthy(process.env.IS_TEST);
 	ERDS.isDev = _.isTruthy(process.env.IS_DEV);
+	ERDS.yargs = argv;
 };

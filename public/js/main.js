@@ -28,6 +28,7 @@ function onFileChanged(whichFile) {
     window.location.reload(true);
 }
 function onProjectFetch(projectData) {
+    ERDS.projectData = projectData;
     if (!ERDS.Project)
         return traceError("Missing ERDS.Project");
     if (ERDS.vue)
@@ -43,7 +44,7 @@ function onProjectFetch(projectData) {
         methods: {}
     };
     if (project.extendVue) {
-        ERDS.vueConfig = project.extendVue(ERDS.vueConfig);
+        ERDS.vueConfig = _.merge(ERDS.vueConfig, project.extendVue());
     }
     ERDS.vue = new Vue(ERDS.vueConfig);
     initializeUI();
@@ -156,11 +157,16 @@ function downloadJSON(jsonData, fileName) {
     $downloads.attr("download", fileName);
     $downloads[0].click();
 }
+function playSound() {
+    if (ERDS.projectData && ERDS.projectData.yargs && ERDS.projectData.yargs.muted)
+        return;
+    ERDS.beep.play();
+}
 function onBeep() {
     if (ERDS.$restart)
         return;
     trace("BEEPING!");
-    ERDS.beep.play();
+    playSound();
     ERDS.$restart = $('<a class="server-restart" href="javascript:;">RESTART SERVER!</a>');
     ERDS.$restart.click(function () {
         ERDS.io.emit('kill');

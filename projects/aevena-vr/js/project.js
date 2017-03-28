@@ -407,8 +407,8 @@ function showPopup(header, message, options) {
     });
     ERDS.Project = function Project() { };
     _.extend(ERDS.Project.prototype, {
-        extendVue: function (vueConfig) {
-            return _.merge(vueConfig, {
+        extendVue: function () {
+            return {
                 data: {
                     view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
                     currentLightItem: null,
@@ -601,7 +601,7 @@ function showPopup(header, message, options) {
                         this.$refs.ringLight.playSequence();
                     }
                 }
-            });
+            };
         },
         init: function (projectData) {
             __VUE = ERDS.vue;

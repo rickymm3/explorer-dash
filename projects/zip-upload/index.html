@@ -1,7 +1,11 @@
 <div class="header">
     <h1 class="title padded-5">$projectName</h1>
+    <i id="spinner" class="fa fa-3x fa-circle-o-notch"></i>
+</div>
+
+<div class="main init-hidden" v-show="json">
     <p>ZIP upload to directory</p>
-    <ul v-show="json">
+    <ul>
         <li v-for="(proj, index) in json.projects">
             <btn :label="'Upload ZIP for <b>' + proj.name + '</b> project'" @click="onUploadTo(proj)"></btn>
             <a class="btn" :href="proj.url">Visit URL</a>

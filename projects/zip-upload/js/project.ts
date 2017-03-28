@@ -1,10 +1,10 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
 
-declare var ERDS, _, $, $$$, Vue, TweenMax, TimelineMax,
+declare var ERDS, FormData, _, $, $$$, Vue, TweenMax, TimelineMax,
     trace, traceError, traceClear, toIcon, window, document, prompt;
 
-var __VUE, __UPLOAD, __JSON, __CURRENT_PROJ;
+var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
 
 (function(ERDS) {
 
@@ -56,13 +56,28 @@ var __VUE, __UPLOAD, __JSON, __CURRENT_PROJ;
             __VUE = ERDS.vue;
             __VUE.json = __JSON = projectData.json;
 
+            __SPINNER = $('#spinner');
+            __SPINNER.hide();
+            TweenMax.set(__SPINNER, {alpha: 0});
+
+            var isBusy = false;
+
             __UPLOAD = $('#upload-input');
             __UPLOAD.on('change', function() {
                 var files = __UPLOAD[0].files;
-                if(!files || !files.length) return; //No files selected.
+                if(isBusy || !files || !files.length) return; //No files selected.
 
                 trace(files);
                 trace("Uploading to project: " +  __CURRENT_PROJ.name);
+
+                if(__SPINNER.twn) {
+                    __SPINNER.twn.kill();
+                }
+
+                __SPINNER.show();
+
+                TweenMax.to(__SPINNER, 0.3, {alpha: 1});
+                startBusy(0.8);
 
                 var formData = new FormData();
                 for (var i = 0; i < files.length; i++) {
@@ -79,14 +94,39 @@ var __VUE, __UPLOAD, __JSON, __CURRENT_PROJ;
                     processData: false,
                     contentType: false,
                     success: function(data){
-                        $$$.boxInfo.showBox("Successfully uploaded!");
-                        onZIPUploadedOK(data);
+                        startBusy(0.5);
+                        window.setTimeout(() => {
+                            stopBusy();
+                            $$$.boxInfo.showBox("Successfully uploaded!");
+                            onZIPUploadedOK(data);
+                        }, 1000);
                     },
                     error: function(err) {
+                        stopBusy();
                         $$$.boxError.showBox("Failed to upload! :cry:\n" + err.statusText + " - " + err.responseText);
                     }
                 });
             });
+
+            function startBusy(spinTime) {
+                isBusy = true;
+                __SPINNER.twn = TweenMax.to(__SPINNER, spinTime, {rotation: "+=360", repeat: -1, ease: Linear.easeNone});
+            }
+
+            function stopBusy() {
+                if(__SPINNER.twn) {
+                    __SPINNER.twn.kill();
+                    __SPINNER.twn = null;
+
+                    TweenMax.to(__SPINNER, 0.3, {alpha: 0});
+                }
+
+                __UPLOAD.val('');
+
+                isBusy = false;
+            }
+
+            $('.init-hidden').removeClass('init-hidden');
         }
     });
 

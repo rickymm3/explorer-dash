@@ -35,9 +35,9 @@
 
         <br/><br/>
 
-        <btn @click="copyRoot" :label="'Copy ZIP\'s /'+json.zip.rootFolder+'/ root content'" v-if="json.zip.rootFolder"></btn>
-        <btn @click="copyAsIs" label="Copy ZIP as is"></btn>
-        <btn @click="clearTarget" label="Clear target directory"></btn>
+        <btn icon="clipboard" @click="copyRoot" :label="'Copy ZIP\'s /'+json.zip.rootFolder+'/ root content'" v-if="json.zip.rootFolder"></btn>
+        <btn icon="files-o" @click="copyAsIs" label="Copy ZIP as is"></btn>
+        <btn icon="trash" @click="clearTarget" label="Clear target directory"></btn>
     </div>
 
     <input id="upload-input" type="file" name="uploads[]" multiple="multiple">

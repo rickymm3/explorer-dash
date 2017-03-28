@@ -7,8 +7,8 @@
     <p>ZIP upload to directory</p>
     <ul>
         <li v-for="(proj, index) in json.projects">
-            <btn :label="'Upload ZIP for <b>' + proj.name + '</b> project'" @click="onUploadTo(proj)"></btn>
-            <a class="btn" :href="proj.url">Visit URL</a>
+            <btn icon="file-zip-o" :label="'Upload ZIP for <b>' + proj.name + '</b> project'" @click="onUploadTo(proj)"></btn>
+            <a class="btn" :href="proj.url" target="_blank"><i class="fa fa-external-link"></i> Visit URL</a>
         </li>
     </ul>
 

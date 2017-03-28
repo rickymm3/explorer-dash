@@ -57,18 +57,39 @@ module.exports = function(ERDS) {
 		ERDS.projects[proj.name] = proj;
 		
 		var responseData = proj.responseData = {
-			name: proj.name
+			name: proj.name,
+			yargs: ERDS.yargs
 		};
 		
 		//Load specific project's modules:
-		ERDS.loadModules(proj.__nodelib, proj, true); //ERDS.isDev
-		
-		ERDS.fileRead(proj.__json, (err, content) => {
-			if(err) responseData.json = null;
-			else responseData.json = JSON.parse(content);
-			
+		if(ERDS.fileExists(proj.__nodelib)) {
+			ERDS.loadModules(proj.__nodelib, proj, true); //ERDS.isDev
+		} else {
+			traceError("No /nodelib/ folder found for project: \n" + proj.__nodelib);
+		}
+
+		tryLoadingJSON(client, proj, responseData);
+	}
+
+	function tryLoadingJSON(client, proj, responseData) {
+		if(ERDS.fileExists(proj.__json)) {
+			ERDS.fileRead(proj.__json, (err, content) => {
+				if(err) responseData.json = null;
+				else responseData.json = JSON.parse(content);
+
+				client.emit('project-fetch', responseData);
+			});
+			return;
+		}
+
+		var __jsData = proj.__json.replace('.json', '.js');
+		if(ERDS.fileExists(__jsData)) {
+			responseData.json = require(__jsData);
 			client.emit('project-fetch', responseData);
-		});
+			return;
+		}
+
+		traceError("No JSON/JS data file found for project: \n" + proj.__json);
 	}
 	
 	function onProjectCommand(cmd) {

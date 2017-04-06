@@ -849,8 +849,9 @@ function showPopup(header, message, options) {
 						setCookie('sheet', id);
 
 						if(this.currentSheetID===id) return;
-						if(id<0 || isNaN(id)) id = 0;
-						if(id>=__SHEETS.length) {
+						if(id<0 || isNaN(id) || id>=__SHEETS.length) id = 0;
+						if(!__SHEETS.length) {
+							trace("sheet is null!");
 							this.currentSheet = null;
 							return;
 						}
@@ -947,8 +948,10 @@ function showPopup(header, message, options) {
 			}
 			
 			__VUE.currentSheetUpdate(getCookie('sheet', 0));
-			__VUE.currentLightItem = __LIGHTS[getCookie('light', 0)];
-			__VUE.currentActionItem = __ACTIONS[getCookie('action', 0)];
+			if(this.currentSheet) {
+				__VUE.currentLightItem = __LIGHTS[getCookie('light', 0)];
+				__VUE.currentActionItem = __ACTIONS[getCookie('action', 0)];
+			}
 
 			//Force-Reset the 'isBusy' status when an error occurs:
 			ERDS.io.on("server-error", function() { __VUE.isBusy = false; });

@@ -52,6 +52,16 @@ p.rotate = (function() {
 	};
 })();
 
+p.insert = (function() {
+	var splice = Array.prototype.splice;
+
+	return function(index, items) {
+		if(!_.isArray(items)) items = [items];
+		splice.apply(this, [index, 0].concat(items));
+		return this;
+	};
+})();
+
 /////////////////
 
 p = String.prototype;

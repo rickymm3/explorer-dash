@@ -421,12 +421,12 @@ function showPopup(header, message, options) {
 					<i v-html="header"></i>
 
 					<i class="spacer-1">
-						<input type="checkbox" v-model:value="obj[loops]"> &nbsp;
+						<input type="checkbox" value="loops" v-model="obj[loops]"> &nbsp;
 						<i class="fa fa-refresh v-align-mid" title="Looping"></i>
 					</i>
 
 					<i class="spacer-1">
-						<input type="checkbox" v-model:value="obj[holds]"> &nbsp;
+						<input type="checkbox" value="holds" v-model="obj[holds]"> &nbsp;
 						<i class="fa fa-pause v-align-mid" title="Hold Last"></i>
 					</i>
 
@@ -857,6 +857,7 @@ function showPopup(header, message, options) {
 
 				createNewSheetAt(0, null);
 			} else {
+				_.jsonFixBooleans(projectData.json);
 				__JSONDATA = __VUE.jsonData = projectData.json;
 				__SHEETS = __JSONDATA.sheets;
 			}

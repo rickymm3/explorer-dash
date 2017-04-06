@@ -129,7 +129,7 @@ Function.prototype.defer = function() {
 //////////////////////////////////////////////////////////////
 
 _.isTruthy = function(bool) {
-	return bool===true || "true,1,on,yes".has(bool);
+	return bool===true || bool===1 || "true,1,on,yes".has(bool);
 };
 
 _.mapRename = function(obj, filter) {
@@ -162,7 +162,23 @@ _.jsonPretty = function(obj, indent) {
 		.replace(/\"\[/g, '[')
 		.replace(/\]\"/g,']')
 		.replace(/\"\{/g, '{')
-		.replace(/\}\"/g,'}');
+		.replace(/\}\"/g,'}')
+		.replace(/"true"/g, 'true')
+		.replace(/"false"/g, 'false');
+};
+
+_.jsonFixBooleans = function(obj) {
+
+	fixBool(obj);
+
+	function fixBool(current) {
+		_.keys(current).forEach(key => {
+			var value = current[key];
+			if(value==="true") current[key] = true;
+			else if(value==="false") current[key] = false;
+			else if(_.isObject(value)) fixBool(value);
+		});
+	}
 };
 
 //////////////////////////////////////////////////////////////

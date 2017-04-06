@@ -101,8 +101,8 @@
                                 class="ring-sequence"
                                 :obj="currentLightItem"
                                 :steps="currentLightItem.ringSteps"
-                                :loops="'ringSeqLooping'"
-                                :holds="'ringSeqHoldLast'">
+                                loops="ringSeqLooping"
+                                holds="ringSeqHoldLast">
                         </light-comp>
 
                         <light-comp v-if="currentLightItem" ref="stripLight"
@@ -112,8 +112,8 @@
                                 class="strip-sequence"
                                 :obj="currentLightItem"
                                 :steps="currentLightItem.stripSteps"
-                                :loops="'stripSeqLooping'"
-                                :holds="'stripSeqHoldLast'">
+                                loops="stripSeqLooping"
+                                holds="stripSeqHoldLast">
                         </light-comp>
 
 

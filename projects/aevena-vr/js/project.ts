@@ -4,7 +4,7 @@
 declare var ERDS, _, $, $$$, Vue, TweenMax, TimelineMax,
 	trace, traceError, traceClear, toIcon, window, document, prompt;
 
-var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS;
+var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS, __COLORS;
 var __JSONDATA, __KEYS = {SHIFT: 1, CTRL: 2, ALT: 4};
 
 function traceJSON(obj=null) {
@@ -206,7 +206,13 @@ function showPopup(header, message, options) {
 
 				currentDropDown() {
 					return __VUE.currentDropDown;
-				}
+				},
+
+				colors() {
+					return __COLORS;
+				},
+
+
 			},
 
 			methods: {
@@ -224,12 +230,6 @@ function showPopup(header, message, options) {
 
 				removeStep(item) {
 					removeItem(item, this.steps, this.currentStepName);
-				},
-
-				setStepID(id) {
-					this.currentStepID = id;
-					this.playSFX();
-					//__VUE[this.currentStepName] = this.steps[id];
 				},
 
 				setCurrentDropDown(item) {
@@ -280,8 +280,14 @@ function showPopup(header, message, options) {
 
 				setNav() {
 					var _this = this;
-					__VUE.nav = _this;
+					if(__VUE.nav!=_this) {
+						__VUE.selectedSteps = null;
+						//__VUE.copiedSteps = null;
+						if(__VUE.nav) __VUE.nav.$forceUpdate();
+						__VUE.nav = _this;
+					}
 
+					trace("NAV is: " + this.header);
 					_this.isMouseDown = true;
 					$(window).one('mouseup', function() {
 						trace("Mouse is up now");
@@ -292,13 +298,17 @@ function showPopup(header, message, options) {
 				onClickBulb(light) {
 					if(this.isFocusColors) {
 						light.color = this.currentColor;
+						this.$forceUpdate();
 						return;
 					}
 
 					light.state = this.currentFocus;
+					this.$forceUpdate();
 				},
 
 				onHoverBulb(light) {
+					var id = this.currentStep.lights.indexOf(light);
+					trace("Hovering on " + id);
 					if(!this.isMouseDown) return;
 					this.onClickBulb(light);
 				},
@@ -307,6 +317,59 @@ function showPopup(header, message, options) {
 					var t = this;
 					if(!t.currentStep || !t.currentStep.lights) return;
 					t.currentStep.lights.forEach(light => t.onClickBulb(light));
+				},
+
+				setStepID(e, id) {
+					if(__VUE.statusKeyModifiers>0) {
+						if(!__VUE.selectedSteps || !__VUE.selectedSteps.length) {
+							__VUE.selectedSteps = [];
+						}
+
+						__VUE.selectedSteps.push( this.steps[id] );
+						this.$forceUpdate();
+						return;
+					}
+
+					__VUE.selectedSteps = null;
+
+					this.currentStepID = id;
+					this.playSFX();
+					//__VUE[this.currentStepName] = this.steps[id];
+				},
+
+				isMultiSelected(step) {
+					return !__VUE.selectedSteps ? false : __VUE.selectedSteps.has(step);
+				},
+
+				isCopied(step) {
+					return !__VUE.copiedSteps ? false : __VUE.copiedSteps.has(step);
+				},
+
+				onCopy(e) {
+					if(!__VUE.selectedSteps || !__VUE.selectedSteps.length) return;
+
+					__VUE.copiedSteps = __VUE.selectedSteps;
+					this.$forceUpdate();
+
+				},
+
+				onPaste(e) {
+					if(!__VUE.copiedSteps || !__VUE.copiedSteps.length || !this.currentStep) return;
+
+					var id = this.steps.indexOf(this.currentStep);
+					var items = _.jsonClone(__VUE.copiedSteps);
+
+
+					var before = this.steps.length;
+					this.steps.insert(id + 1, items);
+					trace("Steps: before: " + before + " : " + this.steps.length);
+
+					this.$forceUpdate();
+
+					setTimeout(()=>{
+
+						__VUE.$forceUpdate();
+					}, 0);
 				},
 
 				goUp(e) {
@@ -415,127 +478,139 @@ function showPopup(header, message, options) {
 				}
 			},
 
-			template:
-			`<div class="padded-3 subpanel" @mousedown.capture="setNav()">
+			template: `
+			<div class="padded-3 subpanel" @mousedown.capture="setNav()">
 				<i class="subheader nowrap v-align-mid-kids">
 					<i v-html="header"></i>
-
+			
 					<i class="spacer-1">
-						<input type="checkbox" v-model:value="obj[loops]"> &nbsp;
+						<input type="checkbox" value="loops" v-model="obj[loops]"> &nbsp;
 						<i class="fa fa-refresh v-align-mid" title="Looping"></i>
 					</i>
-
+			
 					<i class="spacer-1">
-						<input type="checkbox" v-model:value="obj[holds]"> &nbsp;
+						<input type="checkbox" value="holds" v-model="obj[holds]"> &nbsp;
 						<i class="fa fa-pause v-align-mid" title="Hold Last"></i>
 					</i>
-
+			
 					<i class="break">
 						<btn class="" icon="plus-square" label="Step" @click="addStep"></btn>
 						<btn class="" icon="play" @click="playSequence($event)"></btn>
 					</i>
 				</i>
-
+			
 				<br/>
-
+			
 				<div class="light-comp missing bg-disabled" v-if="!currentStep" :class="class_lightcomp">
 					No Sequence Data Found!
 				</div>
-
+			
 				<div class="light-comp" v-if="currentStep" :class="class_lightcomp">
 					<i class="nowrap">
-						<btn class="padded-5" label="Apply All" @click="applyAll" />
-
+						<btn class="padded-5" label="Apply All" @click="applyAll"></btn>
+			
 						<dropdown	class_btn="color-names"
-									class_dropdown="step-modes"
-									icon="paint-brush"
-									:list="modes"
-									:dropdown_source="currentStep"
-									:is_selected="isCurrentMode"
-									@selected="setCurrentFocus($event)">
+									 class_dropdown="step-modes"
+									 icon="paint-brush"
+									 :list="modes"
+									 :dropdown_source="currentStep"
+									 :is_selected="isCurrentMode"
+									 @selected="setCurrentFocus($event)">
 						</dropdown>
-
+			
 						<i class="padded-5">
 							<i v-if="isFocusColors">
-								<i class="">Color:</i><!-- spacer-1 -->
-								<input class="color-picker"
-										:style="{backgroundColor: currentColor}"
-										v-model:value="currentColor">
+								<i>Color:</i>
+								
+								<input class="color-picker" v-model="currentColor" 
+									:style="{backgroundColor: currentColor}">
+								
+								<div class="color-cells">
+									<i v-for="(clr, id) in colors" ref="colorpallette">
+										<span @click="currentColor = clr.name" class="cell" :style="{backgroundColor: clr.name}">
+									    </span>
+										<br v-if="(id == 5)" />
+									</i>
+									
+									   
+								</div>
 							</i>
-
-							<i v-if="!isFocusColors">
-								Painting: "{{currentFocus}}"
-							</i>
+							
+							<i v-if="!isFocusColors">Painting: "{{currentFocus}}"</i>
 						</i>
 					</i>
-
+			
 					<br/>
-
+			
 					<dropdown	class_btn="audio"
-								class_dropdown="audio-list"
-								icon="volume-up"
-								:list="audioClips"
-								:dropdown_source="steps"
-								:is_selected="isAudioSelected"
-								@selected="setCurrentAudio($event)">
+								 class_dropdown="audio-list"
+								 icon="volume-up"
+								 :list="audioClips"
+								 :dropdown_source="steps"
+								 :is_selected="isAudioSelected"
+								 @selected="setCurrentAudio($event)">
 					</dropdown>
-
+			
 					<i v-if="currentStep.audioClipName!='Off'">
 						<input class="padded-2 audio-name" v-model:value="currentStep.audioClipName"
-							@click="playSFX()" @change="playSFX()"/>
-
+							   @click="playSFX()" @change="playSFX()"/>
+			
 						<i class="nowrap">
 							<i>Volume</i>
 							<input class="digits-2" v-model:value="currentStep.audioVolume"
-								@click="playSFX()" @change="playSFX()">
+								   @click="playSFX()" @change="playSFX()">
 						</i>
 					</i>
-
-
-
+			
+			
+			
 					<!-- Draw Actual Component -->
 					<div class="center">
 						<i v-for="(light, id) in currentStep.lights" ref="lights"
-							:class="['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]"
-							:style="{backgroundColor: light.color}"
-							@mouseover="onHoverBulb(light)"
-							@mousedown="onClickBulb(light)">
-							</i>
+						   :class="['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]"
+						   :style="{backgroundColor: light.color}"
+						   @mouseover="onHoverBulb(light)"
+						   @mousedown="onClickBulb(light)">
+						</i>
 					</div>
-
+			
 					<i class="bottom-bar">
 						<btn icon="rotate-left" @click="rotateLeft()" title="rotates LEDs left"></btn>
 						<btn icon="rotate-right" @click="rotateRight()" title="rotates LEDs right"></btn>
-
+			
 					</i>
 				</div>
-
+			
 				<div v-if="!currentStep" class="steps padded-3 v-align-mid shadowy">
 					<i class="padded-5 inline-block"><b>Add a Light Sequence Step:</b></i>
 					<btn class="v-align-mid" icon="plus-square" label="Step" @click="addStep"></btn>
 				</div>
-
+			
 				<draggable v-if="currentStep" class="steps" :list="steps" :options="{ handle: '.drag-handle' }">
 					<div class="step"
-						:class="{isSelected: currentStepID==id}"
-						@click="setStepID(id)"
-						v-for="(step, id) in steps">
+						 :class="{isSelected: currentStepID==id, isMulti: isMultiSelected(step), isCopied: isCopied(step)}"
+						 @click="setStepID($event, id)"
+						 v-for="(step, id) in steps">
 						<btn icon="trash-o" @click="removeStep(step)"></btn>
 						<btn icon="clone" @click="copyStep(step)"></btn>
 						<btn icon="sort" class="drag-handle" title="Sort param"></btn>
-
-						<i>Time:</i>
-						<input class="digits-3" v-model:value="step.time">
-
+			
 						<i class="bulb-short bulb-statuses" v-for="(light, id) in step.lights">
 							<i class="bulb-stat"
-								:style="{color: light.color}"
-								v-html="convertStateToChar(light)">
+							   :style="{color: light.color}"
+							   v-html="convertStateToChar(light)">
 							</i>
 						</i>
-
-						<i v-if="step.audioClipName!='Off'" class="fa fa-volume-up" :title="step.audioClipName">
-							({{showDecimals(step.audioVolume)}})
+			
+						<i class="nowrap">
+							<i class="fa fa-clock-o"></i>
+							<input class="digits-2" v-model:value="step.time">
+						</i>
+			
+			
+						<i v-if="step.audioClipName!='Off'" :title="step.audioClipName" class=nowrap>
+							<i class="fa fa-volume-up"></i>
+							<input class="digits-2" v-model:value="step.audioVolume">
 						</i>
 					</div>
 				</draggable>
@@ -567,16 +642,25 @@ function showPopup(header, message, options) {
 			if(!__VUE.nav || !__VUE.nav[name]) return null;
 			return __VUE.nav[name](e);
 		}
+
 		switch(e.which) {
 			case 27: isEscape = true; break;
 			case 13: isEnter = true; break;
 			case 9: isTab = true; break;
+			case 67: if(ctrlOrAlt) return goMethod('onCopy', e);
+			case 86: if(ctrlOrAlt) return goMethod('onPaste', e);
 			case ARROW_UP: return goMethod('goUp',e);
 			case ARROW_DOWN: return goMethod('goDown',e);
 			case ARROW_LEFT: return goMethod('goLeft',e);
 			case ARROW_RIGHT: return goMethod('goRight',e);
-			default: return trace(e.which);
+			default: if(__VUE.lastKeyPressed!=e.which) {
+					__VUE.lastKeyPressed = e.which;
+					trace(e.which);
+				}
+				return;
 		}
+
+		__VUE.lastKeyPressed = e.which;
 
 		//Handle the dropdown menus:
 		if(__VUE.currentDropDown!=null && isEscape) {
@@ -857,6 +941,7 @@ function showPopup(header, message, options) {
 
 				createNewSheetAt(0, null);
 			} else {
+				_.jsonFixBooleans(projectData.json);
 				__JSONDATA = __VUE.jsonData = projectData.json;
 				__SHEETS = __JSONDATA.sheets;
 			}
@@ -908,6 +993,7 @@ function showPopup(header, message, options) {
 		
 		__VUE.hardcoded = projectData.hardcoded;
 		__ARACOMMANDS = __VUE.hardcoded.AraCommands;
+		__COLORS = __VUE.hardcoded.Colors;
 
 		return true;
 	}

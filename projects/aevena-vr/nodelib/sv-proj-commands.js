@@ -146,10 +146,18 @@ module.exports = function(PROJ) {
 			].toKeyValues(),
 
 			Colors: [
-				"White",
-				"Green",
-				"Blue",
-				"Red"
+				"#fff", //white
+				"#f00", //red
+				"#f80", //orange
+				"#ff0", //yellow
+				"#0f0", //green
+				"#084", //forestgreen
+				"#888", //gray
+				"#0ff", //cyan
+				"#08f", //skyblue
+				"#00f", //blue
+				"#80f", //purple
+				"#f0f", //magenta
 			].toKeyValues(),
 
 			AudioClips: [

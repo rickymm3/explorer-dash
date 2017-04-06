@@ -14,15 +14,17 @@ module.exports = function(ERDS) {
         path = path.fixSlashes();
         
         if (event.has('add') || 
-            path.endsWith('.ts') ||
-            path.endsWith('.less')) return;
+            path.has('.ts') ||
+            path.has('.less')) return;
         
         if(path.has('/nodelib/')) {
             ERDS.beep();
             requiresRestart = true;
             return traceError("CHANGED server-side node JS file:\n  " + path);
         }
-        
+
+        trace("File changed: " + path);
+
         if(!ERDS.io) return;
         
         if(timeoutID>-1) clearTimeout(timeoutID);

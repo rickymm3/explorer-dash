@@ -1,6 +1,6 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
-var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS;
+var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS, __COLORS;
 var __JSONDATA, __KEYS = { SHIFT: 1, CTRL: 2, ALT: 4 };
 function traceJSON(obj) {
     if (obj === void 0) { obj = null; }
@@ -149,6 +149,9 @@ function showPopup(header, message, options) {
                 },
                 currentDropDown: function () {
                     return __VUE.currentDropDown;
+                },
+                colors: function () {
+                    return __COLORS;
                 }
             },
             methods: {
@@ -163,11 +166,6 @@ function showPopup(header, message, options) {
                 },
                 removeStep: function (item) {
                     removeItem(item, this.steps, this.currentStepName);
-                },
-                setStepID: function (id) {
-                    this.currentStepID = id;
-                    this.playSFX();
-                    //__VUE[this.currentStepName] = this.steps[id];
                 },
                 setCurrentDropDown: function (item) {
                     __VUE.currentDropDown = item;
@@ -211,7 +209,14 @@ function showPopup(header, message, options) {
                 },
                 setNav: function () {
                     var _this = this;
-                    __VUE.nav = _this;
+                    if (__VUE.nav != _this) {
+                        __VUE.selectedSteps = null;
+                        //__VUE.copiedSteps = null;
+                        if (__VUE.nav)
+                            __VUE.nav.$forceUpdate();
+                        __VUE.nav = _this;
+                    }
+                    trace("NAV is: " + this.header);
                     _this.isMouseDown = true;
                     $(window).one('mouseup', function () {
                         trace("Mouse is up now");
@@ -221,11 +226,15 @@ function showPopup(header, message, options) {
                 onClickBulb: function (light) {
                     if (this.isFocusColors) {
                         light.color = this.currentColor;
+                        this.$forceUpdate();
                         return;
                     }
                     light.state = this.currentFocus;
+                    this.$forceUpdate();
                 },
                 onHoverBulb: function (light) {
+                    var id = this.currentStep.lights.indexOf(light);
+                    trace("Hovering on " + id);
                     if (!this.isMouseDown)
                         return;
                     this.onClickBulb(light);
@@ -235,6 +244,45 @@ function showPopup(header, message, options) {
                     if (!t.currentStep || !t.currentStep.lights)
                         return;
                     t.currentStep.lights.forEach(function (light) { return t.onClickBulb(light); });
+                },
+                setStepID: function (e, id) {
+                    if (__VUE.statusKeyModifiers > 0) {
+                        if (!__VUE.selectedSteps || !__VUE.selectedSteps.length) {
+                            __VUE.selectedSteps = [];
+                        }
+                        __VUE.selectedSteps.push(this.steps[id]);
+                        this.$forceUpdate();
+                        return;
+                    }
+                    __VUE.selectedSteps = null;
+                    this.currentStepID = id;
+                    this.playSFX();
+                    //__VUE[this.currentStepName] = this.steps[id];
+                },
+                isMultiSelected: function (step) {
+                    return !__VUE.selectedSteps ? false : __VUE.selectedSteps.has(step);
+                },
+                isCopied: function (step) {
+                    return !__VUE.copiedSteps ? false : __VUE.copiedSteps.has(step);
+                },
+                onCopy: function (e) {
+                    if (!__VUE.selectedSteps || !__VUE.selectedSteps.length)
+                        return;
+                    __VUE.copiedSteps = __VUE.selectedSteps;
+                    this.$forceUpdate();
+                },
+                onPaste: function (e) {
+                    if (!__VUE.copiedSteps || !__VUE.copiedSteps.length || !this.currentStep)
+                        return;
+                    var id = this.steps.indexOf(this.currentStep);
+                    var items = _.jsonClone(__VUE.copiedSteps);
+                    var before = this.steps.length;
+                    this.steps.insert(id + 1, items);
+                    trace("Steps: before: " + before + " : " + this.steps.length);
+                    this.$forceUpdate();
+                    setTimeout(function () {
+                        __VUE.$forceUpdate();
+                    }, 0);
                 },
                 goUp: function (e) {
                     stopEvent(e);
@@ -340,7 +388,7 @@ function showPopup(header, message, options) {
                     twn.play();
                 }
             },
-            template: "<div class=\"padded-3 subpanel\" @mousedown.capture=\"setNav()\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" v-model:value=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\" @click=\"playSequence($event)\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\n\t\t\t\t<br/>\n\n\t\t\t\t<div class=\"light-comp missing bg-disabled\" v-if=\"!currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\tNo Sequence Data Found!\n\t\t\t\t</div>\n\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<btn class=\"padded-5\" label=\"Apply All\" @click=\"applyAll\" />\n\n\t\t\t\t\t\t<dropdown\tclass_btn=\"color-names\"\n\t\t\t\t\t\t\t\t\tclass_dropdown=\"step-modes\"\n\t\t\t\t\t\t\t\t\ticon=\"paint-brush\"\n\t\t\t\t\t\t\t\t\t:list=\"modes\"\n\t\t\t\t\t\t\t\t\t:dropdown_source=\"currentStep\"\n\t\t\t\t\t\t\t\t\t:is_selected=\"isCurrentMode\"\n\t\t\t\t\t\t\t\t\t@selected=\"setCurrentFocus($event)\">\n\t\t\t\t\t\t</dropdown>\n\n\t\t\t\t\t\t<i class=\"padded-5\">\n\t\t\t\t\t\t\t<i v-if=\"isFocusColors\">\n\t\t\t\t\t\t\t\t<i class=\"\">Color:</i><!-- spacer-1 -->\n\t\t\t\t\t\t\t\t<input class=\"color-picker\"\n\t\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\"\n\t\t\t\t\t\t\t\t\t\tv-model:value=\"currentColor\">\n\t\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t\t<i v-if=\"!isFocusColors\">\n\t\t\t\t\t\t\t\tPainting: \"{{currentFocus}}\"\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\n\t\t\t\t\t<br/>\n\n\t\t\t\t\t<dropdown\tclass_btn=\"audio\"\n\t\t\t\t\t\t\t\tclass_dropdown=\"audio-list\"\n\t\t\t\t\t\t\t\ticon=\"volume-up\"\n\t\t\t\t\t\t\t\t:list=\"audioClips\"\n\t\t\t\t\t\t\t\t:dropdown_source=\"steps\"\n\t\t\t\t\t\t\t\t:is_selected=\"isAudioSelected\"\n\t\t\t\t\t\t\t\t@selected=\"setCurrentAudio($event)\">\n\t\t\t\t\t</dropdown>\n\n\t\t\t\t\t<i v-if=\"currentStep.audioClipName!='Off'\">\n\t\t\t\t\t\t<input class=\"padded-2 audio-name\" v-model:value=\"currentStep.audioClipName\"\n\t\t\t\t\t\t\t@click=\"playSFX()\" @change=\"playSFX()\"/>\n\n\t\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t\t<i>Volume</i>\n\t\t\t\t\t\t\t<input class=\"digits-2\" v-model:value=\"currentStep.audioVolume\"\n\t\t\t\t\t\t\t\t@click=\"playSFX()\" @change=\"playSFX()\">\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\n\n\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentStep.lights\" ref=\"lights\"\n\t\t\t\t\t\t\t:class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t\t:style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t\t@mouseover=\"onHoverBulb(light)\"\n\t\t\t\t\t\t\t@mousedown=\"onClickBulb(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\n\t\t\t\t\t<i class=\"bottom-bar\">\n\t\t\t\t\t\t<btn icon=\"rotate-left\" @click=\"rotateLeft()\" title=\"rotates LEDs left\"></btn>\n\t\t\t\t\t\t<btn icon=\"rotate-right\" @click=\"rotateRight()\" title=\"rotates LEDs right\"></btn>\n\n\t\t\t\t\t</i>\n\t\t\t\t</div>\n\n\t\t\t\t<div v-if=\"!currentStep\" class=\"steps padded-3 v-align-mid shadowy\">\n\t\t\t\t\t<i class=\"padded-5 inline-block\"><b>Add a Light Sequence Step:</b></i>\n\t\t\t\t\t<btn class=\"v-align-mid\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t</div>\n\n\t\t\t\t<draggable v-if=\"currentStep\" class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t:class=\"{isSelected: currentStepID==id}\"\n\t\t\t\t\t\t@click=\"setStepID(id)\"\n\t\t\t\t\t\tv-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\n\t\t\t\t\t\t<i>Time:</i>\n\t\t\t\t\t\t<input class=\"digits-3\" v-model:value=\"step.time\">\n\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t\t:style=\"{color: light.color}\"\n\t\t\t\t\t\t\t\tv-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\n\t\t\t\t\t\t<i v-if=\"step.audioClipName!='Off'\" class=\"fa fa-volume-up\" :title=\"step.audioClipName\">\n\t\t\t\t\t\t\t({{showDecimals(step.audioVolume)}})\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>"
+            template: "\n\t\t\t<div class=\"padded-3 subpanel\" @mousedown.capture=\"setNav()\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\t\t\t\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" value=\"loops\" v-model=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" value=\"holds\" v-model=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\" @click=\"playSequence($event)\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\t\t\t\n\t\t\t\t<br/>\n\t\t\t\n\t\t\t\t<div class=\"light-comp missing bg-disabled\" v-if=\"!currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\tNo Sequence Data Found!\n\t\t\t\t</div>\n\t\t\t\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<btn class=\"padded-5\" label=\"Apply All\" @click=\"applyAll\"></btn>\n\t\t\t\n\t\t\t\t\t\t<dropdown\tclass_btn=\"color-names\"\n\t\t\t\t\t\t\t\t\t class_dropdown=\"step-modes\"\n\t\t\t\t\t\t\t\t\t icon=\"paint-brush\"\n\t\t\t\t\t\t\t\t\t :list=\"modes\"\n\t\t\t\t\t\t\t\t\t :dropdown_source=\"currentStep\"\n\t\t\t\t\t\t\t\t\t :is_selected=\"isCurrentMode\"\n\t\t\t\t\t\t\t\t\t @selected=\"setCurrentFocus($event)\">\n\t\t\t\t\t\t</dropdown>\n\t\t\t\n\t\t\t\t\t\t<i class=\"padded-5\">\n\t\t\t\t\t\t\t<i v-if=\"isFocusColors\">\n\t\t\t\t\t\t\t\t<i>Color:</i>\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t<input class=\"color-picker\" v-model=\"currentColor\" \n\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\">\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t<div class=\"color-cells\">\n\t\t\t\t\t\t\t\t\t<i v-for=\"(clr, id) in colors\" ref=\"colorpallette\">\n\t\t\t\t\t\t\t\t\t\t<span @click=\"currentColor = clr.name\" class=\"cell\" :style=\"{backgroundColor: clr.name}\">\n\t\t\t\t\t\t\t\t\t    </span>\n\t\t\t\t\t\t\t\t\t\t<br v-if=\"(id == 5)\" />\n\t\t\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t   \n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t<i v-if=\"!isFocusColors\">Painting: \"{{currentFocus}}\"</i>\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t<br/>\n\t\t\t\n\t\t\t\t\t<dropdown\tclass_btn=\"audio\"\n\t\t\t\t\t\t\t\t class_dropdown=\"audio-list\"\n\t\t\t\t\t\t\t\t icon=\"volume-up\"\n\t\t\t\t\t\t\t\t :list=\"audioClips\"\n\t\t\t\t\t\t\t\t :dropdown_source=\"steps\"\n\t\t\t\t\t\t\t\t :is_selected=\"isAudioSelected\"\n\t\t\t\t\t\t\t\t @selected=\"setCurrentAudio($event)\">\n\t\t\t\t\t</dropdown>\n\t\t\t\n\t\t\t\t\t<i v-if=\"currentStep.audioClipName!='Off'\">\n\t\t\t\t\t\t<input class=\"padded-2 audio-name\" v-model:value=\"currentStep.audioClipName\"\n\t\t\t\t\t\t\t   @click=\"playSFX()\" @change=\"playSFX()\"/>\n\t\t\t\n\t\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t\t<i>Volume</i>\n\t\t\t\t\t\t\t<input class=\"digits-2\" v-model:value=\"currentStep.audioVolume\"\n\t\t\t\t\t\t\t\t   @click=\"playSFX()\" @change=\"playSFX()\">\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\n\t\t\t\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentStep.lights\" ref=\"lights\"\n\t\t\t\t\t\t   :class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t   :style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t   @mouseover=\"onHoverBulb(light)\"\n\t\t\t\t\t\t   @mousedown=\"onClickBulb(light)\">\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\n\t\t\t\t\t<i class=\"bottom-bar\">\n\t\t\t\t\t\t<btn icon=\"rotate-left\" @click=\"rotateLeft()\" title=\"rotates LEDs left\"></btn>\n\t\t\t\t\t\t<btn icon=\"rotate-right\" @click=\"rotateRight()\" title=\"rotates LEDs right\"></btn>\n\t\t\t\n\t\t\t\t\t</i>\n\t\t\t\t</div>\n\t\t\t\n\t\t\t\t<div v-if=\"!currentStep\" class=\"steps padded-3 v-align-mid shadowy\">\n\t\t\t\t\t<i class=\"padded-5 inline-block\"><b>Add a Light Sequence Step:</b></i>\n\t\t\t\t\t<btn class=\"v-align-mid\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t</div>\n\t\t\t\n\t\t\t\t<draggable v-if=\"currentStep\" class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t :class=\"{isSelected: currentStepID==id, isMulti: isMultiSelected(step), isCopied: isCopied(step)}\"\n\t\t\t\t\t\t @click=\"setStepID($event, id)\"\n\t\t\t\t\t\t v-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\t\t\t\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t   :style=\"{color: light.color}\"\n\t\t\t\t\t\t\t   v-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t\t<i class=\"fa fa-clock-o\"></i>\n\t\t\t\t\t\t\t<input class=\"digits-2\" v-model:value=\"step.time\">\n\t\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\n\t\t\t\t\t\t<i v-if=\"step.audioClipName!='Off'\" :title=\"step.audioClipName\" class=nowrap>\n\t\t\t\t\t\t\t<i class=\"fa fa-volume-up\"></i>\n\t\t\t\t\t\t\t<input class=\"digits-2\" v-model:value=\"step.audioVolume\">\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>"
         }
     });
     //Key modifier:
@@ -381,12 +429,22 @@ function showPopup(header, message, options) {
             case 9:
                 isTab = true;
                 break;
+            case 67: if (ctrlOrAlt)
+                return goMethod('onCopy', e);
+            case 86: if (ctrlOrAlt)
+                return goMethod('onPaste', e);
             case ARROW_UP: return goMethod('goUp', e);
             case ARROW_DOWN: return goMethod('goDown', e);
             case ARROW_LEFT: return goMethod('goLeft', e);
             case ARROW_RIGHT: return goMethod('goRight', e);
-            default: return trace(e.which);
+            default:
+                if (__VUE.lastKeyPressed != e.which) {
+                    __VUE.lastKeyPressed = e.which;
+                    trace(e.which);
+                }
+                return;
         }
+        __VUE.lastKeyPressed = e.which;
         //Handle the dropdown menus:
         if (__VUE.currentDropDown != null && isEscape) {
             return __VUE.currentDropDown = null;
@@ -619,6 +677,7 @@ function showPopup(header, message, options) {
                 createNewSheetAt(0, null);
             }
             else {
+                _.jsonFixBooleans(projectData.json);
                 __JSONDATA = __VUE.jsonData = projectData.json;
                 __SHEETS = __JSONDATA.sheets;
             }
@@ -665,6 +724,7 @@ function showPopup(header, message, options) {
         }
         __VUE.hardcoded = projectData.hardcoded;
         __ARACOMMANDS = __VUE.hardcoded.AraCommands;
+        __COLORS = __VUE.hardcoded.Colors;
         return true;
     }
     function createNewSheetAt(id, duplicate) {

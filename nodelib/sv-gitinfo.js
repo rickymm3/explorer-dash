@@ -7,7 +7,7 @@ const dateFormat = require('dateformat');
 
 module.exports = function(ERDS, next) {
 	
-	var gitDate = new Date(git.date());
+	var gitDate = git.date();
 	
 	ERDS.git = _.assign(ERDS.git || {}, {
 		clientID: process.env.GITHUB_CLIENT,

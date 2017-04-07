@@ -325,6 +325,7 @@ function showPopup(header, message, options) {
 							__VUE.selectedSteps = [];
 						}
 
+						__VUE.copiedSteps = null;
 						__VUE.selectedSteps.push( this.steps[id] );
 						this.$forceUpdate();
 						return;
@@ -346,7 +347,10 @@ function showPopup(header, message, options) {
 				},
 
 				onCopy(e) {
-					if(!__VUE.selectedSteps || !__VUE.selectedSteps.length) return;
+					if(!__VUE.selectedSteps || !__VUE.selectedSteps.length) {
+						if(!this.currentStep) return;
+						__VUE.selectedSteps = [this.currentStep];
+					}
 
 					__VUE.copiedSteps = __VUE.selectedSteps;
 					this.$forceUpdate();
@@ -365,11 +369,7 @@ function showPopup(header, message, options) {
 					trace("Steps: before: " + before + " : " + this.steps.length);
 
 					this.$forceUpdate();
-
-					setTimeout(()=>{
-
-						__VUE.$forceUpdate();
-					}, 0);
+					//__VUE.$forceUpdate();
 				},
 
 				goUp(e) {
@@ -604,7 +604,7 @@ function showPopup(header, message, options) {
 			
 						<i class="nowrap">
 							<i class="fa fa-clock-o"></i>
-							<input class="digits-2" v-model:value="step.time">
+							<input class="digits-4" v-model:value="step.time">
 						</i>
 			
 			
@@ -638,7 +638,7 @@ function showPopup(header, message, options) {
 		var isEnter = false, isTab = false, isEscape = false;
 		var ARROW_UP = 38, ARROW_DOWN = 40, ARROW_LEFT = 37, ARROW_RIGHT = 39;
 
-		function goMethod(name, e) {
+		function tryFunc(name, e) {
 			if(!__VUE.nav || !__VUE.nav[name]) return null;
 			return __VUE.nav[name](e);
 		}
@@ -647,12 +647,12 @@ function showPopup(header, message, options) {
 			case 27: isEscape = true; break;
 			case 13: isEnter = true; break;
 			case 9: isTab = true; break;
-			case 67: if(ctrlOrAlt) return goMethod('onCopy', e);
-			case 86: if(ctrlOrAlt) return goMethod('onPaste', e);
-			case ARROW_UP: return goMethod('goUp',e);
-			case ARROW_DOWN: return goMethod('goDown',e);
-			case ARROW_LEFT: return goMethod('goLeft',e);
-			case ARROW_RIGHT: return goMethod('goRight',e);
+			case 67: if(ctrlOrAlt) return tryFunc('onCopy', e);
+			case 86: if(ctrlOrAlt) return tryFunc('onPaste', e);
+			case ARROW_UP: return tryFunc('goUp',e);
+			case ARROW_DOWN: return tryFunc('goDown',e);
+			case ARROW_LEFT: return tryFunc('goLeft',e);
+			case ARROW_RIGHT: return tryFunc('goRight',e);
 			default: if(__VUE.lastKeyPressed!=e.which) {
 					__VUE.lastKeyPressed = e.which;
 					trace(e.which);
@@ -687,7 +687,7 @@ function showPopup(header, message, options) {
 		extendVue() {
 			return {
 				data: {
-					view: !isNaN(getCookie('view')) ? getCookie('view') : 0,
+					view: getCookie('view', 0),
 					currentLightItem: null,
 					currentActionItem: null,
 					currentDropDown: null,

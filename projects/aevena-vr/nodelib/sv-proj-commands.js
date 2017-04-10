@@ -194,7 +194,23 @@ module.exports = function(PROJ) {
 				"FadeOn",
 				"FadeOff",
 				"FadeHalf"
-			].toKeyValues()
+			].toKeyValues(),
+
+			WebScreens: [
+				"downloadapp",
+				"openapp",
+				"choosebluetooth",
+				"completebluetooth",
+				"startwifi",
+				"choosewifinetwork",
+				"setwifipassword",
+				"connectwifi",
+				"wificonnected",
+				"spacecheck",
+				"testflight",
+				"flightinprogress",
+				"setupcomplete"
+			]
 		}
 	}
 };

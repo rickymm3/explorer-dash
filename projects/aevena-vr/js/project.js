@@ -141,17 +141,17 @@ function showPopup(header, message, options) {
                 isFocusColors: function () {
                     return this.currentFocus == "Colors";
                 },
-                modes: function () {
-                    return __VUE.hardcoded.LightStates;
-                },
-                audioClips: function () {
-                    return __VUE.hardcoded.AudioClips;
-                },
                 currentDropDown: function () {
                     return __VUE.currentDropDown;
                 },
                 colors: function () {
                     return __COLORS;
+                },
+                modes: function () {
+                    return __VUE.hardcoded.LightStates;
+                },
+                audioClips: function () {
+                    return __VUE.hardcoded.AudioClips;
                 }
             },
             methods: {
@@ -464,6 +464,9 @@ function showPopup(header, message, options) {
             }
         }
     });
+    if (ERDS.ftue) {
+        ERDS.ftue.init();
+    }
     $(document).on('click', function (e) {
         if (!__VUE.currentDropDown)
             return;
@@ -492,6 +495,14 @@ function showPopup(header, message, options) {
                     jsonData: {
                         currentSheetName: '',
                         sheets: []
+                    }
+                },
+                computed: {
+                    modes: function () {
+                        return __VUE.hardcoded.LightStates;
+                    },
+                    audioClips: function () {
+                        return __VUE.hardcoded.AudioClips;
                     }
                 },
                 methods: {
@@ -540,6 +551,10 @@ function showPopup(header, message, options) {
                     handleSaveButton: function (e) {
                         if (this.isBusy)
                             return;
+                        if (!ERDS.isDataValid) {
+                            $$$.boxError.showBox('Fix any data issues first before saving');
+                            return;
+                        }
                         this.isBusy = true;
                         switch (e.target.innerHTML) {
                             case 'Clear': return this.clearJSON();
@@ -632,6 +647,7 @@ function showPopup(header, message, options) {
                         //Try to preserve the selection index:
                         this.currentActionItem = trySameIndex(__ACTIONS, old.__ACTIONS, this.currentActionItem);
                         this.currentLightItem = trySameIndex(__LIGHTS, old.__LIGHTS, this.currentLightItem);
+                        $(window).trigger('vue-validate');
                         return this.currentSheet = __SHEET;
                     },
                     setCurrentDropDown: function (item) {
@@ -672,6 +688,7 @@ function showPopup(header, message, options) {
             __VUE = ERDS.vue;
             __JSONDATA = __VUE.jsonData;
             __SHEETS = __JSONDATA.sheets;
+            $(window).trigger("vue-ready");
             $$$.details = $('#details');
             $$$.views = $$$.details.find('.view');
             //$$$.
@@ -748,7 +765,12 @@ function showPopup(header, message, options) {
         }
         else {
             $$$.boxInfo.showBox("Creating New Sheet...");
-            __SHEET = sheet = { name: "Sheet " + (__SHEETS.length + 1), definableValues: [], lightSequence: [], actionSequence: [] };
+            __SHEET = sheet = {
+                name: "Sheet " + (__SHEETS.length + 1),
+                definableValues: [],
+                lightSequence: [],
+                actionSequence: []
+            };
             __DEFS = __SHEET.definableValues;
             __LIGHTS = __SHEET.lightSequence;
             __ACTIONS = __SHEET.actionSequence;

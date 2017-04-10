@@ -45,6 +45,7 @@ function onProjectFetch(projectData) {
     };
     if (project.extendVue) {
         ERDS.vueConfig = _.merge(ERDS.vueConfig, project.extendVue());
+        $(window).trigger('vue-extend');
     }
     ERDS.vue = new Vue(ERDS.vueConfig);
     initializeUI();

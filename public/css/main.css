@@ -163,6 +163,15 @@ h5 {
 .nowrap {
   white-space: nowrap;
 }
+.red {
+  color: red;
+}
+.green {
+  color: green;
+}
+.blue {
+  color: blue;
+}
 .git-info {
   position: fixed;
   display: inline-block;
@@ -187,7 +196,7 @@ h5 {
   color: #f00;
   font-weight: bold;
   font-size: 120%;
-  text-shadow: 1px 0 2px #000000, -1px 0 2px #000000, 0 1px 2px #000000, 0 -1px 2px #000000;
+  text-shadow: 1px 0 2px #000, -1px 0 2px #000, 0 1px 2px #000, 0 -1px 2px #000;
 }
 .modal {
   position: fixed;

@@ -242,7 +242,7 @@ body {
   }
 }
 
-.light-sequence, .action-sequence {
+.light-sequence, .action-sequence, .ftue-sequence {
   overflow: hidden;
   
   .col-1, .col-2 {
@@ -582,6 +582,40 @@ body {
   position: absolute;
   bottom: 5px;
   right: 10px;
+}
+
+//////////////////////////////////////////////// FTUE
+
+.ftue-sequence {
+  .col-1 {
+    width: 200px;
+    text-align: right;
+  }
+}
+
+.ftue-step {
+  .round;
+  .padded-5;
+  background: rgba(0,0,0,0.2);
+  margin-bottom: 5px;
+  position: relative;
+
+  .isDuplicate {
+    color: #f00;
+    position: relative;
+
+    &::after {
+      display: block;
+      position: relative;
+      top: -40px;
+      left: 260px;
+      content: 'Must have unique ID'
+    }
+  }
+}
+
+.ftue-step:nth-child(odd) {
+  background: rgba(0, 88, 0, 0.2);
 }
 
 //////////////////////////////////////////////// MEDIA QUERIES

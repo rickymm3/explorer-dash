@@ -44,6 +44,7 @@
     <btn class="btn-sidebar" :class="{ active: view==0 }" @click="changeView(0)" label="Definable<br/>Values"></btn>
     <btn class="btn-sidebar" :class="{ active: view==1 }" @click="changeView(1)" label="Light<br/>Sequence"></btn>
     <btn class="btn-sidebar" :class="{ active: view==2 }" @click="changeView(2)" label="Action<br/>Sequence"></btn>
+    <btn class="btn-sidebar" :class="{ active: view==3 }" @click="changeView(3)" label="FTUE<br/>Sequence"></btn>
     <btn class="btn-sidebar" @click="exportSheetsPopup" label="Export<br/>Sheet(s)"></btn>
     <btn class="v-align-top btn-large" :class="[statusSaveButton.toLowerCase(), isBusy ? 'busy' : '']"
          @click="handleSaveButton($event)"
@@ -221,6 +222,120 @@
         </table>
         
     </view-tab>
+
+    <view-tab v-if="view==3" class="view ftue-sequence">
+        <h1>FTUE Sequence Timeline</h1>
+        <br/>
+        <btn icon="plus-square" label="Add Step" @click="ftue_addStep"></btn>
+
+        <div class="panel" v-if="currentSheet.ftueSequence">
+            <draggable :list="currentSheet.ftueSequence.steps">
+            <div class="ftue-step" v-for="(step, id) in currentSheet.ftueSequence.steps">
+                <btn class="padded-5 drag-handle" icon="sort" title="Sort param"></btn>
+                <btn class="padded-5" icon="trash-o" title="Delete Step" @click="ftue_removeStep(step)"></btn>
+
+                <div class="nowrap inline-block padded-3" :class="{isDuplicate: step.isNameDuplicate}">
+                    <span>Name:</span>
+                    <input class="border padded-5" v-model="step.name" @keyup="ftue_invalidate">
+                </div>
+
+                <br/>
+
+                <div class="nowrap inline-block padded-3">
+                    <span class="col-1">Light Sequence:</span>
+                    <span class="col-2">
+                        <dropdown	class_btn="light"
+                                     class_dropdown="light-list"
+                                     :label="step.lightSequence"
+                                     :list="ftue_lightNames"
+                                     :dropdown_source="currentSheet.lightSequence"
+                                     :is_selected="ftue_isLightSelected"
+                                     @selected="ftue_setCurrentLightSeq($event, step)">
+                        </dropdown>
+                    </span>
+                </div>
+
+                <div class="nowrap inline-block padded-3">
+                    <span class="col-1">Action Name:</span>
+                    <span class="col-2">
+                        <dropdown	class_btn="action"
+                                     class_dropdown="action-list"
+                                     :label="step.actionName"
+                                     :list="ftue_actionNames"
+                                     :dropdown_source="currentSheet.actionSequence"
+                                     :is_selected="ftue_isActionSelected"
+                                     @selected="ftue_setCurrentActionSeq($event, step)">
+                        </dropdown>
+                    </span>
+                </div>
+
+
+
+                <div class="nowrap padded-3">
+                    <!--<dropdown	class_btn="audio"
+                                 class_dropdown="audio-list"
+                                 icon="volume-up"
+                                 :list="audioClips"
+                                 :dropdown_source="step"
+                                 :is_selected="ftue_isAudioSelected"
+                                 @selected="ftue_setCurrentAudio($event, step)">
+                    </dropdown>-->
+
+                    <span class="col-1">Voice Name:</span>
+                    <span class="col-2">
+                        <input class="border" v-model="step.audioClipName">
+                    </span>
+
+                    <span class="col-1">Volume:</span>
+                    <span class="col-2">
+                        <input class="border digits-4" v-model.number="step.audioVolume">
+                    </span>
+                </div>
+
+                <div class="nowrap padded-3">
+                    <span class="col-1">Web Panel:</span>
+                    <span class="col-2">
+                        <input class="border" v-model="step.webPanel">
+                    </span>
+                </div>
+
+                <div class="nowrap padded-3">
+                    <span class="col-1">Next Step Ref:</span>
+                    <span class="col-2">
+                        <input class="border" v-model="step.nextStepReference">
+                    </span>
+                </div>
+
+                <div class="nowrap padded-3">
+                    <span class="col-1">Trigger Name:</span>
+                    <span class="col-2">
+                        <input class="border" v-model="step.triggerName">
+                    </span>
+                </div>
+
+                <div class="nowrap inline-border padded-3">
+                    <span class="col-1">Step Duration:</span>
+                    <span class="col-2">
+                        <input class="border digits-3" v-model="step.stepDuration">
+                    </span>
+                </div>
+
+                <div class="nowrap inline-border padded-3">
+                    <span class="col-1">Action Delay:</span>
+                    <span class="col-2">
+                        <input class="border digits-3" v-model="step.actionDelay">
+                    </span>
+                </div>
+
+            </div>
+            </draggable>
+        </div>
+
+        <!-- ERROR if no data is present -->
+        <div class="red" v-if="!currentSheet.ftueSequence">
+            Missing FTUE root node in JSON data.
+        </div>
+    </view-tab>
 </div>
 
 <div v-if="popup" class="modal" :class="popup!=null ? 'showing' : ''">
@@ -246,3 +361,5 @@
         </div>
     </div>
 </div>
+
+<script src="./aevena-vr/js/ftue.js"></script>

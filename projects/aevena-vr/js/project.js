@@ -431,10 +431,14 @@ function showPopup(header, message, options) {
             case 9:
                 isTab = true;
                 break;
-            case 67: if (ctrlOrAlt)
-                return tryFunc('onCopy', e);
-            case 86: if (ctrlOrAlt)
-                return tryFunc('onPaste', e);
+            case 67:
+                if (ctrlOrAlt)
+                    return tryFunc('onCopy', e);
+                break;
+            case 86:
+                if (ctrlOrAlt)
+                    return tryFunc('onPaste', e);
+                break;
             case ARROW_UP: return tryFunc('goUp', e);
             case ARROW_DOWN: return tryFunc('goDown', e);
             case ARROW_LEFT: return tryFunc('goLeft', e);

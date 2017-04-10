@@ -41,7 +41,6 @@ var __STEPS;
                 __STEPS.forEach(step => {
                     var lowName = step.name.toLowerCase().trim();
                     if(stepNames.has(lowName)) {
-                        trace("DUP!!!!");
                         step.isNameDuplicate = true;
                         ERDS.isDataValid = false;
                         return;
@@ -63,8 +62,6 @@ var __STEPS;
             },
 
             ftue_addStep() {
-                trace("Adding a step.");
-
                 __STEPS.push({
                     name: 'STEP_NAME',
                     audioClipName: '',

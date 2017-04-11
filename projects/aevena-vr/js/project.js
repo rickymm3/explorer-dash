@@ -206,10 +206,10 @@ function showPopup(header, message, options) {
                 convertStateToChar: function (light) {
                     switch (light.state) {
                         case "Colors": return "!";
-                        case "Off": return toIcon(":battery-0:");
-                        case "Full": return toIcon(":battery-full:");
-                        case "Half": return toIcon(":battery-2:");
-                        case "Quarter": return toIcon(":battery-1:");
+                        case "Off": return toIcon("~battery-0~");
+                        case "Full": return toIcon("~battery-full~");
+                        case "Half": return toIcon("~battery-2~");
+                        case "Quarter": return toIcon("~battery-1~");
                         case "FadeOn": return "&#x25E2;";
                         case "FadeOff": return "&#x25E3;";
                     }
@@ -879,7 +879,7 @@ function showPopup(header, message, options) {
         return dup;
     }
     function loadNavBarMenu() {
-        addMenu("\n\t\t\t<div class=\"menu\">\n\t\t\t\t<i title=\"Tools\">\n\t\t\t\t\t<i title=\"Convert LEDs to 12\" onclick=\"convertLEDs(12)\"></i>\n\t\t\t\t</i>\n\t\t\t</div>\n\t\t");
+        addMenu("\n\t\t\t<div class=\"menu\">\n\t\t\t\t<i title=\"Tools\">\n\t\t\t\t\t<i title=\"Convert LEDs to 12\" onclick=\"convertLEDs(12)\"></i>\n\t\t\t\t\t<i title=\"Convert LEDs to 8\" onclick=\"convertLEDs(8)\"></i>\n\t\t\t\t</i>\n\t\t\t</div>\n\t\t");
     }
 })(ERDS);
 function globalAddLight(lights, dontFocus) {
@@ -917,7 +917,10 @@ function globalAddLightState(lights) {
     lights.push({ state: 'Full', color: '#fff' });
 }
 function convertLEDs(newCount) {
-    showPopup("Convert LEDs", "Are you sure you want to convert to 12 LEDs?", {
+    if (newCount == __JSONDATA.numOfLights) {
+        return $$$.boxError.showBox("~lightbulb-o fa-2x v-align-mid~ - Already set to " + newCount + " lights!");
+    }
+    showPopup("Convert LEDs", "Are you sure you want to convert to " + newCount + " LEDs?", {
         ok: function (options) {
             __JSONDATA.numOfLights = newCount;
             __SHEETS.forEach(function (sheet) { return forEachLightSeq(sheet.lightSequence); });

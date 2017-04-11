@@ -113,14 +113,15 @@ p.toPath = function() {
 	};
 })();
 
-var regexEmoji = /:([a-z0-9\-\_]*):/gi;
+var regexEmoji = /:([a-z0-9\-\_ ]*):/gi;
+var regexIcon = /\~([a-z0-9\-\_ ]*)\~/gi;
 
 function toEmoji(str) {
 	return str.replace(regexEmoji, '<i class="em em-$1"></i>');
 }
 
 function toIcon(str) {
-	return str.replace(regexEmoji, '<i class="fa fa-$1"></i>')
+	return str.replace(regexIcon, '<i class="fa fa-$1"></i>')
 }
 
 p.camelToTitleCase = function() {

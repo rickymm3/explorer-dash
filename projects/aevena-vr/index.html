@@ -248,7 +248,7 @@
                                      class_dropdown="light-list"
                                      :label="step.lightSequence"
                                      :list="ftue_lightNames"
-                                     :dropdown_source="currentSheet.lightSequence"
+                                     :dropdown_source="id + 'light'"
                                      :is_selected="ftue_isLightSelected"
                                      @selected="ftue_setCurrentLightSeq($event, step)">
                         </dropdown>
@@ -262,7 +262,7 @@
                                      class_dropdown="action-list"
                                      :label="step.actionName"
                                      :list="ftue_actionNames"
-                                     :dropdown_source="currentSheet.actionSequence"
+                                     :dropdown_source="id + 'action'"
                                      :is_selected="ftue_isActionSelected"
                                      @selected="ftue_setCurrentActionSeq($event, step)">
                         </dropdown>

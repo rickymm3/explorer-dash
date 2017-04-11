@@ -81,7 +81,7 @@ function showPopup(header, message, options) {
                 label: { type: String, "default": '' },
                 icon: { "default": "caret-down" },
                 is_selected: { type: Function, "default": function () { return false; } },
-                dropdown_source: [Object, Array],
+                dropdown_source: [Object, Array, String],
                 class_dropdown: { type: String, "default": "default-dropdown" },
                 class_btn: { type: String, "default": "default-btn" }
             },

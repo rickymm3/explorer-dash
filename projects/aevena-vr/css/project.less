@@ -410,34 +410,17 @@ body {
   }
 
   .center { background: #f0f; }
-
-  .bulb-0 {left: 0; top: -@radius;}
-  .bulb-1 {left: @radiusSmall; top: -@radiusSmall;}
-  .bulb-2 {left: @radius; top: 0;}
-  .bulb-3 {left: @radiusSmall; top: @radiusSmall;}
-  .bulb-4 {left: 0; top: @radius;}
-  .bulb-5 {left: -@radiusSmall; top: @radiusSmall;}
-  .bulb-6 {left: -@radius; top: 0;}
-  .bulb-7 {left: -@radiusSmall; top: -@radiusSmall;}
 }
 
 .strip-light {
   @sizeBulb: @lightSize / 10 * 2;
   @spaceBulb: @sizeBulb * 1.1;
+
   .bulb {
     width:@sizeBulb;
     height:@sizeBulb / 1.2;
     border-radius: @sizeBulb/6;
   }
-
-  .bulb-0 { left: @spaceBulb * -4; top: 0; }
-  .bulb-1 { left: @spaceBulb * -3; top: 0; }
-  .bulb-2 { left: @spaceBulb * -2; top: 0; }
-  .bulb-3 { left: @spaceBulb * -1; top: 0; }
-  .bulb-4 { left: @spaceBulb * 0; top: 0; }
-  .bulb-5 { left: @spaceBulb * 1; top: 0; }
-  .bulb-6 { left: @spaceBulb * 2; top: 0; }
-  .bulb-7 { left: @spaceBulb * 3; top: 0; }
 }
 
 .steps {

@@ -192,6 +192,13 @@ function showPopup(header, message, options) {
 					return this.steps[this.currentStepID];
 				},
 
+				currentLights() {
+					var step = this.currentStep;
+					var _this = this;
+					__VUE.$nextTick(() => _this.updateLayout());
+					return step.lights;
+				},
+
 				isFocusColors() {
 					return this.currentFocus=="Colors";
 				},
@@ -214,6 +221,38 @@ function showPopup(header, message, options) {
 			},
 
 			methods: {
+
+				updateLayout() {
+					var $bulbs = $(this.$el).find('.bulb');
+					var $bulb = $($bulbs[0]);
+					var len = $bulbs.length;
+
+					var isRing = this.class_lightcomp.has('ring');
+
+					if(isRing) {
+						var offset = 90 * (Math.PI / 180);
+						var angleSteps = (360 / len) * (Math.PI / 180);
+						var amplitude = 50 + ((len-8) * 5);
+
+						$bulbs.each((id, bulb) => {
+							var angle = -offset + (id * angleSteps);
+							var posX = Math.cos(angle) * amplitude;
+							var posY = Math.sin(angle) * amplitude;
+
+							TweenMax.set(bulb, {x:posX, y:posY});
+						});
+					} else {
+						var stepWidth = $bulb.width() + 5;
+						var fullWidth = len * stepWidth;
+						var halfWidth = fullWidth * 0.5;
+						trace(stepWidth);
+
+						$bulbs.each((id, bulb) => {
+							var posX = -halfWidth + id * stepWidth;
+							TweenMax.set(bulb, {x:posX});
+						});
+					}
+				},
 
 				addStep() {
 					this.steps.push( globalAddLightStep() );
@@ -564,7 +603,7 @@ function showPopup(header, message, options) {
 			
 					<!-- Draw Actual Component -->
 					<div class="center">
-						<i v-for="(light, id) in currentStep.lights" ref="lights"
+						<i v-for="(light, id) in currentLights" ref="lights"
 						   :class="['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]"
 						   :style="{backgroundColor: light.color}"
 						   @mouseover="onHoverBulb(light)"
@@ -711,6 +750,7 @@ function showPopup(header, message, options) {
 					hardcoded: {},
 					jsonData: {
 						currentSheetName: '',
+						numOfLights: 8,
 						sheets: []
 					}
 				},
@@ -890,7 +930,27 @@ function showPopup(header, message, options) {
 						__LIGHTS = __SHEET.lightSequence;
 						__ACTIONS = __SHEET.actionSequence;
 						__JSONDATA.currentSheetName = __SHEET.name;
+						if(!__JSONDATA.numOfLights) {
 
+							(function setDefaultNumOfLights() {
+								function setDefaultLights() {
+									__JSONDATA.numOfLights = 8;
+								}
+
+								if(!__LIGHTS || !__LIGHTS.length) return setDefaultLights();
+
+								var seq = __LIGHTS[0];
+								var steps = seq.ringSteps;
+								if(!steps || !steps.length) return setDefaultLights();
+
+								var step = steps[0];
+								var lights = step.lights;
+								if(!lights || !lights.length) return setDefaultLights();
+
+								trace("Setting numOfLights according to lightSequence[0].ringSteps[0].lights");
+								__JSONDATA.numOfLights = lights.length;
+							})();
+						}
 						//Try to preserve the selection index:
 						this.currentActionItem = trySameIndex(__ACTIONS, old.__ACTIONS, this.currentActionItem);
 						this.currentLightItem = trySameIndex(__LIGHTS, old.__LIGHTS, this.currentLightItem);
@@ -978,23 +1038,28 @@ function showPopup(header, message, options) {
 				__VUE.isBusy = status;
 			});
 
-			ERDS.__media = ERDS.projectName + '/media/';
-
-			$.ajax({
-				url: ERDS.__media + 'audiosprite.json',
-				success(json) {
-					if(!json) return;
-					json.src = json.src.map(file => ERDS.__media + file);
-					ERDS.audiosprite = new Howl(json);
-				},
-				error(err) {
-					$$$.boxError.showBox("Failed to load AudioSprite! :cry: :mute:");
-				}
-			});
+			loadSounds();
+			loadNavBarMenu();
 			
 			__VUE.$forceUpdate();
 		}
 	});
+
+	function loadSounds() {
+		ERDS.__media = ERDS.projectName + '/media/';
+
+		$.ajax({
+			url: ERDS.__media + 'audiosprite.json',
+			success(json) {
+				if(!json) return;
+				json.src = json.src.map(file => ERDS.__media + file);
+				ERDS.audiosprite = new Howl(json);
+			},
+			error(err) {
+				$$$.boxError.showBox("Failed to load AudioSprite! :cry: :mute:");
+			}
+		});
+	}
 	
 	function trySameIndex(arrNew, arrOld, itemOld) {
 		var first = arrNew[0];
@@ -1070,27 +1135,6 @@ function showPopup(header, message, options) {
 		return sheet;
 	}
 	
-	function globalAddLight() {
-		__LIGHTS.push({
-			type: 'light-item',
-			name: 'Light ' + (__LIGHTS.length+1),
-
-			ringSeqLooping: false,
-			ringSeqHoldLast: false,
-			ringSteps: [
-				globalAddLightStep()
-			],
-
-			stripSeqLooping: false,
-			stripSeqHoldLast: false,
-			stripSteps: [
-				globalAddLightStep()
-			],
-		});
-
-		__VUE.currentLightItem = __LIGHTS.last();
-	}
-	
 	function globalAddAction() {
 		__ACTIONS.push({
 			type: 'action-item',
@@ -1120,25 +1164,6 @@ function showPopup(header, message, options) {
 		//__VUE.currentActionItem
 	}
 
-	function globalAddLightStep() {
-		return {
-			type: 'light-step',
-			time: 1,
-			audioClipName: "Off",
-			audioVolume: 1.0,
-			lights: [
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-			]
-		}
-	}
-
 	function removeItem(item, list, vueProperty) {
 		if(item) return list.remove(item);
 		if(!__VUE[vueProperty]) {
@@ -1157,12 +1182,83 @@ function showPopup(header, message, options) {
 		return dup;
 	}
 
-	function stopEvent(e) {
-		if(!e) return;
-		e.preventDefault();
-		e.stopImmediatePropagation();
-		e.stopPropagation();
+	function loadNavBarMenu() {
+		addMenu(`
+			<div class="menu">
+				<i title="Tools">
+					<i title="Convert LEDs to 12" onclick="convertLEDs(12)"></i>
+				</i>
+			</div>
+		`);
 	}
 	
 })(ERDS);
+
+function globalAddLight(lights, dontFocus=false) {
+	if(!lights) lights = __LIGHTS;
+
+	lights.push({
+		type: 'light-item',
+		name: 'Light ' + (lights.length+1),
+
+		ringSeqLooping: false,
+		ringSeqHoldLast: false,
+		ringSteps: [
+			globalAddLightStep()
+		],
+
+		stripSeqLooping: false,
+		stripSeqHoldLast: false,
+		stripSteps: [
+			globalAddLightStep()
+		],
+	});
+
+	if(dontFocus) return;
+
+	__VUE.currentLightItem = __LIGHTS.last();
+}
+
+function globalAddLightStep() {
+	return {
+		type: 'light-step',
+		time: 1,
+		audioClipName: "Off",
+		audioVolume: 1.0,
+		lights: _.jsonClone({state: 'Full', color: '#fff'}, __JSONDATA.numOfLights)
+	}
+}
+
+function globalAddLightState(lights) {
+	lights.push({state: 'Full', color: '#fff'});
+}
+
+function convertLEDs(newCount) {
+	showPopup("Convert LEDs", "Are you sure you want to convert to 12 LEDs?", {
+		ok(options) {
+			__JSONDATA.numOfLights = newCount;
+			__SHEETS.forEach( sheet => forEachLightSeq(sheet.lightSequence) );
+			__VUE.$forceUpdate();
+		}
+	});
+
+	function forEachLightSeq( lightSequence ) {
+		lightSequence.forEach( seq => {
+			seq.ringSteps.forEach( forEachLightSteps );
+			seq.stripSteps.forEach( forEachLightSteps );
+		});
+	}
+
+	function forEachLightSteps( step ) {
+		if(!step.lights) step.lights = [];
+
+		while(step.lights.length>newCount) {
+			step.lights.pop();
+		}
+
+		while(step.lights.length<newCount) {
+			globalAddLightState(step.lights);
+		}
+	}
+}
 

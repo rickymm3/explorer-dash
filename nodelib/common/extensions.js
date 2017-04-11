@@ -150,8 +150,15 @@ _.mapRename = function(obj, filter) {
 	return newObj;
 };
 
-_.jsonClone = function(data) {
-	return JSON.parse(JSON.stringify(data));
+_.jsonClone = function(data, times) {
+	var str = JSON.stringify(data);
+	if(times==null) return JSON.parse(str);
+	var results = [];
+	while(--times>=0) {
+		results.push(JSON.parse(str));
+	}
+
+	return results;
 };
 
 _.jsonPretty = function(obj, indent) {

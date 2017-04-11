@@ -172,6 +172,31 @@ h5 {
 .blue {
   color: blue;
 }
+.menu {
+  display: inline-block;
+  color: #fff;
+  font-size: 110%;
+  text-shadow: rgba(255, 255, 255, 0.8) 1px 1px 1px;
+}
+.menu i {
+  display: inline-block;
+  background: #222;
+  z-index: 9999;
+}
+.menu i i {
+  position: absolute;
+  display: block;
+  display: none;
+}
+.menu span {
+  display: inline-block;
+  padding: 15px;
+  position: relative;
+  cursor: pointer;
+}
+.menu span:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
 .git-info {
   position: fixed;
   display: inline-block;

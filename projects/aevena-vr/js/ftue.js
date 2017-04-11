@@ -1,10 +1,6 @@
-/**
- * Created by Chamberlain on 10/04/2017.
- */
 var __STEPS;
 (function (ERDS) {
-    var win = $(window);
-    win.on('vue-extend', function () {
+    $$$.on('vue-extend', function () {
         var vueData = ERDS.vueConfig.data;
         var vueComputed = ERDS.vueConfig.computed;
         var vueMethods = ERDS.vueConfig.methods;
@@ -24,12 +20,14 @@ var __STEPS;
                 this.ftue_validateSteps();
             },
             ftue_validateSteps: function () {
-                var stepNames = [];
                 ERDS.isDataValid = true;
+                if (!__STEPS || !__STEPS.length) {
+                    return __VUE.$forceUpdate();
+                }
+                var stepNames = [];
                 __STEPS.forEach(function (step) {
                     var lowName = step.name.toLowerCase().trim();
                     if (stepNames.has(lowName)) {
-                        trace("DUP!!!!");
                         step.isNameDuplicate = true;
                         ERDS.isDataValid = false;
                         return;
@@ -37,15 +35,13 @@ var __STEPS;
                     step.isNameDuplicate = false;
                     stepNames.push(lowName);
                 });
-                trace("stepNames: " + stepNames);
                 __VUE.$forceUpdate();
             },
             ftue_removeStep: function (step) {
                 __STEPS.remove(step);
-                __VUE.$forceUpdate();
+                this.ftue_validateSteps();
             },
             ftue_addStep: function () {
-                trace("Adding a step.");
                 __STEPS.push({
                     name: 'STEP_NAME',
                     audioClipName: '',
@@ -58,7 +54,6 @@ var __STEPS;
                     actionDelay: 0
                 });
                 this.ftue_validateSteps();
-                __VUE.$forceUpdate();
             },
             ftue_isLightSelected: function (item) {
                 return this.ftue_currentStep.lightSequence == item.name;
@@ -78,7 +73,7 @@ var __STEPS;
             }
         });
     });
-    win.on('vue-validate', function () {
+    $$$.on('vue-validate', function () {
         if (!__SHEET.ftueSequence)
             __SHEET.ftueSequence = { steps: [] };
         if (!__SHEET.ftueSequence.steps)
@@ -88,8 +83,9 @@ var __STEPS;
         if (__STEPS.length > 0) {
             __VUE.ftue_currentStep = __STEPS[0];
         }
+        __VUE.ftue_invalidate();
     });
-    win.on('vue-ready', function () {
+    $$$.on('vue-ready', function () {
         trace("vue-ready: FTUE");
     });
 })(ERDS);

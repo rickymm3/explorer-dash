@@ -1,10 +1,10 @@
-declare var ERDS, Howl, Vue, trace, traceError, io, $, _, TweenMax, Back, Cookies;
+declare var ERDS, window, Howl, Vue, trace, traceError, io, $, _, TweenMax, Back, Cookies;
 
-var $$$:any = {};
+var $$$:any = $(window);
 
 ERDS.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
 
-window.addEventListener('load', function() {
+$$$.on('load', function() {
 	//Vue.config.debug = true;
 	Cookies._prefix = "erds.web.";
 
@@ -80,7 +80,7 @@ function initializeUI() {
 		ERDS.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
 	}, 50);
 
-	window.addEventListener('mousedown', function() {
+	$$$.on('mousedown', function() {
 		$$$.boxes.forEach(box => {
 			if(!box.is(":visible")) return;
 			
@@ -141,7 +141,7 @@ function initializeUI() {
 	}
 	
 	function _hasOtherBoxesPresent(boxThis) {
-		for(var b=$$$.boxes.length; --b>=0;) {
+		for(var b = $$$.boxes.length; --b>=0;) {
 			var box = $$$.boxes[b];
 			if(box==boxThis) continue;
 			if(box.is(':visible')) return true;

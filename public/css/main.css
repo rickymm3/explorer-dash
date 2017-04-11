@@ -181,12 +181,15 @@ h5 {
 .menu i {
   display: inline-block;
   background: #222;
-  z-index: 9999;
 }
-.menu i i {
+.menu i div {
+  z-index: 9999;
   position: absolute;
   display: block;
   display: none;
+}
+.menu i div i {
+  display: block;
 }
 .menu span {
   display: inline-block;

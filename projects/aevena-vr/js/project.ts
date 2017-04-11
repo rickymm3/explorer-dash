@@ -276,10 +276,10 @@ function showPopup(header, message, options) {
 				convertStateToChar(light) {
 					switch(light.state) {
 						case "Colors": return "!";
-						case "Off": return toIcon(":battery-0:");
-						case "Full": return toIcon(":battery-full:");
-						case "Half": return toIcon(":battery-2:");
-						case "Quarter": return toIcon(":battery-1:");
+						case "Off": return toIcon("~battery-0~");
+						case "Full": return toIcon("~battery-full~");
+						case "Half": return toIcon("~battery-2~");
+						case "Quarter": return toIcon("~battery-1~");
 						case "FadeOn": return "&#x25E2;";
 						case "FadeOff": return "&#x25E3;";
 					}
@@ -1187,6 +1187,7 @@ function showPopup(header, message, options) {
 			<div class="menu">
 				<i title="Tools">
 					<i title="Convert LEDs to 12" onclick="convertLEDs(12)"></i>
+					<i title="Convert LEDs to 8" onclick="convertLEDs(8)"></i>
 				</i>
 			</div>
 		`);
@@ -1234,7 +1235,11 @@ function globalAddLightState(lights) {
 }
 
 function convertLEDs(newCount) {
-	showPopup("Convert LEDs", "Are you sure you want to convert to 12 LEDs?", {
+	if(newCount==__JSONDATA.numOfLights) {
+		return $$$.boxError.showBox(`~lightbulb-o fa-2x v-align-mid~ - Already set to ${newCount} lights!`);
+	}
+
+	showPopup("Convert LEDs", `Are you sure you want to convert to ${newCount} LEDs?`, {
 		ok(options) {
 			__JSONDATA.numOfLights = newCount;
 			__SHEETS.forEach( sheet => forEachLightSeq(sheet.lightSequence) );

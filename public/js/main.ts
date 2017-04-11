@@ -86,24 +86,30 @@ function addMenu( fragment ) {
 	var menuItems = fragment.find('i[title]');
 	menuItems.each((id, item) => {
 		var $item = $(item);
+		var $div = $('<div class="menu-container"></div>');
+
 		var $kids = $item.find('i');
+
+		$div.append($kids);
 
 		$kids.addClass('menu-item');
 		if(!$kids.length) $item.addClass('leaf-item');
 
 		var $span = $('<span>'+$item.attr('title')+'</span>');
+		$item.prepend($div);
 		$item.prepend($span);
+
 
 		$span.click((e) => {
 			if($item.hasClass('leaf-item')) return;
 			stopEvent(e);
-			$kids.show();
+			$div.show();
 		});
 
 	});
 
 	$$$.on('click', () => {
-		$('.menu-item').hide();
+		$('.menu-container').hide();
 	});
 
 	addNav(fragment);
@@ -158,7 +164,7 @@ function initializeUI() {
 			var obj = String(_this._queueObj.shift().obj);
 			
 			//Replace with Emojis? Why not!
-			obj = toEmoji(obj);
+			obj = toIcon(toEmoji(obj));
 			
 			function notBusy() {
 				_this._queueBusy = false;

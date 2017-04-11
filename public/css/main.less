@@ -91,6 +91,36 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
 .green { color: green; }
 .blue { color: blue; }
 
+.menu {
+  //.v-align-mid;
+  display: inline-block;
+  color: #fff;
+  font-size: 110%;
+  .shadowy;
+  i {
+    .inline-block;
+    background: #222;
+    z-index: 9999;
+    i {
+      position: absolute;
+      display: block;
+      .hidden;
+    }
+  }
+
+  span {
+    .inline-block;
+    padding: 15px;
+    position: relative;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+  }
+  //span { .hidden; }
+}
 /////////////////////////////////////// CLASSES for EVERYTHING ELSE!
 
 .git-info {

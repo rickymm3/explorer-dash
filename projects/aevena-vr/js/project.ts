@@ -112,47 +112,69 @@ function showPopup(header, message, options) {
 		'dropdown': {
 			props: {
 				list: Array,
+				nolabel: {type: Boolean},
+				target: {type: Object},
+				property: {type: String},
 				label: { type: String, default: '' },
 				icon: { default: "caret-down" },
-				is_selected: { type: Function, default() { return false; } },
+				//is_selected: { type: Function, default() { return false; } },
 				dropdown_source: [Object,Array,String],
 				class_dropdown: { type: String, default: "default-dropdown" },
 				class_btn: { type: String, default: "default-btn" }
 			},
 			computed: {
-				currentDropDown() { return __VUE ? __VUE.currentDropDown : null; }
+				currentValue() {
+					return this.target==null || this.property==null ? null : this.target[this.property];
+				},
+				currentDropDown() {
+					return __VUE ? __VUE.currentDropDown : null;
+				}
 			},
 			methods: {
 				isSelected(item) {
-					return this.is_selected && this.is_selected(item);
+					return this.currentValue == item.name;
 				},
+
 				onButtonClick(e) {
 					__VUE.setCurrentDropDown(this.dropdown_source);
 					this.$emit('dropdown', e);
 				},
+
 				onSelectionClick(e) {
+					var $e = $(e.target);
+					var $value = $e.data('value');
+					var $index = $e.data('index');
 					this.$emit('click', e);
-					var id = parseInt($(e.target).data('index'));
-					id = isNaN(id) ? -1 : id;
-					if(id==-1) return;
-					this.$emit('selected', this.list[id] );
+					this.target[this.property] = $value;
+
+					// //Select ID:
+					// var id = parseInt($index);
+					// id = isNaN(id) ? -1 : id;
+					// if(id==-1) return;
+					// this.$emit('selected', this.list[id] );
+				},
+
+				onMouseDown(e){
+					stopEvent(e);
 				}
 			},
-			template: //!!!
+			template:
 				`<span class="dropdown">
-					<btn class="padded-5"
+					<btn @click="onButtonClick($event)"
+						 class="padded-5"
 						 :class="class_btn"
-						 @click="onButtonClick($event)"
 						 :icon="icon"
-						 :label="label">
+						 :label="nolabel ? '' : currentValue">
 					</btn>
 					<div :class="class_dropdown"
 						class="dropdown-list"
 						 v-if="currentDropDown==dropdown_source"
+						 @mousedown="onMouseDown($event)"
 						 @click="onSelectionClick($event)">
 						<div v-for="(item, id) in list"
 							v-html="item.name"
-							:class="{isSelected: is_selected(item)}"
+							:class="{isSelected: isSelected(item)}"
+							:data-value="item.name"
 							:data-index="id"></div>
 					</div>
 				</span>`
@@ -545,20 +567,18 @@ function showPopup(header, message, options) {
 				<div class="light-comp" v-if="currentStep" :class="class_lightcomp">
 					<i class="nowrap">
 						<btn class="padded-5" label="Apply All" @click="applyAll"></btn>
-			
+						
 						<dropdown	class_btn="color-names"
 									 class_dropdown="step-modes"
 									 icon="paint-brush"
+									 property="currentFocus"
+									 :target="this"
 									 :list="modes"
-									 :dropdown_source="currentStep"
-									 :is_selected="isCurrentMode"
-									 @selected="setCurrentFocus($event)">
+									 :dropdown_source="currentStep">
 						</dropdown>
 			
-						<i class="padded-5">
-							<i v-if="isFocusColors">
-								<i>Color:</i>
-								
+						<i class="padded-5 v-align-mid">
+							<i v-if="isFocusColors" class="v-align-mid">
 								<input class="color-picker" v-model="currentColor" 
 									:style="{backgroundColor: currentColor}">
 								
@@ -572,20 +592,19 @@ function showPopup(header, message, options) {
 									   
 								</div>
 							</i>
-							
-							<i v-if="!isFocusColors">Painting: "{{currentFocus}}"</i>
 						</i>
 					</i>
 			
 					<br/>
-			
+					
 					<dropdown	class_btn="audio"
 								 class_dropdown="audio-list"
 								 icon="volume-up"
+								 :nolabel="true"
+								 property="audioClipName"
+								 :target="currentStep"
 								 :list="audioClips"
-								 :dropdown_source="steps"
-								 :is_selected="isAudioSelected"
-								 @selected="setCurrentAudio($event)">
+								 :dropdown_source="steps">
 					</dropdown>
 			
 					<i v-if="currentStep.audioClipName!='Off'">
@@ -962,15 +981,6 @@ function showPopup(header, message, options) {
 					
 					setCurrentDropDown(item) {
 						this.currentDropDown = item;
-					},
-
-					selectActionType(actionParam, e) {
-						actionParam.type = e.name;
-					},
-
-					useSuggestedName(light, e, list, prefix) {
-						if(!prefix) prefix = "";
-						light.name = prefix + e.name;
 					},
 
 					showPopup(header, message, options) {

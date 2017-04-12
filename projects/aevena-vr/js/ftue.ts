@@ -33,7 +33,7 @@ var __STEPS;
             },
 
             ftue_nextStepRefNames() {
-                return [{name: 'none'}].concat(__STEPS);
+                return [{name: 'none'}].concat(__SHEET.ftueSequence.steps);
             },
         });
 
@@ -88,15 +88,19 @@ var __STEPS;
             },
 
             ftue_addStep() {
+                function getFirst(arr) {
+                    return arr[0].name;
+                }
+
                 __STEPS.push({
                     name: 'STEP_NAME ' + __STEPS.length,
                     audioClipName: '',
                     audioVolume: 1.0,
-                    lightSequence:  this.ftue_lightNames[0].name,
-                    actionName: this.ftue_actionNames[0].name,
-                    webPanel: this.ftue_webPanels[0].name,
-                    triggerName: this.ftue_triggerNames[0].name,
-                    nextStepReference: this.ftue_nextStepRefNames[0].name,
+                    lightSequence:  getFirst(this.ftue_lightNames),
+                    actionName: getFirst(this.ftue_actionNames),
+                    webPanel: getFirst(this.ftue_webPanels),
+                    triggerName: getFirst(this.ftue_triggerNames),
+                    nextStepReference: getFirst(this.ftue_nextStepRefNames),
                     stepDuration: '',
                     actionDelay: 0
                 });

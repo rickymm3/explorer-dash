@@ -14,8 +14,8 @@ body {
 
 
 .header {
+  .user-select();
   white-space: nowrap;
-  user-select: none;
   margin-bottom: 5px;
 }
 
@@ -116,7 +116,7 @@ body {
   right: 0px;
   padding: 5px;
   min-height: 30px;
-  margin-bottom: 100px;
+  margin-bottom: 300px;
   .round();
   background: rgba(255, 255, 255, 0.5);
 }
@@ -303,7 +303,9 @@ body {
 
 .action-header {
   display: inline-block;
-  i { display: inline-block; width: 100px; margin-right: 3px; text-align: right; }
+  .v-align-mid;
+  .padded-5;
+  i { display: inline-block; margin-right: 3px; text-align: right; }
 }
 
 .action-param {
@@ -569,19 +571,13 @@ body {
 
 //////////////////////////////////////////////// FTUE
 
-.ftue-sequence {
-  .col-1 {
-    width: 200px;
-    text-align: right;
-  }
-}
 
 .ftue-step {
   .round;
   .padded-5;
   background: rgba(0,0,0,0.2);
   margin-bottom: 5px;
-  position: relative;
+  //position: relative;
 
   .isDuplicate {
     color: #f00;
@@ -595,6 +591,17 @@ body {
       content: 'Must have unique ID'
     }
   }
+
+  .col-1, .col-2 {
+    .v-align-top;
+    .inline-block;
+    margin: 0;
+  }
+  .col-1 {
+    .padded-5;
+    width: 110px;
+    text-align: right;
+  }
 }
 
 .ftue-step:nth-child(odd) {
@@ -602,7 +609,8 @@ body {
 }
 
 .ftue-dropdown {
-  max-width: 400px;
+  column-count: 1;
+  max-width: 210px;
 }
 
 .long-lists {

@@ -78,35 +78,49 @@ function showPopup(header, message, options) {
         'dropdown': {
             props: {
                 list: Array,
+                nolabel: { type: Boolean },
+                target: { type: Object },
+                property: { type: String },
                 label: { type: String, "default": '' },
                 icon: { "default": "caret-down" },
-                is_selected: { type: Function, "default": function () { return false; } },
+                //is_selected: { type: Function, default() { return false; } },
                 dropdown_source: [Object, Array, String],
                 class_dropdown: { type: String, "default": "default-dropdown" },
                 class_btn: { type: String, "default": "default-btn" }
             },
             computed: {
-                currentDropDown: function () { return __VUE ? __VUE.currentDropDown : null; }
+                currentValue: function () {
+                    return this.target == null || this.property == null ? null : this.target[this.property];
+                },
+                currentDropDown: function () {
+                    return __VUE ? __VUE.currentDropDown : null;
+                }
             },
             methods: {
                 isSelected: function (item) {
-                    return this.is_selected && this.is_selected(item);
+                    return this.currentValue == item.name;
                 },
                 onButtonClick: function (e) {
                     __VUE.setCurrentDropDown(this.dropdown_source);
                     this.$emit('dropdown', e);
                 },
                 onSelectionClick: function (e) {
+                    var $e = $(e.target);
+                    var $value = $e.data('value');
+                    var $index = $e.data('index');
                     this.$emit('click', e);
-                    var id = parseInt($(e.target).data('index'));
-                    id = isNaN(id) ? -1 : id;
-                    if (id == -1)
-                        return;
-                    this.$emit('selected', this.list[id]);
+                    this.target[this.property] = $value;
+                    // //Select ID:
+                    // var id = parseInt($index);
+                    // id = isNaN(id) ? -1 : id;
+                    // if(id==-1) return;
+                    // this.$emit('selected', this.list[id] );
+                },
+                onMouseDown: function (e) {
+                    stopEvent(e);
                 }
             },
-            template: //!!!
-            "<span class=\"dropdown\">\n\t\t\t\t\t<btn class=\"padded-5\"\n\t\t\t\t\t\t :class=\"class_btn\"\n\t\t\t\t\t\t @click=\"onButtonClick($event)\"\n\t\t\t\t\t\t :icon=\"icon\"\n\t\t\t\t\t\t :label=\"label\">\n\t\t\t\t\t</btn>\n\t\t\t\t\t<div :class=\"class_dropdown\"\n\t\t\t\t\t\tclass=\"dropdown-list\"\n\t\t\t\t\t\t v-if=\"currentDropDown==dropdown_source\"\n\t\t\t\t\t\t @click=\"onSelectionClick($event)\">\n\t\t\t\t\t\t<div v-for=\"(item, id) in list\"\n\t\t\t\t\t\t\tv-html=\"item.name\"\n\t\t\t\t\t\t\t:class=\"{isSelected: is_selected(item)}\"\n\t\t\t\t\t\t\t:data-index=\"id\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</span>"
+            template: "<span class=\"dropdown\">\n\t\t\t\t\t<btn @click=\"onButtonClick($event)\"\n\t\t\t\t\t\t class=\"padded-5\"\n\t\t\t\t\t\t :class=\"class_btn\"\n\t\t\t\t\t\t :icon=\"icon\"\n\t\t\t\t\t\t :label=\"nolabel ? '' : currentValue\">\n\t\t\t\t\t</btn>\n\t\t\t\t\t<div :class=\"class_dropdown\"\n\t\t\t\t\t\tclass=\"dropdown-list\"\n\t\t\t\t\t\t v-if=\"currentDropDown==dropdown_source\"\n\t\t\t\t\t\t @mousedown=\"onMouseDown($event)\"\n\t\t\t\t\t\t @click=\"onSelectionClick($event)\">\n\t\t\t\t\t\t<div v-for=\"(item, id) in list\"\n\t\t\t\t\t\t\tv-html=\"item.name\"\n\t\t\t\t\t\t\t:class=\"{isSelected: isSelected(item)}\"\n\t\t\t\t\t\t\t:data-value=\"item.name\"\n\t\t\t\t\t\t\t:data-index=\"id\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</span>"
         },
         'light-comp': {
             props: [
@@ -423,7 +437,7 @@ function showPopup(header, message, options) {
                     twn.play();
                 }
             },
-            template: "\n\t\t\t<div class=\"padded-3 subpanel\" @mousedown.capture=\"setNav()\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\t\t\t\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" value=\"loops\" v-model=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" value=\"holds\" v-model=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\" @click=\"playSequence($event)\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\t\t\t\n\t\t\t\t<br/>\n\t\t\t\n\t\t\t\t<div class=\"light-comp missing bg-disabled\" v-if=\"!currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\tNo Sequence Data Found!\n\t\t\t\t</div>\n\t\t\t\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<btn class=\"padded-5\" label=\"Apply All\" @click=\"applyAll\"></btn>\n\t\t\t\n\t\t\t\t\t\t<dropdown\tclass_btn=\"color-names\"\n\t\t\t\t\t\t\t\t\t class_dropdown=\"step-modes\"\n\t\t\t\t\t\t\t\t\t icon=\"paint-brush\"\n\t\t\t\t\t\t\t\t\t :list=\"modes\"\n\t\t\t\t\t\t\t\t\t :dropdown_source=\"currentStep\"\n\t\t\t\t\t\t\t\t\t :is_selected=\"isCurrentMode\"\n\t\t\t\t\t\t\t\t\t @selected=\"setCurrentFocus($event)\">\n\t\t\t\t\t\t</dropdown>\n\t\t\t\n\t\t\t\t\t\t<i class=\"padded-5\">\n\t\t\t\t\t\t\t<i v-if=\"isFocusColors\">\n\t\t\t\t\t\t\t\t<i>Color:</i>\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t<input class=\"color-picker\" v-model=\"currentColor\" \n\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\">\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t<div class=\"color-cells\">\n\t\t\t\t\t\t\t\t\t<i v-for=\"(clr, id) in colors\" ref=\"colorpallette\">\n\t\t\t\t\t\t\t\t\t\t<span @click=\"currentColor = clr.name\" class=\"cell\" :style=\"{backgroundColor: clr.name}\">\n\t\t\t\t\t\t\t\t\t    </span>\n\t\t\t\t\t\t\t\t\t\t<br v-if=\"(id == 5)\" />\n\t\t\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t   \n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t<i v-if=\"!isFocusColors\">Painting: \"{{currentFocus}}\"</i>\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t<br/>\n\t\t\t\n\t\t\t\t\t<dropdown\tclass_btn=\"audio\"\n\t\t\t\t\t\t\t\t class_dropdown=\"audio-list\"\n\t\t\t\t\t\t\t\t icon=\"volume-up\"\n\t\t\t\t\t\t\t\t :list=\"audioClips\"\n\t\t\t\t\t\t\t\t :dropdown_source=\"steps\"\n\t\t\t\t\t\t\t\t :is_selected=\"isAudioSelected\"\n\t\t\t\t\t\t\t\t @selected=\"setCurrentAudio($event)\">\n\t\t\t\t\t</dropdown>\n\t\t\t\n\t\t\t\t\t<i v-if=\"currentStep.audioClipName!='Off'\">\n\t\t\t\t\t\t<input class=\"padded-2 audio-name\" v-model:value=\"currentStep.audioClipName\"\n\t\t\t\t\t\t\t   @click=\"playSFX()\" @change=\"playSFX()\"/>\n\t\t\t\n\t\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t\t<i>Volume</i>\n\t\t\t\t\t\t\t<input class=\"digits-2\" v-model:value=\"currentStep.audioVolume\"\n\t\t\t\t\t\t\t\t   @click=\"playSFX()\" @change=\"playSFX()\">\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\n\t\t\t\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentLights\" ref=\"lights\"\n\t\t\t\t\t\t   :class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t   :style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t   @mouseover=\"onHoverBulb(light)\"\n\t\t\t\t\t\t   @mousedown=\"onClickBulb(light)\">\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\n\t\t\t\t\t<i class=\"bottom-bar\">\n\t\t\t\t\t\t<btn icon=\"rotate-left\" @click=\"rotateLeft()\" title=\"rotates LEDs left\"></btn>\n\t\t\t\t\t\t<btn icon=\"rotate-right\" @click=\"rotateRight()\" title=\"rotates LEDs right\"></btn>\n\t\t\t\n\t\t\t\t\t</i>\n\t\t\t\t</div>\n\t\t\t\n\t\t\t\t<div v-if=\"!currentStep\" class=\"steps padded-3 v-align-mid shadowy\">\n\t\t\t\t\t<i class=\"padded-5 inline-block\"><b>Add a Light Sequence Step:</b></i>\n\t\t\t\t\t<btn class=\"v-align-mid\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t</div>\n\t\t\t\n\t\t\t\t<draggable v-if=\"currentStep\" class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t :class=\"{isSelected: currentStepID==id, isMulti: isMultiSelected(step), isCopied: isCopied(step)}\"\n\t\t\t\t\t\t @click=\"setStepID($event, id)\"\n\t\t\t\t\t\t v-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\t\t\t\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t   :style=\"{color: light.color}\"\n\t\t\t\t\t\t\t   v-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t\t<i class=\"fa fa-clock-o\"></i>\n\t\t\t\t\t\t\t<input class=\"digits-4\" v-model:value=\"step.time\">\n\t\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\n\t\t\t\t\t\t<i v-if=\"step.audioClipName!='Off'\" :title=\"step.audioClipName\" class=nowrap>\n\t\t\t\t\t\t\t<i class=\"fa fa-volume-up\"></i>\n\t\t\t\t\t\t\t<input class=\"digits-2\" v-model:value=\"step.audioVolume\">\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>"
+            template: "\n\t\t\t<div class=\"padded-3 subpanel\" @mousedown.capture=\"setNav()\">\n\t\t\t\t<i class=\"subheader nowrap v-align-mid-kids\">\n\t\t\t\t\t<i v-html=\"header\"></i>\n\t\t\t\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" value=\"loops\" v-model=\"obj[loops]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-refresh v-align-mid\" title=\"Looping\"></i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t<i class=\"spacer-1\">\n\t\t\t\t\t\t<input type=\"checkbox\" value=\"holds\" v-model=\"obj[holds]\"> &nbsp;\n\t\t\t\t\t\t<i class=\"fa fa-pause v-align-mid\" title=\"Hold Last\"></i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t<i class=\"break\">\n\t\t\t\t\t\t<btn class=\"\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t\t\t<btn class=\"\" icon=\"play\" @click=\"playSequence($event)\"></btn>\n\t\t\t\t\t</i>\n\t\t\t\t</i>\n\t\t\t\n\t\t\t\t<br/>\n\t\t\t\n\t\t\t\t<div class=\"light-comp missing bg-disabled\" v-if=\"!currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\tNo Sequence Data Found!\n\t\t\t\t</div>\n\t\t\t\n\t\t\t\t<div class=\"light-comp\" v-if=\"currentStep\" :class=\"class_lightcomp\">\n\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t<btn class=\"padded-5\" label=\"Apply All\" @click=\"applyAll\"></btn>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<dropdown\tclass_btn=\"color-names\"\n\t\t\t\t\t\t\t\t\t class_dropdown=\"step-modes\"\n\t\t\t\t\t\t\t\t\t icon=\"paint-brush\"\n\t\t\t\t\t\t\t\t\t property=\"currentFocus\"\n\t\t\t\t\t\t\t\t\t :target=\"this\"\n\t\t\t\t\t\t\t\t\t :list=\"modes\"\n\t\t\t\t\t\t\t\t\t :dropdown_source=\"currentStep\">\n\t\t\t\t\t\t</dropdown>\n\t\t\t\n\t\t\t\t\t\t<i class=\"padded-5 v-align-mid\">\n\t\t\t\t\t\t\t<i v-if=\"isFocusColors\" class=\"v-align-mid\">\n\t\t\t\t\t\t\t\t<input class=\"color-picker\" v-model=\"currentColor\" \n\t\t\t\t\t\t\t\t\t:style=\"{backgroundColor: currentColor}\">\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t<div class=\"color-cells\">\n\t\t\t\t\t\t\t\t\t<i v-for=\"(clr, id) in colors\" ref=\"colorpallette\">\n\t\t\t\t\t\t\t\t\t\t<span @click=\"currentColor = clr.name\" class=\"cell\" :style=\"{backgroundColor: clr.name}\">\n\t\t\t\t\t\t\t\t\t    </span>\n\t\t\t\t\t\t\t\t\t\t<br v-if=\"(id == 5)\" />\n\t\t\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t   \n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t<br/>\n\t\t\t\t\t\n\t\t\t\t\t<dropdown\tclass_btn=\"audio\"\n\t\t\t\t\t\t\t\t class_dropdown=\"audio-list\"\n\t\t\t\t\t\t\t\t icon=\"volume-up\"\n\t\t\t\t\t\t\t\t :nolabel=\"true\"\n\t\t\t\t\t\t\t\t property=\"audioClipName\"\n\t\t\t\t\t\t\t\t :target=\"currentStep\"\n\t\t\t\t\t\t\t\t :list=\"audioClips\"\n\t\t\t\t\t\t\t\t :dropdown_source=\"steps\">\n\t\t\t\t\t</dropdown>\n\t\t\t\n\t\t\t\t\t<i v-if=\"currentStep.audioClipName!='Off'\">\n\t\t\t\t\t\t<input class=\"padded-2 audio-name\" v-model:value=\"currentStep.audioClipName\"\n\t\t\t\t\t\t\t   @click=\"playSFX()\" @change=\"playSFX()\"/>\n\t\t\t\n\t\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t\t<i>Volume</i>\n\t\t\t\t\t\t\t<input class=\"digits-2\" v-model:value=\"currentStep.audioVolume\"\n\t\t\t\t\t\t\t\t   @click=\"playSFX()\" @change=\"playSFX()\">\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\n\t\t\t\n\t\t\t\t\t<!-- Draw Actual Component -->\n\t\t\t\t\t<div class=\"center\">\n\t\t\t\t\t\t<i v-for=\"(light, id) in currentLights\" ref=\"lights\"\n\t\t\t\t\t\t   :class=\"['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]\"\n\t\t\t\t\t\t   :style=\"{backgroundColor: light.color}\"\n\t\t\t\t\t\t   @mouseover=\"onHoverBulb(light)\"\n\t\t\t\t\t\t   @mousedown=\"onClickBulb(light)\">\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\n\t\t\t\t\t<i class=\"bottom-bar\">\n\t\t\t\t\t\t<btn icon=\"rotate-left\" @click=\"rotateLeft()\" title=\"rotates LEDs left\"></btn>\n\t\t\t\t\t\t<btn icon=\"rotate-right\" @click=\"rotateRight()\" title=\"rotates LEDs right\"></btn>\n\t\t\t\n\t\t\t\t\t</i>\n\t\t\t\t</div>\n\t\t\t\n\t\t\t\t<div v-if=\"!currentStep\" class=\"steps padded-3 v-align-mid shadowy\">\n\t\t\t\t\t<i class=\"padded-5 inline-block\"><b>Add a Light Sequence Step:</b></i>\n\t\t\t\t\t<btn class=\"v-align-mid\" icon=\"plus-square\" label=\"Step\" @click=\"addStep\"></btn>\n\t\t\t\t</div>\n\t\t\t\n\t\t\t\t<draggable v-if=\"currentStep\" class=\"steps\" :list=\"steps\" :options=\"{ handle: '.drag-handle' }\">\n\t\t\t\t\t<div class=\"step\"\n\t\t\t\t\t\t :class=\"{isSelected: currentStepID==id, isMulti: isMultiSelected(step), isCopied: isCopied(step)}\"\n\t\t\t\t\t\t @click=\"setStepID($event, id)\"\n\t\t\t\t\t\t v-for=\"(step, id) in steps\">\n\t\t\t\t\t\t<btn icon=\"trash-o\" @click=\"removeStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"clone\" @click=\"copyStep(step)\"></btn>\n\t\t\t\t\t\t<btn icon=\"sort\" class=\"drag-handle\" title=\"Sort param\"></btn>\n\t\t\t\n\t\t\t\t\t\t<i class=\"bulb-short bulb-statuses\" v-for=\"(light, id) in step.lights\">\n\t\t\t\t\t\t\t<i class=\"bulb-stat\"\n\t\t\t\t\t\t\t   :style=\"{color: light.color}\"\n\t\t\t\t\t\t\t   v-html=\"convertStateToChar(light)\">\n\t\t\t\t\t\t\t</i>\n\t\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\t\t\t<i class=\"nowrap\">\n\t\t\t\t\t\t\t<i class=\"fa fa-clock-o\"></i>\n\t\t\t\t\t\t\t<input class=\"digits-4\" v-model:value=\"step.time\">\n\t\t\t\t\t\t</i>\n\t\t\t\n\t\t\t\n\t\t\t\t\t\t<i v-if=\"step.audioClipName!='Off'\" :title=\"step.audioClipName\" class=nowrap>\n\t\t\t\t\t\t\t<i class=\"fa fa-volume-up\"></i>\n\t\t\t\t\t\t\t<input class=\"digits-2\" v-model:value=\"step.audioVolume\">\n\t\t\t\t\t\t</i>\n\t\t\t\t\t</div>\n\t\t\t\t</draggable>\n\t\t\t</div>"
         }
     });
     //Key modifier:
@@ -705,14 +719,6 @@ function showPopup(header, message, options) {
                     },
                     setCurrentDropDown: function (item) {
                         this.currentDropDown = item;
-                    },
-                    selectActionType: function (actionParam, e) {
-                        actionParam.type = e.name;
-                    },
-                    useSuggestedName: function (light, e, list, prefix) {
-                        if (!prefix)
-                            prefix = "";
-                        light.name = prefix + e.name;
                     },
                     showPopup: function (header, message, options) {
                         showPopup(header, message, options);

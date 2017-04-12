@@ -21,7 +21,7 @@ var __STEPS;
                 return [{ name: 'none' }].concat(__VUE.hardcoded.TriggerNames);
             },
             ftue_nextStepRefNames: function () {
-                return [{ name: 'none' }].concat(__SHEET.ftueSequence.steps);
+                return [{ name: 'none' }, { name: 'COMPLETE_LAUNCH_APP' }].concat(__SHEET.ftueSequence.steps);
             }
         });
         _.extend(vueMethods, {

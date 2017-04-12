@@ -7,6 +7,7 @@ module.exports = function(PROJ) {
 	trace("Aevena JSON!");
 	
 	var ERDS = PROJ.ERDS;
+	var io = ERDS.io;
 	var clearCommandFlag = -1;
 	
 	function echo(cmd, msg) {
@@ -19,7 +20,7 @@ module.exports = function(PROJ) {
 	}
 	
 	function isBusy(cmd, status) {
-		cmd.client.emit('isBusy', status);
+		io.emit('isBusy', status);
 	}
 
 	function checkFileCount(jsonPath) {
@@ -65,6 +66,7 @@ module.exports = function(PROJ) {
 		},
 		
 		saveJSON(cmd) {
+			isBusy(cmd, true);
 			var jsonPath = cmd.proj.__json;
 			ERDS.makeDir(jsonPath);
 			
@@ -89,7 +91,8 @@ module.exports = function(PROJ) {
 
 					var clientIp = cmd.client.request.connection.remoteAddress.split(':').pop();
 
-					echoAll(`JSON data saved to the server! from client: ${clientIp} <i class="em em---1"></i>`);
+					io.emit('saved', `JSON data saved to the server! from client: ${clientIp} <i class="twn twn-bounce em em---1"></i>`);
+					isBusy(cmd, false);
 
 					checkFileCount(jsonPath);
 				});

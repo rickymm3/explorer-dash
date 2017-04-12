@@ -3,11 +3,12 @@ ERDS.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
 $$$.on('load', function () {
     //Vue.config.debug = true;
     Cookies._prefix = "erds.web.";
-    loadAudioSprite('default-sfx.json', 'media/', function (howl) { return ERDS.defaultSFX = howl; });
+    loadAudioSprite('defaultSFX.json', '../media/', function (howl) { return ERDS.defaultSFX = howl; });
     //ERDS.beep = new Howl();
     ERDS.io = io(); //Create a socket connection:
     ERDS.io.on('beep', onBeep);
     ERDS.io.on("echo", function (response) { return $$$.boxInfo.showBox(response); });
+    ERDS.io.on("saved", onSaved);
     ERDS.io.on("server-error", function (response) { return $$$.boxError.showBox(response); });
     ERDS.io.on('file-changed', onFileChanged);
     ERDS.io.on('project-fetch', onProjectFetch);
@@ -158,9 +159,10 @@ function initializeUI() {
     function _animateBoxIn(box, cb) {
         if (cb === void 0) { cb = null; }
         box.show();
+        setTimeout(function () { return makeFancyEffects($(box[0])); }, 0);
         var gotoY = box._initY + (_hasOtherBoxesPresent(box) ? box._offset : 0);
         return TweenMax.to(box, 0.3, { y: gotoY, alpha: 1, ease: Back.easeIn, onComplete: function () {
-                cb && _.delay(cb, 2000 / (box._queueObj.length + 1));
+                cb && _.delay(cb, 4000 / (box._queueObj.length + 1));
             } });
     }
     function _animateBoxOut(box, cb) {
@@ -169,6 +171,20 @@ function initializeUI() {
                 box.hide();
                 cb && cb();
             } });
+    }
+    function makeFancyEffects($target) {
+        var $twn = $target.find('.twn');
+        var classes = $twn.attr('class');
+        if (!classes)
+            return;
+        var matches = classes.match(/twn\-([a-z\-]*)/g);
+        matches.forEach(function (fxName) {
+            switch (fxName) {
+                case 'twn-bounce': TweenMax.to($twn, 0.2, { y: "-=5", yoyo: true, repeat: 5 });
+                default: return;
+            }
+        });
+        //window.$twn = $twn;
     }
 }
 function registerComponents(compList) {
@@ -196,10 +212,13 @@ function downloadJSON(jsonData, fileName) {
     $downloads.attr("download", fileName);
     $downloads[0].click();
 }
+function isMuted() {
+    return ERDS.projectData && ERDS.projectData.yargs && ERDS.projectData.yargs.muted;
+}
 function playSound() {
-    if (ERDS.projectData && ERDS.projectData.yargs && ERDS.projectData.yargs.muted)
+    if (isMuted())
         return;
-    ERDS.beep.play();
+    playSFX(ERDS.defaultSFX, 'mario_coin', 0.5);
 }
 function onBeep() {
     if (ERDS.$restart)
@@ -211,6 +230,12 @@ function onBeep() {
         ERDS.io.emit('kill');
     });
     $('.git-info').append(ERDS.$restart);
+}
+function onSaved(response) {
+    if (isMuted())
+        return;
+    $$$.boxInfo.showBox(response);
+    playSFX(ERDS.defaultSFX, 'mario_1up', 0.5);
 }
 function onHasManyBackups(numBackups) {
     $$$.boxInfo.showBox("ATTENTION: There are currently $0 backups on the server!".rep([numBackups]));
@@ -236,4 +261,9 @@ function loadAudioSprite(url, prefix, cb) {
             $$$.boxError.showBox("Failed to load AudioSprite URL " + fullURL + "! :cry: :mute:");
         }
     });
+}
+function playSFX(howler, name, volume) {
+    if (volume === void 0) { volume = 1.0; }
+    var sfxID = howler.play(name);
+    howler.volume(volume, sfxID);
 }

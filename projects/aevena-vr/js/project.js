@@ -242,8 +242,7 @@ function showPopup(header, message, options) {
                 playSFX: function (step) {
                     if (!step)
                         step = this.currentStep;
-                    var sfxID = ERDS.audiosprite.play(step.audioClipName);
-                    ERDS.audiosprite.volume(step.audioVolume, sfxID);
+                    playSFX(ERDS.audiosprite, step.audioClipName, step.audioVolume);
                 },
                 isAudioSelected: function (item) {
                     return this.currentStep.audioClipName == item.name;

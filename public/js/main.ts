@@ -8,13 +8,14 @@ $$$.on('load', function() {
 	//Vue.config.debug = true;
 	Cookies._prefix = "erds.web.";
 
-	loadAudioSprite('default-sfx.json', 'media/', howl => ERDS.defaultSFX = howl);
+	loadAudioSprite('defaultSFX.json', '../media/', howl => ERDS.defaultSFX = howl);
 
 	//ERDS.beep = new Howl();
 
 	ERDS.io = io(); //Create a socket connection:
 	ERDS.io.on('beep', onBeep);
 	ERDS.io.on("echo", response => $$$.boxInfo.showBox(response));
+	ERDS.io.on("saved", onSaved);
 	ERDS.io.on("server-error", response => $$$.boxError.showBox(response));
 	ERDS.io.on('file-changed', onFileChanged);
 	ERDS.io.on('project-fetch', onProjectFetch);
@@ -200,9 +201,10 @@ function initializeUI() {
 
 	function _animateBoxIn(box, cb=null) {
 		box.show();
+		setTimeout( () => makeFancyEffects($(box[0])), 0 );
 		var gotoY = box._initY + (_hasOtherBoxesPresent(box) ? box._offset : 0);
 		return TweenMax.to(box, 0.3, {y: gotoY, alpha: 1, ease: Back.easeIn, onComplete: () => {
-			cb && _.delay(cb, 2000 / (box._queueObj.length+1))
+			cb && _.delay(cb, 4000 / (box._queueObj.length+1))
 		}});
 	}
 
@@ -211,6 +213,22 @@ function initializeUI() {
 			box.hide();
 			cb && cb();
 		}});
+	}
+
+	function makeFancyEffects($target) {
+		var $twn = $target.find('.twn');
+		var classes = $twn.attr('class');
+		if(!classes) return;
+
+		var matches = classes.match(/twn\-([a-z\-]*)/g);
+
+		matches.forEach(fxName => {
+			switch(fxName) {
+				case 'twn-bounce': TweenMax.to($twn, 0.2, {y: "-=5", yoyo: true, repeat: 5});
+				default: return;
+			}
+		});
+		//window.$twn = $twn;
 	}
 }
 
@@ -242,10 +260,14 @@ function downloadJSON(jsonData, fileName="download.json") {
 	$downloads[0].click();
 }
 
-function playSound() {
-	if(ERDS.projectData && ERDS.projectData.yargs && ERDS.projectData.yargs.muted) return;
+function isMuted() {
+	return ERDS.projectData && ERDS.projectData.yargs && ERDS.projectData.yargs.muted;
+}
 
-	ERDS.beep.play();
+function playSound() {
+	if(isMuted()) return;
+
+	playSFX(ERDS.defaultSFX, 'mario_coin', 0.5);
 }
 
 function onBeep() {
@@ -260,6 +282,14 @@ function onBeep() {
 	});
 	
 	$('.git-info').append(ERDS.$restart);
+}
+
+function onSaved(response) {
+	if(isMuted()) return;
+
+	$$$.boxInfo.showBox(response);
+
+	playSFX(ERDS.defaultSFX, 'mario_1up', 0.5);
 }
 
 function onHasManyBackups(numBackups) {
@@ -289,4 +319,9 @@ function loadAudioSprite(url, prefix, cb) {
 			$$$.boxError.showBox(`Failed to load AudioSprite URL ${fullURL}! :cry: :mute:`);
 		}
 	});
+}
+
+function playSFX(howler, name, volume=1.0) {
+	var sfxID = howler.play(name);
+	howler.volume(volume, sfxID);
 }

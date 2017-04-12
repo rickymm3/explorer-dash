@@ -213,9 +213,11 @@
     </view-tab>
 
     <view-tab v-if="view==3" class="view ftue-sequence">
-        <h1>FTUE Sequence Timeline</h1>
-        <br/>
-        <btn icon="plus-square" label="Add Step" @click="ftue_addStep"></btn>
+        <i class="inline-block padded-2">
+            <h1>FTUE Sequence Timeline</h1>
+            <i class="spacer-1"></i>
+            <btn icon="plus-square" label="Add Step" @click="ftue_addStep"></btn>
+        </i>
 
         <div class="panel" v-if="currentSheet.ftueSequence">
             <draggable :list="currentSheet.ftueSequence.steps">

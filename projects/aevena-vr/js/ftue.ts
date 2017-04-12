@@ -33,7 +33,7 @@ var __STEPS;
             },
 
             ftue_nextStepRefNames() {
-                return [{name: 'none'}].concat(__SHEET.ftueSequence.steps);
+                return [{name: 'none'}, {name: 'COMPLETE_LAUNCH_APP'}].concat(__SHEET.ftueSequence.steps);
             },
         });
 

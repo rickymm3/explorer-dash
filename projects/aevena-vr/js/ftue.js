@@ -59,6 +59,11 @@ var __STEPS;
                 });
                 __VUE.$forceUpdate();
             },
+            ftue_cloneStep: function (step) {
+                var dup = duplicateItem(step, __STEPS);
+                dup.name += " Copy";
+                this.ftue_invalidate();
+            },
             ftue_removeStep: function (step) {
                 __STEPS.remove(step);
                 this.ftue_validateSteps();

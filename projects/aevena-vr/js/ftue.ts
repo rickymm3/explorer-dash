@@ -81,6 +81,12 @@ var __STEPS;
                 __VUE.$forceUpdate();
             },
 
+            ftue_cloneStep(step) {
+                var dup = duplicateItem(step, __STEPS);
+                dup.name += " Copy";
+                this.ftue_invalidate();
+            },
+
             ftue_removeStep(step) {
                 __STEPS.remove(step);
 

@@ -11,23 +11,32 @@
     <btn icon="i-cursor" label="Rename" @click="renameSheet()"></btn>
 
     <!-- SHEET -->
-        <span class="dropdown">
-            <btn class="sheet-names"
-                 @click="setCurrentDropDown(currentSheet)"
-                 icon="caret-down"
-                 :label="currentSheet.name">
-            </btn>
-            <div class="dropdown-list suggested-names-panel"
-                 v-if="currentDropDown==currentSheet"
-                 @click="currentSheetUpdate($event)">
-                <div v-for="(item, id) in jsonData.sheets"
-                     v-html="item.name"
-                     :class="currentSheet==item ? 'isSelected' : ''"
-                     :data-index="id"></div>
-            </div>
-        </span>
+    <span class="dropdown">
+        <btn class="sheet-names"
+             @click="setCurrentDropDown(currentSheet)"
+             icon="caret-down"
+             :label="currentSheet.name">
+        </btn>
+        <div class="dropdown-list suggested-names-panel"
+             v-if="currentDropDown==currentSheet"
+             @click="currentSheetUpdate($event)">
+            <div v-for="(item, id) in jsonData.sheets"
+                 v-html="item.name"
+                 :class="currentSheet==item ? 'isSelected' : ''"
+                 :data-index="id"></div>
+        </div>
+    </span>
 
     <!--
+    <dropdown	class_btn="sheet-names"
+                 class_dropdown="dropdown-list suggested-names-panel"
+                 property="name"
+                 :target="currentSheet"
+                 :list="jsonData.sheets"
+                 :dropdown_source="jsonData">
+    </dropdown>
+
+
     <dropdown   class_btn="sheet-names"
                  class_dropdown="suggested-names-panel"
                  :list="jsonData.sheets"

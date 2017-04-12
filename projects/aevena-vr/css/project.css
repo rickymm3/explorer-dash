@@ -244,6 +244,9 @@ body {
   margin-bottom: 3px;
   border-radius: 10px;
 }
+.action-param label {
+  font-weight: normal;
+}
 .ara-command {
   background: rgba(105, 72, 177, 0.75);
   min-width: 150px;

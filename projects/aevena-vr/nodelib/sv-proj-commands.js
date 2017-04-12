@@ -214,15 +214,14 @@ module.exports = function(PROJ) {
 
 			TriggerNames: [
 				"AppStoreClick",
-				"GoToBluetoothSync",
-				"BluetoothPaired",
-				"ConnectToWifi",
-				"WifiChooseNetwork",
-				"WifiSubmitPassword",
-				"LaunchTestFlight",
-				"SetupComplete",
-				"WifiConnected",
-				"ScanArea"
+				"HomeScreenClick",
+				"BluetoothPairedClick",
+				"WifiSetupClick",
+				"WifiChooseNetworkClick",
+				"WifiSubmitPasswordClick",
+				"WifiConnectedClick",
+				"TestFlightLaunchClick",
+				"SetupCompleteClick",
 			].toKeyValues()
 		}
 	}

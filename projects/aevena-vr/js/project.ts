@@ -112,47 +112,69 @@ function showPopup(header, message, options) {
 		'dropdown': {
 			props: {
 				list: Array,
+				nolabel: {type: Boolean},
+				target: {type: Object},
+				property: {type: String},
 				label: { type: String, default: '' },
 				icon: { default: "caret-down" },
-				is_selected: { type: Function, default() { return false; } },
+				//is_selected: { type: Function, default() { return false; } },
 				dropdown_source: [Object,Array,String],
 				class_dropdown: { type: String, default: "default-dropdown" },
 				class_btn: { type: String, default: "default-btn" }
 			},
 			computed: {
-				currentDropDown() { return __VUE ? __VUE.currentDropDown : null; }
+				currentValue() {
+					return this.target==null || this.property==null ? null : this.target[this.property];
+				},
+				currentDropDown() {
+					return __VUE ? __VUE.currentDropDown : null;
+				}
 			},
 			methods: {
 				isSelected(item) {
-					return this.is_selected && this.is_selected(item);
+					return this.currentValue == item.name;
 				},
+
 				onButtonClick(e) {
 					__VUE.setCurrentDropDown(this.dropdown_source);
 					this.$emit('dropdown', e);
 				},
+
 				onSelectionClick(e) {
+					var $e = $(e.target);
+					var $value = $e.data('value');
+					var $index = $e.data('index');
 					this.$emit('click', e);
-					var id = parseInt($(e.target).data('index'));
-					id = isNaN(id) ? -1 : id;
-					if(id==-1) return;
-					this.$emit('selected', this.list[id] );
+					this.target[this.property] = $value;
+
+					// //Select ID:
+					// var id = parseInt($index);
+					// id = isNaN(id) ? -1 : id;
+					// if(id==-1) return;
+					// this.$emit('selected', this.list[id] );
+				},
+
+				onMouseDown(e){
+					stopEvent(e);
 				}
 			},
-			template: //!!!
+			template:
 				`<span class="dropdown">
-					<btn class="padded-5"
+					<btn @click="onButtonClick($event)"
+						 class="padded-5"
 						 :class="class_btn"
-						 @click="onButtonClick($event)"
 						 :icon="icon"
-						 :label="label">
+						 :label="nolabel ? '' : currentValue">
 					</btn>
 					<div :class="class_dropdown"
 						class="dropdown-list"
 						 v-if="currentDropDown==dropdown_source"
+						 @mousedown="onMouseDown($event)"
 						 @click="onSelectionClick($event)">
 						<div v-for="(item, id) in list"
 							v-html="item.name"
-							:class="{isSelected: is_selected(item)}"
+							:class="{isSelected: isSelected(item)}"
+							:data-value="item.name"
 							:data-index="id"></div>
 					</div>
 				</span>`
@@ -192,6 +214,13 @@ function showPopup(header, message, options) {
 					return this.steps[this.currentStepID];
 				},
 
+				currentLights() {
+					var step = this.currentStep;
+					var _this = this;
+					__VUE.$nextTick(() => _this.updateLayout());
+					return step.lights;
+				},
+
 				isFocusColors() {
 					return this.currentFocus=="Colors";
 				},
@@ -215,6 +244,38 @@ function showPopup(header, message, options) {
 
 			methods: {
 
+				updateLayout() {
+					var $bulbs = $(this.$el).find('.bulb');
+					var $bulb = $($bulbs[0]);
+					var len = $bulbs.length;
+
+					var isRing = this.class_lightcomp.has('ring');
+
+					if(isRing) {
+						var offset = 90 * (Math.PI / 180);
+						var angleSteps = (360 / len) * (Math.PI / 180);
+						var amplitude = 50 + ((len-8) * 5);
+
+						$bulbs.each((id, bulb) => {
+							var angle = -offset + (id * angleSteps);
+							var posX = Math.cos(angle) * amplitude;
+							var posY = Math.sin(angle) * amplitude;
+
+							TweenMax.set(bulb, {x:posX, y:posY});
+						});
+					} else {
+						var stepWidth = $bulb.width() + 5;
+						var fullWidth = len * stepWidth;
+						var halfWidth = fullWidth * 0.5;
+						trace(stepWidth);
+
+						$bulbs.each((id, bulb) => {
+							var posX = -halfWidth + id * stepWidth;
+							TweenMax.set(bulb, {x:posX});
+						});
+					}
+				},
+
 				addStep() {
 					this.steps.push( globalAddLightStep() );
 					this.currentStepID = this.steps.length-1;
@@ -237,10 +298,10 @@ function showPopup(header, message, options) {
 				convertStateToChar(light) {
 					switch(light.state) {
 						case "Colors": return "!";
-						case "Off": return toIcon(":battery-0:");
-						case "Full": return toIcon(":battery-full:");
-						case "Half": return toIcon(":battery-2:");
-						case "Quarter": return toIcon(":battery-1:");
+						case "Off": return toIcon("~battery-0~");
+						case "Full": return toIcon("~battery-full~");
+						case "Half": return toIcon("~battery-2~");
+						case "Quarter": return toIcon("~battery-1~");
 						case "FadeOn": return "&#x25E2;";
 						case "FadeOff": return "&#x25E3;";
 					}
@@ -506,20 +567,18 @@ function showPopup(header, message, options) {
 				<div class="light-comp" v-if="currentStep" :class="class_lightcomp">
 					<i class="nowrap">
 						<btn class="padded-5" label="Apply All" @click="applyAll"></btn>
-			
+						
 						<dropdown	class_btn="color-names"
 									 class_dropdown="step-modes"
 									 icon="paint-brush"
+									 property="currentFocus"
+									 :target="this"
 									 :list="modes"
-									 :dropdown_source="currentStep"
-									 :is_selected="isCurrentMode"
-									 @selected="setCurrentFocus($event)">
+									 :dropdown_source="currentStep">
 						</dropdown>
 			
-						<i class="padded-5">
-							<i v-if="isFocusColors">
-								<i>Color:</i>
-								
+						<i class="padded-5 v-align-mid">
+							<i v-if="isFocusColors" class="v-align-mid">
 								<input class="color-picker" v-model="currentColor" 
 									:style="{backgroundColor: currentColor}">
 								
@@ -533,20 +592,19 @@ function showPopup(header, message, options) {
 									   
 								</div>
 							</i>
-							
-							<i v-if="!isFocusColors">Painting: "{{currentFocus}}"</i>
 						</i>
 					</i>
 			
 					<br/>
-			
+					
 					<dropdown	class_btn="audio"
 								 class_dropdown="audio-list"
 								 icon="volume-up"
+								 :nolabel="true"
+								 property="audioClipName"
+								 :target="currentStep"
 								 :list="audioClips"
-								 :dropdown_source="steps"
-								 :is_selected="isAudioSelected"
-								 @selected="setCurrentAudio($event)">
+								 :dropdown_source="steps">
 					</dropdown>
 			
 					<i v-if="currentStep.audioClipName!='Off'">
@@ -564,7 +622,7 @@ function showPopup(header, message, options) {
 			
 					<!-- Draw Actual Component -->
 					<div class="center">
-						<i v-for="(light, id) in currentStep.lights" ref="lights"
+						<i v-for="(light, id) in currentLights" ref="lights"
 						   :class="['bulb', 'bulb-'+id, 'bulb-'+light.state.toLowerCase()]"
 						   :style="{backgroundColor: light.color}"
 						   @mouseover="onHoverBulb(light)"
@@ -711,6 +769,7 @@ function showPopup(header, message, options) {
 					hardcoded: {},
 					jsonData: {
 						currentSheetName: '',
+						numOfLights: 8,
 						sheets: []
 					}
 				},
@@ -891,6 +950,26 @@ function showPopup(header, message, options) {
 						__ACTIONS = __SHEET.actionSequence;
 						__JSONDATA.currentSheetName = __SHEET.name;
 
+						if(!__JSONDATA.numOfLights) {
+							(function setDefaultNumOfLights() {
+								function setDefaultLights() {
+									__JSONDATA.numOfLights = 8;
+								}
+
+								if(!__LIGHTS || !__LIGHTS.length) return setDefaultLights();
+
+								var seq = __LIGHTS[0];
+								var steps = seq.ringSteps;
+								if(!steps || !steps.length) return setDefaultLights();
+
+								var step = steps[0];
+								var lights = step.lights;
+								if(!lights || !lights.length) return setDefaultLights();
+
+								trace("Setting numOfLights according to lightSequence[0].ringSteps[0].lights");
+								__JSONDATA.numOfLights = lights.length;
+							})();
+						}
 						//Try to preserve the selection index:
 						this.currentActionItem = trySameIndex(__ACTIONS, old.__ACTIONS, this.currentActionItem);
 						this.currentLightItem = trySameIndex(__LIGHTS, old.__LIGHTS, this.currentLightItem);
@@ -902,15 +981,6 @@ function showPopup(header, message, options) {
 					
 					setCurrentDropDown(item) {
 						this.currentDropDown = item;
-					},
-
-					selectActionType(actionParam, e) {
-						actionParam.type = e.name;
-					},
-
-					useSuggestedName(light, e, list, prefix) {
-						if(!prefix) prefix = "";
-						light.name = prefix + e.name;
 					},
 
 					showPopup(header, message, options) {
@@ -978,23 +1048,28 @@ function showPopup(header, message, options) {
 				__VUE.isBusy = status;
 			});
 
-			ERDS.__media = ERDS.projectName + '/media/';
-
-			$.ajax({
-				url: ERDS.__media + 'audiosprite.json',
-				success(json) {
-					if(!json) return;
-					json.src = json.src.map(file => ERDS.__media + file);
-					ERDS.audiosprite = new Howl(json);
-				},
-				error(err) {
-					$$$.boxError.showBox("Failed to load AudioSprite! :cry: :mute:");
-				}
-			});
+			loadSounds();
+			loadNavBarMenu();
 			
 			__VUE.$forceUpdate();
 		}
 	});
+
+	function loadSounds() {
+		ERDS.__media = ERDS.projectName + '/media/';
+
+		$.ajax({
+			url: ERDS.__media + 'audiosprite.json',
+			success(json) {
+				if(!json) return;
+				json.src = json.src.map(file => ERDS.__media + file);
+				ERDS.audiosprite = new Howl(json);
+			},
+			error(err) {
+				$$$.boxError.showBox("Failed to load AudioSprite! :cry: :mute:");
+			}
+		});
+	}
 	
 	function trySameIndex(arrNew, arrOld, itemOld) {
 		var first = arrNew[0];
@@ -1070,27 +1145,6 @@ function showPopup(header, message, options) {
 		return sheet;
 	}
 	
-	function globalAddLight() {
-		__LIGHTS.push({
-			type: 'light-item',
-			name: 'Light ' + (__LIGHTS.length+1),
-
-			ringSeqLooping: false,
-			ringSeqHoldLast: false,
-			ringSteps: [
-				globalAddLightStep()
-			],
-
-			stripSeqLooping: false,
-			stripSeqHoldLast: false,
-			stripSteps: [
-				globalAddLightStep()
-			],
-		});
-
-		__VUE.currentLightItem = __LIGHTS.last();
-	}
-	
 	function globalAddAction() {
 		__ACTIONS.push({
 			type: 'action-item',
@@ -1120,25 +1174,6 @@ function showPopup(header, message, options) {
 		//__VUE.currentActionItem
 	}
 
-	function globalAddLightStep() {
-		return {
-			type: 'light-step',
-			time: 1,
-			audioClipName: "Off",
-			audioVolume: 1.0,
-			lights: [
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-				{state: 'Full', color: '#fff'},
-			]
-		}
-	}
-
 	function removeItem(item, list, vueProperty) {
 		if(item) return list.remove(item);
 		if(!__VUE[vueProperty]) {
@@ -1157,12 +1192,88 @@ function showPopup(header, message, options) {
 		return dup;
 	}
 
-	function stopEvent(e) {
-		if(!e) return;
-		e.preventDefault();
-		e.stopImmediatePropagation();
-		e.stopPropagation();
+	function loadNavBarMenu() {
+		addMenu(`
+			<div class="menu">
+				<i title="Tools">
+					<i title="Convert LEDs to 12" onclick="convertLEDs(12)"></i>
+					<i title="Convert LEDs to 8" onclick="convertLEDs(8)"></i>
+				</i>
+			</div>
+		`);
 	}
 	
 })(ERDS);
+
+function globalAddLight(lights, dontFocus=false) {
+	if(!lights) lights = __LIGHTS;
+
+	lights.push({
+		type: 'light-item',
+		name: 'Light ' + (lights.length+1),
+
+		ringSeqLooping: false,
+		ringSeqHoldLast: false,
+		ringSteps: [
+			globalAddLightStep()
+		],
+
+		stripSeqLooping: false,
+		stripSeqHoldLast: false,
+		stripSteps: [
+			globalAddLightStep()
+		],
+	});
+
+	if(dontFocus) return;
+
+	__VUE.currentLightItem = __LIGHTS.last();
+}
+
+function globalAddLightStep() {
+	return {
+		type: 'light-step',
+		time: 1,
+		audioClipName: "Off",
+		audioVolume: 1.0,
+		lights: _.jsonClone({state: 'Full', color: '#fff'}, __JSONDATA.numOfLights)
+	}
+}
+
+function globalAddLightState(lights) {
+	lights.push({state: 'Full', color: '#fff'});
+}
+
+function convertLEDs(newCount) {
+	if(newCount==__JSONDATA.numOfLights) {
+		return $$$.boxError.showBox(`~lightbulb-o fa-2x v-align-mid~ - Already set to ${newCount} lights!`);
+	}
+
+	showPopup("Convert LEDs", `Are you sure you want to convert to ${newCount} LEDs?`, {
+		ok(options) {
+			__JSONDATA.numOfLights = newCount;
+			__SHEETS.forEach( sheet => forEachLightSeq(sheet.lightSequence) );
+			__VUE.$forceUpdate();
+		}
+	});
+
+	function forEachLightSeq( lightSequence ) {
+		lightSequence.forEach( seq => {
+			seq.ringSteps.forEach( forEachLightSteps );
+			seq.stripSteps.forEach( forEachLightSteps );
+		});
+	}
+
+	function forEachLightSteps( step ) {
+		if(!step.lights) step.lights = [];
+
+		while(step.lights.length>newCount) {
+			step.lights.pop();
+		}
+
+		while(step.lights.length<newCount) {
+			globalAddLightState(step.lights);
+		}
+	}
+}
 

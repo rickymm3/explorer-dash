@@ -32,7 +32,7 @@ h5 {
   white-space: pre;
   display: none;
   position: fixed;
-  z-index: 9999;
+  z-index: 9000;
   top: 5px;
   left: 5px;
   right: 5px;
@@ -171,6 +171,37 @@ h5 {
 }
 .blue {
   color: blue;
+}
+.menu {
+  display: inline-block;
+  color: #fff;
+  font-size: 110%;
+  text-shadow: rgba(255, 255, 255, 0.8) 1px 1px 1px;
+}
+.menu i {
+  display: inline-block;
+  background: #222;
+}
+.menu i div {
+  z-index: 9999;
+  position: absolute;
+  display: block;
+  display: none;
+}
+.menu i div i {
+  display: block;
+}
+.menu span {
+  display: inline-block;
+  padding: 15px;
+  position: relative;
+  cursor: pointer;
+}
+.menu span:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.pointer {
+  cursor: pointer;
 }
 .git-info {
   position: fixed;

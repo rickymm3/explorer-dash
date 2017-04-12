@@ -19,7 +19,7 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
   white-space: pre;
   display: none;
   position: fixed;
-  z-index: 9999;
+  z-index: 9000;
   top: 5px;
   left: 5px;
   right: 5px;
@@ -91,6 +91,41 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
 .green { color: green; }
 .blue { color: blue; }
 
+.menu {
+  //.v-align-mid;
+  display: inline-block;
+  color: #fff;
+  font-size: 110%;
+  .shadowy;
+  i {
+    .inline-block;
+    background: #222;
+    div {
+      z-index: 9999;
+      position: absolute;
+      display: block;
+      .hidden;
+      i {
+        display: block;
+      }
+    }
+  }
+
+  span {
+    .inline-block;
+    padding: 15px;
+    position: relative;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+.pointer {
+  cursor: pointer;
+}
 /////////////////////////////////////// CLASSES for EVERYTHING ELSE!
 
 .git-info {

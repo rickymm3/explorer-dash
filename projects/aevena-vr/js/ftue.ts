@@ -22,7 +22,19 @@ var __STEPS;
 
             ftue_actionNames() {
                 return [{name: 'Default'}].concat(__SHEET.actionSequence);
-            }
+            },
+
+            ftue_webPanels() {
+                return [{name: 'none'}].concat(__VUE.hardcoded.WebPanels);
+            },
+
+            ftue_triggerNames() {
+                return [{name: 'none'}].concat(__VUE.hardcoded.TriggerNames);
+            },
+
+            ftue_nextStepRefNames() {
+                return [{name: 'none'}].concat(__SHEET.ftueSequence.steps);
+            },
         });
 
         _.extend(vueMethods, {
@@ -41,6 +53,19 @@ var __STEPS;
                 var stepNames = [];
 
                 __STEPS.forEach(step => {
+                    function applyDefaultsIfNull(prop, def) {
+                        if(_.isArray(def)) def = def[0].name;
+                        if(!step[prop] || !step[prop].trim().length) {
+                            step[prop] = def;
+                        }
+                    }
+
+                    applyDefaultsIfNull('lightSequence', this.ftue_lightNames);
+                    applyDefaultsIfNull('actionName', this.ftue_actionNames);
+                    applyDefaultsIfNull('nextStepReference', this.ftue_nextStepRefNames);
+                    applyDefaultsIfNull('webPanel', this.ftue_webPanels);
+                    applyDefaultsIfNull('triggerName', this.ftue_triggerNames);
+
                     var lowName = step.name.toLowerCase().trim();
                     if(stepNames.has(lowName)) {
                         step.isNameDuplicate = true;
@@ -63,14 +88,19 @@ var __STEPS;
             },
 
             ftue_addStep() {
+                function getFirst(arr) {
+                    return arr[0].name;
+                }
+
                 __STEPS.push({
-                    name: 'STEP_NAME',
+                    name: 'STEP_NAME ' + __STEPS.length,
                     audioClipName: '',
                     audioVolume: 1.0,
-                    lightSequence: 'Default',
-                    actionName: 'Default',
-                    webPanel: '',
-                    triggerName: '',
+                    lightSequence:  getFirst(this.ftue_lightNames),
+                    actionName: getFirst(this.ftue_actionNames),
+                    webPanel: getFirst(this.ftue_webPanels),
+                    triggerName: getFirst(this.ftue_triggerNames),
+                    nextStepReference: getFirst(this.ftue_nextStepRefNames),
                     stepDuration: '',
                     actionDelay: 0
                 });
@@ -87,6 +117,8 @@ var __STEPS;
                 step.lightSequence = e.name;
             },
 
+            ////////////////////////////////
+
             ftue_isActionSelected(item) {
                 return this.ftue_currentStep.actionName==item.name;
             },
@@ -94,6 +126,35 @@ var __STEPS;
             ftue_setCurrentActionSeq(e, step) {
                 if(!step) return;
                 step.actionName = e.name;
+            },
+
+            ////////////////////////////////
+
+            ftue_isNextStepRefSelected(item) {
+                return this.ftue_currentStep.nextStepReference==item.name;
+            },
+
+            ftue_setCurrentNextStepRef(e, step) {
+                if(!step) return;
+                step.nextStepReference = e.name;
+            },
+
+            ftue_isWebPanelSelected(item) {
+                return this.ftue_currentStep.webPanel==item.name;
+            },
+
+            ftue_setCurrentWebPanel(e, step) {
+                if(!step) return;
+                step.webPanel = e.name;
+            },
+
+            ftue_isTriggerNameSelected(item) {
+                return this.ftue_currentStep.triggerName==item.name;
+            },
+
+            ftue_setCurrentTriggerName(e, step) {
+                if(!step) return;
+                step.triggerName = e.name;
             },
         })
 

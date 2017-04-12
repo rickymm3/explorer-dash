@@ -113,14 +113,15 @@ p.toPath = function() {
 	};
 })();
 
-var regexEmoji = /:([a-z0-9\-\_]*):/gi;
+var regexEmoji = /:([a-z0-9\-\_ ]*):/gi;
+var regexIcon = /\~([a-z0-9\-\_ ]*)\~/gi;
 
 function toEmoji(str) {
 	return str.replace(regexEmoji, '<i class="em em-$1"></i>');
 }
 
 function toIcon(str) {
-	return str.replace(regexEmoji, '<i class="fa fa-$1"></i>')
+	return str.replace(regexIcon, '<i class="fa fa-$1"></i>')
 }
 
 p.camelToTitleCase = function() {
@@ -150,8 +151,15 @@ _.mapRename = function(obj, filter) {
 	return newObj;
 };
 
-_.jsonClone = function(data) {
-	return JSON.parse(JSON.stringify(data));
+_.jsonClone = function(data, times) {
+	var str = JSON.stringify(data);
+	if(times==null) return JSON.parse(str);
+	var results = [];
+	while(--times>=0) {
+		results.push(JSON.parse(str));
+	}
+
+	return results;
 };
 
 _.jsonPretty = function(obj, indent) {

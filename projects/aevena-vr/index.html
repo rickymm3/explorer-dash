@@ -239,13 +239,40 @@
                     <input class="border padded-5" v-model="step.name" @keyup="ftue_invalidate">
                 </div>
 
+                <div class="nowrap inline-block padded-3">
+                    <span>Step Duration:</span>
+                    <input class="border padded-5 digits-4" v-model="step.stepDuration">
+                </div>
+
+                <div class="nowrap inline-block padded-3">
+                    <span>Action Delay:</span>
+                    <input class="border padded-5 digits-4" v-model.number="step.actionDelay">
+                </div>
+
+                <div class="nowrap inline-block padded-3">
+                    <!--<dropdown	class_btn="audio"
+                                 class_dropdown="audio-list"
+                                 icon="volume-up"
+                                 :list="audioClips"
+                                 :dropdown_source="step"
+                                 :is_selected="ftue_isAudioSelected"
+                                 @selected="ftue_setCurrentAudio($event, step)">
+                    </dropdown>-->
+
+                    <span>Voice Name:</span>
+                    <input class="border padded-5" v-model="step.audioClipName">
+
+                    <span>Volume:</span>
+                    <input class="border padded-5 digits-4" v-model.number="step.audioVolume">
+                </div>
+
                 <br/>
 
                 <div class="nowrap inline-block padded-3">
                     <span class="col-1">Light Sequence:</span>
                     <span class="col-2">
-                        <dropdown	class_btn="light"
-                                     class_dropdown="light-list"
+                        <dropdown	class_btn="long-lists light"
+                                     class_dropdown="ftue-dropdown light-list"
                                      :label="step.lightSequence"
                                      :list="ftue_lightNames"
                                      :dropdown_source="id + 'light'"
@@ -258,8 +285,8 @@
                 <div class="nowrap inline-block padded-3">
                     <span class="col-1">Action Name:</span>
                     <span class="col-2">
-                        <dropdown	class_btn="action"
-                                     class_dropdown="action-list"
+                        <dropdown	class_btn="long-lists action"
+                                     class_dropdown="ftue-dropdown action-list"
                                      :label="step.actionName"
                                      :list="ftue_actionNames"
                                      :dropdown_source="id + 'action'"
@@ -269,63 +296,49 @@
                     </span>
                 </div>
 
-
-
-                <div class="nowrap padded-3">
-                    <!--<dropdown	class_btn="audio"
-                                 class_dropdown="audio-list"
-                                 icon="volume-up"
-                                 :list="audioClips"
-                                 :dropdown_source="step"
-                                 :is_selected="ftue_isAudioSelected"
-                                 @selected="ftue_setCurrentAudio($event, step)">
-                    </dropdown>-->
-
-                    <span class="col-1">Voice Name:</span>
-                    <span class="col-2">
-                        <input class="border" v-model="step.audioClipName">
-                    </span>
-
-                    <span class="col-1">Volume:</span>
-                    <span class="col-2">
-                        <input class="border digits-4" v-model.number="step.audioVolume">
-                    </span>
-                </div>
-
-                <div class="nowrap padded-3">
+                <div class="nowrap inline-block padded-3">
                     <span class="col-1">Web Panel:</span>
                     <span class="col-2">
-                        <input class="border" v-model="step.webPanel">
+                        <dropdown	class_btn="long-lists web-panel"
+                                     class_dropdown="ftue-dropdown web-panel-list"
+                                     :label="step.webPanel"
+                                     :list="ftue_webPanels"
+                                     :dropdown_source="id + 'webPanel'"
+                                     :is_selected="ftue_isWebPanelSelected"
+                                     @selected="ftue_setCurrentWebPanel($event, step)">
+                        </dropdown>
                     </span>
                 </div>
 
-                <div class="nowrap padded-3">
-                    <span class="col-1">Next Step Ref:</span>
-                    <span class="col-2">
-                        <input class="border" v-model="step.nextStepReference">
-                    </span>
-                </div>
-
-                <div class="nowrap padded-3">
+                <div class="nowrap inline-block padded-3">
                     <span class="col-1">Trigger Name:</span>
                     <span class="col-2">
-                        <input class="border" v-model="step.triggerName">
+                        <dropdown	class_btn="long-lists trigger-name"
+                                     class_dropdown="ftue-dropdown trigger-name-list"
+                                     :label="step.triggerName"
+                                     :list="ftue_triggerNames"
+                                     :dropdown_source="id + 'triggerName'"
+                                     :is_selected="ftue_isTriggerNameSelected"
+                                     @selected="ftue_setCurrentTriggerName($event, step)">
+                        </dropdown>
                     </span>
                 </div>
 
-                <div class="nowrap inline-border padded-3">
-                    <span class="col-1">Step Duration:</span>
+                <div class="nowrap inline-block padded-3">
+                    <span class="col-1">Next Step Ref:</span>
                     <span class="col-2">
-                        <input class="border digits-3" v-model="step.stepDuration">
+                        <dropdown	class_btn="long-lists next-step"
+                                     class_dropdown="ftue-dropdown next-step-list"
+                                     :label="step.nextStepReference"
+                                     :list="ftue_nextStepRefNames"
+                                     :dropdown_source="id + 'nextStepRef'"
+                                     :is_selected="ftue_isNextStepRefSelected"
+                                     @selected="ftue_setCurrentNextStepRef($event, step)">
+                        </dropdown>
                     </span>
                 </div>
 
-                <div class="nowrap inline-border padded-3">
-                    <span class="col-1">Action Delay:</span>
-                    <span class="col-2">
-                        <input class="border digits-3" v-model="step.actionDelay">
-                    </span>
-                </div>
+
 
             </div>
             </draggable>

@@ -196,7 +196,7 @@ module.exports = function(PROJ) {
 				"FadeHalf"
 			].toKeyValues(),
 
-			WebScreens: [
+			WebPanels: [
 				"downloadapp",
 				"openapp",
 				"choosebluetooth",
@@ -210,7 +210,20 @@ module.exports = function(PROJ) {
 				"testflight",
 				"flightinprogress",
 				"setupcomplete"
-			]
+			].toKeyValues(),
+
+			TriggerNames: [
+				"AppStoreClick",
+				"GoToBluetoothSync",
+				"BluetoothPaired",
+				"ConnectToWifi",
+				"WifiChooseNetwork",
+				"WifiSubmitPassword",
+				"LaunchTestFlight",
+				"SetupComplete",
+				"WifiConnected",
+				"ScanArea"
+			].toKeyValues()
 		}
 	}
 };

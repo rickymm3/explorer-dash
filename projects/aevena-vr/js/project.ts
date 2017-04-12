@@ -930,8 +930,8 @@ function showPopup(header, message, options) {
 						__LIGHTS = __SHEET.lightSequence;
 						__ACTIONS = __SHEET.actionSequence;
 						__JSONDATA.currentSheetName = __SHEET.name;
-						if(!__JSONDATA.numOfLights) {
 
+						if(!__JSONDATA.numOfLights) {
 							(function setDefaultNumOfLights() {
 								function setDefaultLights() {
 									__JSONDATA.numOfLights = 8;

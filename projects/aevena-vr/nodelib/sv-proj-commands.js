@@ -13,6 +13,10 @@ module.exports = function(PROJ) {
 		cmd.client.emit('echo', msg);
 		isBusy(cmd, false);
 	}
+
+	function echoAll(msg) {
+		ERDS.io.emit('echo', msg);
+	}
 	
 	function isBusy(cmd, status) {
 		cmd.client.emit('isBusy', status);
@@ -83,7 +87,9 @@ module.exports = function(PROJ) {
 						return ERDS.sendServerError(cmd.client, "Could not write JSON file!");
 					}
 
-					echo(cmd, 'JSON data saved to the server! <i class="em em---1"></i>');
+					var clientIp = cmd.client.request.connection.remoteAddress.split(':').pop();
+
+					echoAll(`JSON data saved to the server! from client: ${clientIp} <i class="em em---1"></i>`);
 
 					checkFileCount(jsonPath);
 				});

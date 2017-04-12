@@ -8,10 +8,9 @@ $$$.on('load', function() {
 	//Vue.config.debug = true;
 	Cookies._prefix = "erds.web.";
 
-	ERDS.beep = new Howl({
-		src: ['/media/coin.mp3'],
-		volume: 0.25
-	});
+	loadAudioSprite('default-sfx.json', 'media/', howl => ERDS.defaultSFX = howl);
+
+	//ERDS.beep = new Howl();
 
 	ERDS.io = io(); //Create a socket connection:
 	ERDS.io.on('beep', onBeep);
@@ -270,3 +269,24 @@ function onHasManyBackups(numBackups) {
 TimelineMax.prototype.wait = function (time, offset) {
 	return this.to({}, time, {}, offset);
 };
+
+function loadAudioSprite(url, prefix, cb) {
+	if(!cb) {
+		$$$.boxError.showBox("Missing callbacks for AudioSprite! :cry: :mute:");
+		return;
+	}
+
+	var fullURL = prefix + url;
+	$.ajax({
+		url: fullURL,
+		success(json) {
+			if(!json) return;
+			json.src = json.src.map(file => prefix + file);
+
+			cb( new Howl(json) );
+		},
+		error(err) {
+			$$$.boxError.showBox(`Failed to load AudioSprite URL ${fullURL}! :cry: :mute:`);
+		}
+	});
+}

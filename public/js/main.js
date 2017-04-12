@@ -3,10 +3,8 @@ ERDS.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
 $$$.on('load', function () {
     //Vue.config.debug = true;
     Cookies._prefix = "erds.web.";
-    ERDS.beep = new Howl({
-        src: ['/media/coin.mp3'],
-        volume: 0.25
-    });
+    loadAudioSprite('default-sfx.json', 'media/', function (howl) { return ERDS.defaultSFX = howl; });
+    //ERDS.beep = new Howl();
     ERDS.io = io(); //Create a socket connection:
     ERDS.io.on('beep', onBeep);
     ERDS.io.on("echo", function (response) { return $$$.boxInfo.showBox(response); });
@@ -220,3 +218,22 @@ function onHasManyBackups(numBackups) {
 TimelineMax.prototype.wait = function (time, offset) {
     return this.to({}, time, {}, offset);
 };
+function loadAudioSprite(url, prefix, cb) {
+    if (!cb) {
+        $$$.boxError.showBox("Missing callbacks for AudioSprite! :cry: :mute:");
+        return;
+    }
+    var fullURL = prefix + url;
+    $.ajax({
+        url: fullURL,
+        success: function (json) {
+            if (!json)
+                return;
+            json.src = json.src.map(function (file) { return prefix + file; });
+            cb(new Howl(json));
+        },
+        error: function (err) {
+            $$$.boxError.showBox("Failed to load AudioSprite URL " + fullURL + "! :cry: :mute:");
+        }
+    });
+}

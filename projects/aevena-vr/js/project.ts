@@ -321,8 +321,7 @@ function showPopup(header, message, options) {
 
 				playSFX(step) {
 					if(!step) step = this.currentStep;
-					var sfxID = ERDS.audiosprite.play(step.audioClipName);
-					ERDS.audiosprite.volume(step.audioVolume, sfxID);
+					playSFX(ERDS.audiosprite, step.audioClipName, step.audioVolume)
 				},
 
 				isAudioSelected(item) {
@@ -1058,17 +1057,7 @@ function showPopup(header, message, options) {
 	function loadSounds() {
 		ERDS.__media = ERDS.projectName + '/media/';
 
-		$.ajax({
-			url: ERDS.__media + 'audiosprite.json',
-			success(json) {
-				if(!json) return;
-				json.src = json.src.map(file => ERDS.__media + file);
-				ERDS.audiosprite = new Howl(json);
-			},
-			error(err) {
-				$$$.boxError.showBox("Failed to load AudioSprite! :cry: :mute:");
-			}
-		});
+		loadAudioSprite('audiosprite.json', ERDS.__media, howl => ERDS.audiosprite = howl);
 	}
 	
 	function trySameIndex(arrNew, arrOld, itemOld) {

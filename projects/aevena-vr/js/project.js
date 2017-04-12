@@ -242,8 +242,7 @@ function showPopup(header, message, options) {
                 playSFX: function (step) {
                     if (!step)
                         step = this.currentStep;
-                    var sfxID = ERDS.audiosprite.play(step.audioClipName);
-                    ERDS.audiosprite.volume(step.audioVolume, sfxID);
+                    playSFX(ERDS.audiosprite, step.audioClipName, step.audioVolume);
                 },
                 isAudioSelected: function (item) {
                     return this.currentStep.audioClipName == item.name;
@@ -781,18 +780,7 @@ function showPopup(header, message, options) {
     });
     function loadSounds() {
         ERDS.__media = ERDS.projectName + '/media/';
-        $.ajax({
-            url: ERDS.__media + 'audiosprite.json',
-            success: function (json) {
-                if (!json)
-                    return;
-                json.src = json.src.map(function (file) { return ERDS.__media + file; });
-                ERDS.audiosprite = new Howl(json);
-            },
-            error: function (err) {
-                $$$.boxError.showBox("Failed to load AudioSprite! :cry: :mute:");
-            }
-        });
+        loadAudioSprite('audiosprite.json', ERDS.__media, function (howl) { return ERDS.audiosprite = howl; });
     }
     function trySameIndex(arrNew, arrOld, itemOld) {
         var first = arrNew[0];

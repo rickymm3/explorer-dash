@@ -1185,13 +1185,6 @@ function showPopup(header, message, options) {
 		__VUE[vueProperty] = id<0 ? (list.length > 0 ? list.first() : null) : list[id];
 	}
 
-	function duplicateItem(item, list) {
-		var id = list.indexOf(item);
-		var dup = _.jsonClone(item);
-		list.splice(id+1, 0, dup);
-		return dup;
-	}
-
 	function loadNavBarMenu() {
 		addMenu(`
 			<div class="menu">
@@ -1204,6 +1197,13 @@ function showPopup(header, message, options) {
 	}
 	
 })(ERDS);
+
+function duplicateItem(item, list) {
+	var id = list.indexOf(item);
+	var dup = _.jsonClone(item);
+	list.splice(id+1, 0, dup);
+	return dup;
+}
 
 function globalAddLight(lights, dontFocus=false) {
 	if(!lights) lights = __LIGHTS;

@@ -878,16 +878,16 @@ function showPopup(header, message, options) {
         var id = list.remove(__VUE[vueProperty]) - 1;
         __VUE[vueProperty] = id < 0 ? (list.length > 0 ? list.first() : null) : list[id];
     }
-    function duplicateItem(item, list) {
-        var id = list.indexOf(item);
-        var dup = _.jsonClone(item);
-        list.splice(id + 1, 0, dup);
-        return dup;
-    }
     function loadNavBarMenu() {
         addMenu("\n\t\t\t<div class=\"menu\">\n\t\t\t\t<i title=\"Tools\">\n\t\t\t\t\t<i title=\"Convert LEDs to 12\" onclick=\"convertLEDs(12)\"></i>\n\t\t\t\t\t<i title=\"Convert LEDs to 8\" onclick=\"convertLEDs(8)\"></i>\n\t\t\t\t</i>\n\t\t\t</div>\n\t\t");
     }
 })(ERDS);
+function duplicateItem(item, list) {
+    var id = list.indexOf(item);
+    var dup = _.jsonClone(item);
+    list.splice(id + 1, 0, dup);
+    return dup;
+}
 function globalAddLight(lights, dontFocus) {
     if (dontFocus === void 0) { dontFocus = false; }
     if (!lights)

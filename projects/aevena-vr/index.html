@@ -222,8 +222,9 @@
         <div class="panel" v-if="currentSheet.ftueSequence">
             <draggable :list="currentSheet.ftueSequence.steps">
             <div class="ftue-step" v-for="(step, id) in currentSheet.ftueSequence.steps">
-                <btn class="padded-5 drag-handle" icon="sort" title="Sort param"></btn>
+                <btn class="padded-5" icon="clone" title="Clone Step" @click="ftue_cloneStep(step)"></btn>
                 <btn class="padded-5" icon="trash-o" title="Delete Step" @click="ftue_removeStep(step)"></btn>
+                <btn class="padded-5 drag-handle" icon="sort" title="Sort param"></btn>
 
                 <div class="nowrap inline-block padded-3" :class="{isDuplicate: step.isNameDuplicate}">
                     <span>Name:</span>

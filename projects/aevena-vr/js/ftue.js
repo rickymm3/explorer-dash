@@ -9,10 +9,10 @@ var __STEPS;
         });
         _.extend(vueComputed, {
             ftue_lightNames: function () {
-                return [{ name: 'Default' }].concat(__SHEET.lightSequence);
+                return [{ name: 'none' }].concat(__SHEET.lightSequence);
             },
             ftue_actionNames: function () {
-                return [{ name: 'Default' }].concat(__SHEET.actionSequence);
+                return [{ name: 'none' }].concat(__SHEET.actionSequence);
             },
             ftue_webPanels: function () {
                 return [{ name: 'none' }].concat(__VUE.hardcoded.WebPanels);

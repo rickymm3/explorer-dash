@@ -17,11 +17,11 @@ var __STEPS;
 
         _.extend(vueComputed, {
             ftue_lightNames() {
-                return [{name: 'Default'}].concat(__SHEET.lightSequence);
+                return [{name: 'none'}].concat(__SHEET.lightSequence);
             },
 
             ftue_actionNames() {
-                return [{name: 'Default'}].concat(__SHEET.actionSequence);
+                return [{name: 'none'}].concat(__SHEET.actionSequence);
             },
 
             ftue_webPanels() {

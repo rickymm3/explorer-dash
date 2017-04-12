@@ -251,6 +251,40 @@
 
                 <br/>
 
+
+
+                <div class="nowrap inline-block padded-3">
+                    <span class="col-1">Web Panel:</span>
+                    <span class="col-2">
+                        <dropdown	class_btn="web-panel"
+                                     class_dropdown="ftue-dropdown web-panel-list"
+                                     property="webPanel"
+                                     :target="step"
+                                     :nolabel="true"
+                                     :list="ftue_webPanels"
+                                     :dropdown_source="id + 'webPanel'">
+                        </dropdown>
+                        <input class="padded-5" v-model="step.webPanel" />
+                    </span>
+                </div>
+
+                <div class="nowrap inline-block padded-3">
+                    <span class="col-1">Trigger Name:</span>
+                    <span class="col-2">
+                        <dropdown	class_btn="trigger-name"
+                                     class_dropdown="ftue-dropdown trigger-name-list"
+                                     property="triggerName"
+                                     :target="step"
+                                     :nolabel="true"
+                                     :list="ftue_triggerNames"
+                                     :dropdown_source="id + 'triggerName'">
+                        </dropdown>
+                        <input class="padded-5" v-model="step.triggerName" />
+                    </span>
+                </div>
+
+                <br/>
+
                 <div class="nowrap inline-block padded-3">
                     <span class="col-1">Light Sequence:</span>
                     <span class="col-2">
@@ -278,32 +312,6 @@
                 </div>
 
                 <div class="nowrap inline-block padded-3">
-                    <span class="col-1">Web Panel:</span>
-                    <span class="col-2">
-                        <dropdown	class_btn="long-lists web-panel"
-                                     class_dropdown="ftue-dropdown web-panel-list"
-                                     property="webPanel"
-                                     :target="step"
-                                     :list="ftue_webPanels"
-                                     :dropdown_source="id + 'webPanel'">
-                        </dropdown>
-                    </span>
-                </div>
-
-                <div class="nowrap inline-block padded-3">
-                    <span class="col-1">Trigger Name:</span>
-                    <span class="col-2">
-                        <dropdown	class_btn="long-lists trigger-name"
-                                     class_dropdown="ftue-dropdown trigger-name-list"
-                                     property="triggerName"
-                                     :target="step"
-                                     :list="ftue_triggerNames"
-                                     :dropdown_source="id + 'triggerName'">
-                        </dropdown>
-                    </span>
-                </div>
-
-                <div class="nowrap inline-block padded-3">
                     <span class="col-1">Next Step Ref:</span>
                     <span class="col-2">
                         <dropdown	class_btn="long-lists next-step"
@@ -315,8 +323,6 @@
                         </dropdown>
                     </span>
                 </div>
-
-
 
             </div>
             </draggable>

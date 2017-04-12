@@ -215,7 +215,9 @@ module.exports = function(PROJ) {
 				"spacecheck",
 				"testflight",
 				"flightinprogress",
-				"setupcomplete"
+				"setupcomplete",
+				"loadingpage",
+				"intropage"
 			].toKeyValues(),
 
 			TriggerNames: [
@@ -228,6 +230,8 @@ module.exports = function(PROJ) {
 				"WifiConnectedClick",
 				"TestFlightLaunchClick",
 				"SetupCompleteClick",
+				"LoadingPageClick",
+				"IntroPageClick"
 			].toKeyValues()
 		}
 	}

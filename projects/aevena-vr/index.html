@@ -11,23 +11,32 @@
     <btn icon="i-cursor" label="Rename" @click="renameSheet()"></btn>
 
     <!-- SHEET -->
-        <span class="dropdown">
-            <btn class="sheet-names"
-                 @click="setCurrentDropDown(currentSheet)"
-                 icon="caret-down"
-                 :label="currentSheet.name">
-            </btn>
-            <div class="dropdown-list suggested-names-panel"
-                 v-if="currentDropDown==currentSheet"
-                 @click="currentSheetUpdate($event)">
-                <div v-for="(item, id) in jsonData.sheets"
-                     v-html="item.name"
-                     :class="currentSheet==item ? 'isSelected' : ''"
-                     :data-index="id"></div>
-            </div>
-        </span>
+    <span class="dropdown">
+        <btn class="sheet-names"
+             @click="setCurrentDropDown(currentSheet)"
+             icon="caret-down"
+             :label="currentSheet.name">
+        </btn>
+        <div class="dropdown-list suggested-names-panel"
+             v-if="currentDropDown==currentSheet"
+             @click="currentSheetUpdate($event)">
+            <div v-for="(item, id) in jsonData.sheets"
+                 v-html="item.name"
+                 :class="currentSheet==item ? 'isSelected' : ''"
+                 :data-index="id"></div>
+        </div>
+    </span>
 
     <!--
+    <dropdown	class_btn="sheet-names"
+                 class_dropdown="dropdown-list suggested-names-panel"
+                 property="name"
+                 :target="currentSheet"
+                 :list="jsonData.sheets"
+                 :dropdown_source="jsonData">
+    </dropdown>
+
+
     <dropdown   class_btn="sheet-names"
                  class_dropdown="suggested-names-panel"
                  :list="jsonData.sheets"
@@ -84,14 +93,6 @@
                                 <input v-model:value="currentLightItem.name">
                             </i>
 
-                            <!-- Names Suggestion DropDown menu -->
-                            <dropdown	class_btn="action-names"
-                                         class_dropdown="suggested-names-panel"
-                                         :list="currentSheet.actionSequence"
-                                         :dropdown_source="currentLightItem"
-                                         @selected="useSuggestedName(currentLightItem, $event, currentSheet.actionSequence)">
-                            </dropdown>
-
                             <btn class="spacer-1" icon="play" label="Play All" @click="playAll($event)"></btn>
                         </div>
 
@@ -146,14 +147,6 @@
                                 <input class="" v-model:value="currentActionItem.name">
                             </i>
 
-                            <!-- Names Suggestion DropDown menu -->
-                            <dropdown	class_btn="action-names"
-                                         class_dropdown="suggested-names-panel"
-                                         :list="currentSheet.lightSequence"
-                                         :dropdown_source="currentActionItem"
-                                         @selected="useSuggestedName(currentActionItem, $event, currentSheet.lightSequence)">
-                            </dropdown>
-
                             <btn class="padded-5" icon="plus-square" title="Add an Action Parameter" label="Param" v-on:click="addActionParam()"></btn>
                         </div>
 
@@ -168,51 +161,47 @@
                                  v-for="actionParam in currentActionItem.params">
 
                                 <div class="inline-block">
-                                    <span class="">
-                                        <btn class="padded-5" icon="trash-o" title="Delete param" @click="removeActionParam(actionParam)"></btn>
-                                        <btn class="padded-5" icon="clone" title="Clone param" @click="copyActionParam(actionParam)"></btn>
-                                        <btn class="padded-5 drag-handle" icon="sort" title="Sort param"></btn>
+                                    <btn class="padded-5" icon="trash-o" title="Delete param" @click="removeActionParam(actionParam)"></btn>
+                                    <btn class="padded-5" icon="clone" title="Clone param" @click="copyActionParam(actionParam)"></btn>
+                                    <btn class="padded-5 drag-handle" icon="sort" title="Sort param"></btn>
 
-                                        <dropdown	class_btn="ara-command"
-                                                     class_dropdown="ara-command-panel"
-                                                     :list="hardcoded.AraCommands"
-                                                     :label="actionParam.type"
-                                                     :dropdown_source="actionParam"
-                                                     @selected="selectActionType(actionParam, $event)">
-                                        </dropdown>
+                                    <dropdown	class_btn="ara-command"
+                                                 class_dropdown="ara-command-panel"
+                                                 property="type"
+                                                 :target="actionParam"
+                                                 :list="hardcoded.AraCommands"
+                                                 :dropdown_source="actionParam">
+                                    </dropdown>
+
+                                    <span class="nowrap action-header">
+                                        <i>Time:</i>
+                                        <input class="digits-3" v-model:value="actionParam.time">
                                     </span>
 
-                                    <div class="nowrap head">
-                                        <span class="nowrap action-header">
-                                            <i>Time:</i>
-                                            <input class="digits-3" v-model:value="actionParam.time">
-                                        </span>
-                                        
-                                        <br/>
-                                        
-                                        <span class="nowrap action-header">
-                                            <i>Elevation:</i>
-                                            <input class="digits-3" v-model:value="actionParam.elevation">
-                                        </span>
-                                    </div>
+                                    <span class="nowrap action-header">
+                                        <i>Elevation:</i>
+                                        <input class="digits-3" v-model:value="actionParam.elevation">
+                                    </span>
                                 </div>
 
-                                
-                                <br/>
-                                <i class="spacer-1 nowrap">
-                                <input type="checkbox" v-model:value="actionParam.waitForRing">
-                                <i>Wait For Ring</i>
+
+                                <i class="nowrap inline-block padded-5">
+                                    <label class="spacer-1 pointer">
+                                        <input type="checkbox" v-model:value="actionParam.waitForRing">
+                                        <i>Wait For Ring</i>
+                                    </label>
+
+                                    <label class="spacer-1 pointer">
+                                        <input type="checkbox" v-model:value="actionParam.waitForStrip">
+                                        <i>Wait For Strip</i>
+                                    </label>
+
+                                    <label class="spacer-1 pointer">
+                                        <input type="checkbox" v-model:value="actionParam.waitForYaw">
+                                        <i>Wait For Yaw</i>
+                                    </label>
                                 </i>
 
-                                <i class="spacer-1 nowrap">
-                                <input type="checkbox" v-model:value="actionParam.waitForStrip">
-                                <i>Wait For Strip</i>
-                                </i>
-
-                                <i class="spacer-1 nowrap">
-                                <input type="checkbox" v-model:value="actionParam.waitForYaw">
-                                <i>Wait For Yaw</i>
-                                </i>
                             </div>
                         </draggable>
 
@@ -250,15 +239,6 @@
                 </div>
 
                 <div class="nowrap inline-block padded-3">
-                    <!--<dropdown	class_btn="audio"
-                                 class_dropdown="audio-list"
-                                 icon="volume-up"
-                                 :list="audioClips"
-                                 :dropdown_source="step"
-                                 :is_selected="ftue_isAudioSelected"
-                                 @selected="ftue_setCurrentAudio($event, step)">
-                    </dropdown>-->
-
                     <span>Voice Name:</span>
                     <input class="border padded-5" v-model="step.audioClipName">
 
@@ -273,11 +253,10 @@
                     <span class="col-2">
                         <dropdown	class_btn="long-lists light"
                                      class_dropdown="ftue-dropdown light-list"
-                                     :label="step.lightSequence"
+                                     property="lightSequence"
+                                     :target="step"
                                      :list="ftue_lightNames"
-                                     :dropdown_source="id + 'light'"
-                                     :is_selected="ftue_isLightSelected"
-                                     @selected="ftue_setCurrentLightSeq($event, step)">
+                                     :dropdown_source="id + 'light'">
                         </dropdown>
                     </span>
                 </div>
@@ -287,11 +266,10 @@
                     <span class="col-2">
                         <dropdown	class_btn="long-lists action"
                                      class_dropdown="ftue-dropdown action-list"
-                                     :label="step.actionName"
+                                     property="actionName"
+                                     :target="step"
                                      :list="ftue_actionNames"
-                                     :dropdown_source="id + 'action'"
-                                     :is_selected="ftue_isActionSelected"
-                                     @selected="ftue_setCurrentActionSeq($event, step)">
+                                     :dropdown_source="id + 'action'">
                         </dropdown>
                     </span>
                 </div>
@@ -301,11 +279,10 @@
                     <span class="col-2">
                         <dropdown	class_btn="long-lists web-panel"
                                      class_dropdown="ftue-dropdown web-panel-list"
-                                     :label="step.webPanel"
+                                     property="webPanel"
+                                     :target="step"
                                      :list="ftue_webPanels"
-                                     :dropdown_source="id + 'webPanel'"
-                                     :is_selected="ftue_isWebPanelSelected"
-                                     @selected="ftue_setCurrentWebPanel($event, step)">
+                                     :dropdown_source="id + 'webPanel'">
                         </dropdown>
                     </span>
                 </div>
@@ -315,11 +292,10 @@
                     <span class="col-2">
                         <dropdown	class_btn="long-lists trigger-name"
                                      class_dropdown="ftue-dropdown trigger-name-list"
-                                     :label="step.triggerName"
+                                     property="triggerName"
+                                     :target="step"
                                      :list="ftue_triggerNames"
-                                     :dropdown_source="id + 'triggerName'"
-                                     :is_selected="ftue_isTriggerNameSelected"
-                                     @selected="ftue_setCurrentTriggerName($event, step)">
+                                     :dropdown_source="id + 'triggerName'">
                         </dropdown>
                     </span>
                 </div>
@@ -329,11 +305,10 @@
                     <span class="col-2">
                         <dropdown	class_btn="long-lists next-step"
                                      class_dropdown="ftue-dropdown next-step-list"
-                                     :label="step.nextStepReference"
+                                     property="nextStepReference"
+                                     :target="step"
                                      :list="ftue_nextStepRefNames"
-                                     :dropdown_source="id + 'nextStepRef'"
-                                     :is_selected="ftue_isNextStepRefSelected"
-                                     @selected="ftue_setCurrentNextStepRef($event, step)">
+                                     :dropdown_source="id + 'nextStepRef'">
                         </dropdown>
                     </span>
                 </div>

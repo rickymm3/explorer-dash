@@ -130,6 +130,7 @@ function showPopup(header, message, options) {
 					return __VUE ? __VUE.currentDropDown : null;
 				}
 			},
+
 			methods: {
 				isSelected(item) {
 					return this.currentValue == item.name;
@@ -773,6 +774,10 @@ function showPopup(header, message, options) {
 					}
 				},
 
+				updated() {
+					fixInputSelectable();
+				},
+
 				computed: {
 					modes() {
 						return __VUE.hardcoded.LightStates;
@@ -781,6 +786,14 @@ function showPopup(header, message, options) {
 					audioClips() {
 						return __VUE.hardcoded.AudioClips;
 					},
+
+					audioClipsGithub() {
+						if(!__VUE.hardcoded.AudioClipsGithub) {
+							__VUE.hardcoded.AudioClipsGithub = [];
+						}
+
+						return __VUE.hardcoded.AudioClipsGithub;
+					}
 				},
 
 				methods: {
@@ -1049,8 +1062,8 @@ function showPopup(header, message, options) {
 
 			loadSounds();
 			loadNavBarMenu();
-			
-			__VUE.$forceUpdate();
+
+			getGithubLiveData(() => __VUE.$forceUpdate());
 		}
 	});
 
@@ -1266,3 +1279,50 @@ function convertLEDs(newCount) {
 	}
 }
 
+function getGithubLiveData(cb) {
+	var filters = "nometa&noext&trim&include=**/*.(mp3|wav)";
+
+	//Get AudioClips:
+	$.ajax('/github/EggRollDigital/aevenavr/tree/vive/ara-vr/Assets/Resources/AudioClips?' + filters, {
+		success(data) {
+			__VUE.hardcoded.AudioClipsGithub = data.files.toKeyValues();
+			trace(__VUE.hardcoded.AudioClipsGithub);
+			__VUE.$nextTick(cb);
+		},
+		error(err) {
+			traceError(err);
+			__VUE.$nextTick(cb);
+		}
+	})
+}
+
+function fixInputSelectable() {
+	var $nodrag = $('.nodrag');
+
+	$nodrag.each((id, element) => {
+		if(element._nodragFix) return;
+		element._nodragFix = true;
+
+		var $el = $(element);
+		var $step = $el.closest('.ftue-step');
+
+		trace($step);
+
+		$el.mousedown((e) => {
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+
+			//stopEvent(e);
+			$step.attr("draggable", false);
+		});
+
+		$el.mouseup((e) => {
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+
+			//stopEvent(e);
+			$step.attr("draggable", true);
+		});
+	});
+
+}

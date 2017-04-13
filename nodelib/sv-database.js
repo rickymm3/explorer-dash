@@ -9,6 +9,8 @@ const ObjectID = Schema.ObjectId;
 const Redis = require('redis');
 
 module.exports = function(ERDS) {
+	return;
+
 	startRedisClient();
 	
 	function startRedisClient() {
@@ -35,8 +37,6 @@ module.exports = function(ERDS) {
 	}
 	
 	trace("(Mongo Disabled for now)".yellow);
-	
-	return;
 
 	mongoose
 		.connect(ERDS.__mongodb)

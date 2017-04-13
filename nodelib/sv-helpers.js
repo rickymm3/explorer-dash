@@ -160,6 +160,19 @@ module.exports = function(ERDS) {
 		});
 	};
 
+	ERDS.jsonRead = function(file, cb) {
+		if(!cb) return JSON.parse(ERDS.fileRead(file));
+		ERDS.fileRead(file, (err, content, file) => {
+			cb(err, JSON.parse(content), file);
+		});
+	};
+
+	ERDS.jsonWrite = function(file, content, cb) {
+		var prettyJSON = typeof(content)=="string" ? content : JSON.stringify(content, null, true);
+
+		ERDS.fileWrite(file, prettyJSON, cb);
+	};
+
 	//////////////////////////////////////////// HTML Helpers:
 	
 	ERDS.createScriptTags = function(URLs) {

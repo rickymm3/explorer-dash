@@ -4,6 +4,7 @@
   "description": "General Eggroll Digital Studios Web Dashboard",
   "main": "app.js",
   "dependencies": {
+    "anymatch": "^1.3.0",
     "bluebird": "^3.5.0",
     "chokidar": "^1.6.1",
     "colors": "^1.1.2",

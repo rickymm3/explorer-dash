@@ -4,7 +4,8 @@
 
 const git = require('git-rev-sync');
 const dateFormat = require('dateformat');
-const GitHubApi = require("github");
+const GitHubApi = require('github');
+const anymatch = require('anymatch');
 
 module.exports = function(ERDS, next) {
 	var gitDate = git.date();
@@ -21,60 +22,114 @@ module.exports = function(ERDS, next) {
 	});
 
 	var github = new GitHubApi({
-		// optional
-		//debug: true,
+		//debug: true, // optional
 		protocol: "https",
 		host: "api.github.com", // should be api.github.com for GitHub
 		//pathPrefix: "/api/v3", // for some GHEs; none for GitHub
-		headers: {
-			"user-agent": "BigP Node App" // GitHub is happy with a unique user agent
-		},
+		headers: { "user-agent": "BigP Node App" }, // GitHub is happy with a unique user agent
 		Promise: require('bluebird'),
 		followRedirects: false, // default: true; there's currently an issue with non-get redirects, so allow ability to disable follow-redirects
 		timeout: 5000
 	});
 
-	github.authenticate({
-		type: "token",
-		token: env.GITHUB_PERSONAL_TOKEN,
-	});
+	github.authenticate({ type: "token", token: env.GITHUB_PERSONAL_TOKEN });
 
+	var __githubListingsJSON = ERDS.__private + "/github-listings.json";
+	var githubListings = {repos:{}};
+
+	if(ERDS.fileExists(__githubListingsJSON)) {
+		githubListings = ERDS.jsonRead(__githubListingsJSON);
+	}
+
+	//ERDS.path
 	ERDS.app.use('/github/:user/:repo/:view/:branch', function(req, res, next) {
-		//EggRollDigital/aevenavr/tree/vive/ara-vr/Assets/Resources/AudioClips
-
+		var p = req.params;
+		var sha = null, commit = null;
+		var fullURL = ERDS.fullUrl(req);
+		var uniqueID = [p.user,p.repo,p.branch].join(':');
 		var subpath = req.path.substr(1);
 		var repoOptions = {
-			owner: req.params.user,
-			repo: req.params.repo,
-			branch: req.params.branch
+			owner: p.user,
+			repo: p.repo,
+			branch: p.branch
 		};
 
-		github.repos.getBranch(repoOptions).then((response) => {
-			var sha = response.data.commit.sha;
+		var reposKnown = githubListings.repos;
+		var repoCurrent = reposKnown[uniqueID];
+		if(!repoCurrent) reposKnown[uniqueID] = repoCurrent = {sha:null, comment:'', tree:null};
 
-			//Return the Cached SHA results:
-			// ????
+		github.repos.getBranch(repoOptions).then(onGetBranch).catch(err => {
+			res.send("Error in Github call: " + err);
+		});
 
-			//Else:
+		function onGetBranch(response) {
+			sha = response.data.commit.sha;
 
-			repoOptions.sha = sha;
+			var tempCommit = response.data.commit.commit;
+			commit = {
+				commiter: tempCommit.committer,
+				message: tempCommit.message
+			};
+
+			if(repoCurrent.sha==sha) {
+				return onOutputTreeData(repoCurrent);
+			}
+
+			repoCurrent.commit = commit;
+			repoOptions.sha = repoCurrent.sha = sha;
 			repoOptions.recursive = true;
 
-			github.gitdata.getTree(repoOptions, function(err, response) {
-				if(err) {
-					traceError(err);
-					return next();
-				}
+			//github.repos.getCommitComment({owner: p.user, repo: p.repo, id: sha}, onGetCommitComment);
+			github.gitdata.getTree(repoOptions, onGetNewTreeData);
+		}
 
-				var tree = response.data.tree;
-				trace(subpath);
-				var files = tree.map(leaf => leaf.path).filter(path => path.has(subpath));
-				var jsonStr = JSON.stringify(files, null, '  ');
+		// function onGetCommitComment(err, response) {
+		// 	if(err) {
+		// 		traceError("Error getting commit comment: " + err);
+		// 		return next();
+		// 	}
+		//
+		// 	commit = response;
+		// 	trace(commit);
+		// 	return res.send('...');
+		// 	//
+		// }
 
-				res.send(`<pre>${jsonStr}</pre>`);
+		function onGetNewTreeData(err, response) {
+			if(err) {
+				traceError(err);
+				return next();
+			}
+
+			repoCurrent.tree = response.data.tree;
+
+			onOutputTreeData(repoCurrent);
+
+			ERDS.jsonWrite(__githubListingsJSON, githubListings, (err, file) => {
+				if(err) return traceError("Failed to write JSON in private folder!");
+				trace("JSON written successfully!".green);
 			});
-		}).catch(err => {
-			res.send("Error in Github call.");
-		});
+		}
+
+		function onOutputTreeData(repo) {
+			var q = req.query;
+			var subpathSlash = subpath+'/';
+			var files = repo.tree.map(leaf => leaf.path).filter(path => path.has(subpath));
+			if(q.exclude) files = files.filter(file => !anymatch(q.exclude.split(','), file));
+			if(q.include) files = files.filter(file => !anymatch(q.include.split(','), file));
+			if(!q.dirs) files = files.filter(file => file.split('/').pop().has('.'));
+			if(q.trim!=null) files = files.map(file => file.replace(subpathSlash, ''));
+			if(q.noext!=null) files = files.map(file => file.replace(/\.[a-z0-9]*$/i, ''));
+
+			var jsonStr = JSON.stringify({
+				sha: sha,
+				commit: repoCurrent.commit,
+				uniqueID: uniqueID,
+				subpath: subpath,
+				files: files
+			}, null, '  ');
+
+			res.send(`<pre>${jsonStr}</pre>`);
+		}
 	});
 };

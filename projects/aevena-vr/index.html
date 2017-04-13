@@ -228,25 +228,34 @@
 
                 <div class="nowrap inline-block padded-3" :class="{isDuplicate: step.isNameDuplicate}">
                     <span>Name:</span>
-                    <input class="border padded-5" v-model="step.name" @keyup="ftue_invalidate">
+                    <input class="border nodrag padded-5" v-model="step.name" @keyup="ftue_invalidate">
                 </div>
 
                 <div class="nowrap inline-block padded-3">
                     <span>Step Duration:</span>
-                    <input class="border padded-5 digits-4" v-model="step.stepDuration">
+                    <input class="border nodrag padded-5 digits-4" v-model="step.stepDuration">
                 </div>
 
                 <div class="nowrap inline-block padded-3">
                     <span>Action Delay:</span>
-                    <input class="border padded-5 digits-4" v-model.number="step.actionDelay">
+                    <input class="border nodrag padded-5 digits-4" v-model.number="step.actionDelay">
                 </div>
 
                 <div class="nowrap inline-block padded-3">
                     <span>Voice Name:</span>
-                    <input class="border padded-5" v-model="step.audioClipName">
+
+                    <dropdown	class_btn="audio-clip"
+                                 class_dropdown="ftue-dropdown-2 audio-clip-list"
+                                 property="audioClipName"
+                                 :target="step"
+                                 :nolabel="true"
+                                 :list="hardcoded.AudioClipsGithub"
+                                 :dropdown_source="id + 'audioClipName'">
+                    </dropdown>
+                    <input class="border nodrag padded-5" v-model="step.audioClipName">
 
                     <span>Volume:</span>
-                    <input class="border padded-5 digits-4" v-model.number="step.audioVolume">
+                    <input class="border nodrag padded-5 digits-4" v-model.number="step.audioVolume">
                 </div>
 
                 <br/>
@@ -264,7 +273,7 @@
                                      :list="ftue_webPanels"
                                      :dropdown_source="id + 'webPanel'">
                         </dropdown>
-                        <input class="padded-5" v-model="step.webPanel" />
+                        <input class="border nodrag padded-5" v-model="step.webPanel" />
                     </span>
                 </div>
 
@@ -279,7 +288,7 @@
                                      :list="ftue_triggerNames"
                                      :dropdown_source="id + 'triggerName'">
                         </dropdown>
-                        <input class="padded-5" v-model="step.triggerName" />
+                        <input class="border nodrag padded-5" v-model="step.triggerName" />
                     </span>
                 </div>
 

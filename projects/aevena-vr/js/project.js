@@ -544,12 +544,21 @@ function showPopup(header, message, options) {
                         sheets: []
                     }
                 },
+                updated: function () {
+                    fixInputSelectable();
+                },
                 computed: {
                     modes: function () {
                         return __VUE.hardcoded.LightStates;
                     },
                     audioClips: function () {
                         return __VUE.hardcoded.AudioClips;
+                    },
+                    audioClipsGithub: function () {
+                        if (!__VUE.hardcoded.AudioClipsGithub) {
+                            __VUE.hardcoded.AudioClipsGithub = [];
+                        }
+                        return __VUE.hardcoded.AudioClipsGithub;
                     }
                 },
                 methods: {
@@ -775,8 +784,7 @@ function showPopup(header, message, options) {
             });
             loadSounds();
             loadNavBarMenu();
-            __VUE.$forceUpdate();
-            doGitTest();
+            getGithubLiveData(function () { return __VUE.$forceUpdate(); });
         }
     });
     function loadSounds() {
@@ -939,11 +947,41 @@ function convertLEDs(newCount) {
         }
     }
 }
-function doGitTest() {
-    return;
-    $.ajax('http://localhost:9999/github/bigp/RodentsGame/tree/master/', {
+function getGithubLiveData(cb) {
+    var filters = "nometa&noext&trim&include=**/*.(mp3|wav)";
+    //Get AudioClips:
+    $.ajax('/github/EggRollDigital/aevenavr/tree/vive/ara-vr/Assets/Resources/AudioClips?' + filters, {
         success: function (data) {
-            trace(data);
+            __VUE.hardcoded.AudioClipsGithub = data.files.toKeyValues();
+            trace(__VUE.hardcoded.AudioClipsGithub);
+            __VUE.$nextTick(cb);
+        },
+        error: function (err) {
+            traceError(err);
+            __VUE.$nextTick(cb);
         }
+    });
+}
+function fixInputSelectable() {
+    var $nodrag = $('.nodrag');
+    $nodrag.each(function (id, element) {
+        if (element._nodragFix)
+            return;
+        element._nodragFix = true;
+        var $el = $(element);
+        var $step = $el.closest('.ftue-step');
+        trace($step);
+        $el.mousedown(function (e) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            //stopEvent(e);
+            $step.attr("draggable", false);
+        });
+        $el.mouseup(function (e) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            //stopEvent(e);
+            $step.attr("draggable", true);
+        });
     });
 }

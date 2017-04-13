@@ -478,6 +478,12 @@ body {
   left: 260px;
   content: 'Must have unique ID';
 }
+.ftue-step input {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
 .ftue-step .col-1,
 .ftue-step .col-2 {
   vertical-align: top;
@@ -495,6 +501,10 @@ body {
 .ftue-dropdown {
   column-count: 1;
   max-width: 210px;
+}
+.ftue-dropdown-2 {
+  column-count: 3;
+  max-width: 520px;
 }
 .long-lists {
   min-width: 150px;

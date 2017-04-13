@@ -116,20 +116,25 @@ module.exports = function(ERDS, next) {
 			var subpathSlash = subpath+'/';
 			var files = repo.tree.map(leaf => leaf.path).filter(path => path.has(subpath));
 			if(q.exclude) files = files.filter(file => !anymatch(q.exclude.split(','), file));
-			if(q.include) files = files.filter(file => !anymatch(q.include.split(','), file));
+			if(q.include) files = files.filter(file => anymatch(q.include.split(','), file));
 			if(!q.dirs) files = files.filter(file => file.split('/').pop().has('.'));
-			if(q.trim!=null) files = files.map(file => file.replace(subpathSlash, ''));
+			if(q.nometa!=null) files = files.filter(file => !anymatch('**/*.meta', file));
+			if(q.trim!=null && subpath.length>0) files = files.map(file => file.replace(subpathSlash, ''));
 			if(q.noext!=null) files = files.map(file => file.replace(/\.[a-z0-9]*$/i, ''));
+			//?noext&trim&exclude=**/*.meta
 
-			var jsonStr = JSON.stringify({
+			var jsonData = {
 				sha: sha,
+				queries: q,
 				commit: repoCurrent.commit,
 				uniqueID: uniqueID,
 				subpath: subpath,
 				files: files
-			}, null, '  ');
+			};
 
-			res.send(`<pre>${jsonStr}</pre>`);
+			var jsonStr = JSON.stringify(jsonData, null, '  ');
+
+			res.send(jsonData);
 		}
 	});
 };

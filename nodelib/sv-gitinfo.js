@@ -9,7 +9,7 @@ const request = require('request');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-
+const GitHubApi = require("github");
 
 module.exports = function(ERDS, next) {
 	
@@ -26,6 +26,83 @@ module.exports = function(ERDS, next) {
 		date: dateFormat(gitDate)
 	});
 
+	var github = new GitHubApi({
+		// optional
+		//debug: true,
+		protocol: "https",
+		host: "api.github.com", // should be api.github.com for GitHub
+		//pathPrefix: "/api/v3", // for some GHEs; none for GitHub
+		headers: {
+			"user-agent": "BigP Node App" // GitHub is happy with a unique user agent
+		},
+		Promise: require('bluebird'),
+		followRedirects: false, // default: true; there's currently an issue with non-get redirects, so allow ability to disable follow-redirects
+		timeout: 5000
+	});
+
+	github.authenticate({
+		type: "token",
+		token: env.GITHUB_PERSONAL_TOKEN,
+	});
+
+	ERDS.app.use('/github/:user/:repo/:view/:branch', function(req, res, next) {
+		//EggRollDigital/aevenavr/tree/vive/ara-vr/Assets/Resources/AudioClips
+
+		var subpath = req.path.substr(1);
+		var repoOptions = {
+			owner: req.params.user,
+			repo: req.params.repo,
+			branch: req.params.branch
+		};
+
+		github.repos.getBranch(repoOptions).then((response) => {
+			repoOptions.sha = response.data.commit.sha;
+			repoOptions.recursive = true;
+
+			github.gitdata.getTree(repoOptions, function(err, response) {
+				if(err) {
+					traceError(err);
+					return next();
+				}
+
+				var tree = response.data.tree;
+				trace(subpath);
+				var files = tree.map(leaf => leaf.path).filter(path => path.has(subpath));
+				var jsonStr = JSON.stringify(files, null, '  ');
+
+				res.send(`<pre>${jsonStr}</pre>`);
+			});
+		}).catch(err => {
+			res.send("Error in Github call.");
+		});
+
+
+
+		// var url = 'https://github.com'+req.path;
+		// var model = '.file-wrap .content .js-navigation-open';
+		// var options = {
+		// 	requestOptions: {
+		// 		form:{
+		// 			client_id: env.GITHUB_OAUTH_CLIENT_ID,
+		// 			client_secret: env.GITHUB_OAUTH_CLIENT_SECRET,
+		// 			access_token: env.GITHUB_OAUTH_TOKEN
+		// 		}
+		// 	}
+		// };
+		//
+		// scrapy.scrape(url, model, options, function(err, data) {
+		// 	if (err) {
+		// 		traceError("error! " + err.response.statusCode);
+		// 		//trace(err.toString().substr(0, 250));
+		// 		var jsonStr = JSON.stringify(options, null, "  ");
+		// 		return res.send(err.response.body + `  <pre>${jsonStr}</pre>` ); //res.send(err);
+		// 	}
+		//
+		// 	res.json(data);
+		// });
+	});
+
+	/*
 	ERDS.app.use('/github/', function(req, res, next) {
 		var url = 'https://github.com'+req.path;
 		var model = '.file-wrap .content .js-navigation-open';
@@ -50,6 +127,7 @@ module.exports = function(ERDS, next) {
 			res.json(data);
 		});
 	});
+
 
 	const URL_AUTHORIZE = "https://github.com/login/oauth/authorize";
 	const URL_ACCESS_TOKEN = "https://github.com/login/oauth/access_token";
@@ -125,5 +203,5 @@ module.exports = function(ERDS, next) {
 			res.send(body);
 		});
 	});
-
+	*/
 };

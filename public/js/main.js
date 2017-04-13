@@ -52,10 +52,11 @@ function onProjectFetch(projectData) {
 }
 function stopEvent(e) {
     if (!e)
-        return;
+        return true;
     e.preventDefault();
     e.stopImmediatePropagation();
     e.stopPropagation();
+    return false;
 }
 function addNav(fragment) {
     if (typeof (fragment) == "string")
@@ -100,15 +101,20 @@ function initializeUI() {
     _makeQueueBox($$$.boxError, function (err) {
         ERDS.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
     }, 50);
-    $$$.on('mousedown', function () {
+    $$$.on('mousedown', function (e) {
+        var stopMouse = false;
         $$$.boxes.forEach(function (box) {
             if (!box.is(":visible"))
                 return;
+            stopMouse = true;
             TweenMax.killTweensOf(box);
             TweenMax.to(box, 0.5, { alpha: 0, onComplete: function () {
                     box.hide();
                 } });
         });
+        if (stopMouse)
+            return stopEvent(e);
+        return true;
     });
     function _makeQueueBox(box, cbSetInnerHTML, offset) {
         if (offset === void 0) { offset = 0; }

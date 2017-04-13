@@ -6,10 +6,19 @@ const mkdirp = require('mkdirp');
 const path = require('path');
 const dateFormat = require('dateformat');
 const FILE_ENCODING = {encoding: 'utf8'};
+const url = require('url');
 
 module.exports = function(ERDS) {
 
 	//////////////////////////////////////////// File & Directory Helpers:
+
+	ERDS.fullUrl = function(req) {
+		return url.format({
+			protocol: req.protocol,
+			host: req.get('host'),
+			pathname: req.originalUrl
+		});
+	};
 
 	ERDS.isDir = function isDir(path) {
 		var stat = fs.statSync(path);
@@ -149,6 +158,19 @@ module.exports = function(ERDS) {
 		fs.writeFile(file, content, FILE_ENCODING, (err) => {
 			cb(err, file);
 		});
+	};
+
+	ERDS.jsonRead = function(file, cb) {
+		if(!cb) return JSON.parse(ERDS.fileRead(file));
+		ERDS.fileRead(file, (err, content, file) => {
+			cb(err, JSON.parse(content), file);
+		});
+	};
+
+	ERDS.jsonWrite = function(file, content, cb) {
+		var prettyJSON = typeof(content)=="string" ? content : JSON.stringify(content, null, true);
+
+		ERDS.fileWrite(file, prettyJSON, cb);
 	};
 
 	//////////////////////////////////////////// HTML Helpers:

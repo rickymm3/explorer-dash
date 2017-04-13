@@ -1054,7 +1054,7 @@ function showPopup(header, message, options) {
 				__VUE.currentActionItem = __ACTIONS[getCookie('action', 0)];
 			}
 
-			//Force-Reset the 'isBusy' status when an error occurs:
+			ERDS.io.on('github-webhook', onGithubWebhook);
 			ERDS.io.on("server-error", function() { __VUE.isBusy = false; });
 			ERDS.io.on('isBusy', function(status) {
 				__VUE.isBusy = status;
@@ -1285,6 +1285,7 @@ function getGithubLiveData(cb) {
 	//Get AudioClips:
 	$.ajax('/github/EggRollDigital/aevenavr/tree/vive/ara-vr/Assets/Resources/AudioClips?' + filters, {
 		success(data) {
+			trace(data);
 			__VUE.hardcoded.AudioClipsGithub = data.files.toKeyValues();
 			trace(__VUE.hardcoded.AudioClipsGithub);
 			__VUE.$nextTick(cb);
@@ -1306,8 +1307,6 @@ function fixInputSelectable() {
 		var $el = $(element);
 		var $step = $el.closest('.ftue-step');
 
-		trace($step);
-
 		$el.mousedown((e) => {
 			e.stopPropagation();
 			e.stopImmediatePropagation();
@@ -1325,4 +1324,21 @@ function fixInputSelectable() {
 		});
 	});
 
+}
+
+function onGithubWebhook(data) {
+	var jsonHook = data.hook;
+	var jsonRepo = data.repository;
+	var jsonSender = data.sender;
+
+	var repoName = jsonRepo.name;
+	var socketMessage = [
+		`<img src="${jsonSender.avatar_url}" width="24px" />`,
+		`<b>${jsonSender.login}</b> made changes to <b>${repoName}</b>`,
+		`  <i class="twn twn-bounce em em-mushroom"></i>`
+	].join(' ');
+
+	$$$.boxInfo.showBox(socketMessage);
+
+	playSFX(ERDS.defaultSFX, 'mario_mushroom', 0.1);
 }

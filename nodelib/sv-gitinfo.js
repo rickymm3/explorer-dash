@@ -6,6 +6,7 @@ const git = require('git-rev-sync');
 const dateFormat = require('dateformat');
 const GitHubApi = require('github');
 const anymatch = require('anymatch');
+const bodyParser = require('body-parser');
 
 module.exports = function(ERDS, next) {
 	var gitDate = git.date();
@@ -139,5 +140,14 @@ module.exports = function(ERDS, next) {
 
 			res.send(jsonData);
 		}
+	});
+
+	ERDS.app.use('/github-webhook', bodyParser.json(), function(req, res, next) {
+		var fullURL = ERDS.fullUrl(req);
+
+		trace("github-webhook: " + fullURL);
+		ERDS.io.emit('github-webhook', req.body);
+
+		return res.send('ok');
 	});
 };

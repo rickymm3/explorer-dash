@@ -6,10 +6,19 @@ const mkdirp = require('mkdirp');
 const path = require('path');
 const dateFormat = require('dateformat');
 const FILE_ENCODING = {encoding: 'utf8'};
+const url = require('url');
 
 module.exports = function(ERDS) {
 
 	//////////////////////////////////////////// File & Directory Helpers:
+
+	ERDS.fullUrl = function(req) {
+		return url.format({
+			protocol: req.protocol,
+			host: req.get('host'),
+			pathname: req.originalUrl
+		});
+	};
 
 	ERDS.isDir = function isDir(path) {
 		var stat = fs.statSync(path);

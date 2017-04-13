@@ -1051,6 +1051,8 @@ function showPopup(header, message, options) {
 			loadNavBarMenu();
 			
 			__VUE.$forceUpdate();
+
+			doGitTest();
 		}
 	});
 
@@ -1266,3 +1268,12 @@ function convertLEDs(newCount) {
 	}
 }
 
+function doGitTest() {
+	return;
+
+	$.ajax('http://localhost:9999/github/bigp/RodentsGame/tree/master/', {
+		success(data) {
+			trace(data);
+		}
+	})
+}

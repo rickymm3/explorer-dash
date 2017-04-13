@@ -132,7 +132,10 @@ module.exports = function(ERDS, next) {
 				files: files
 			};
 
-			var jsonStr = JSON.stringify(jsonData, null, '  ');
+			if(q.pretty!=null) {
+				var jsonStr = JSON.stringify(jsonData, null, '  ');
+				return res.send(`<pre>${jsonStr}</pre>`);
+			}
 
 			res.send(jsonData);
 		}

@@ -209,5 +209,14 @@ module.exports = function(ERDS) {
 
 	ERDS.isModuleLoaded = function(modName) {
 		return !!require.cache[require.resolve(modName)];
-	}
+	};
+
+	var _invalidateRequireCacheForFile = function(filePath){
+		delete require.cache[require.resolve(filePath)];
+	};
+
+	ERDS.requireNoCache =  function(filePath){
+		_invalidateRequireCacheForFile(filePath);
+		return require(filePath);
+	};
 };

@@ -368,4 +368,21 @@
     </div>
 </div>
 
+<div id="edit-panel" class="init-hidden" v-if="editFile && editFile.name">
+    <h1>Editing: {{editFileName}}</h1><br/>
+    <div class="top-right padded-5">
+        <btn @click="saveEditFile()" label="Save"></btn>
+        <btn @click="cancelEditFile()" label="Cancel"></btn>
+    </div>
+
+    <i class="spacer-5"><br/></i>
+
+    <i class="edit-data">
+        <textarea v-model="editFile.data"></textarea>
+    </i>
+    <i class="spacer-5"><br/></i>
+
+
+</div>
+
 <script src="./aevena-vr/js/ftue.js"></script>

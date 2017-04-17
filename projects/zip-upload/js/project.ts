@@ -126,7 +126,7 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
                 isBusy = false;
             }
 
-            $('.init-hidden').removeClass('init-hidden');
+            //$('.init-hidden').removeClass('init-hidden');
         }
     });
 

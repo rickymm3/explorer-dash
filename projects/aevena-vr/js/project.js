@@ -1,6 +1,6 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
-var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS, __COLORS;
+var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS;
 var __JSONDATA, __KEYS = { SHIFT: 1, CTRL: 2, ALT: 4 };
 function traceJSON(obj) {
     if (obj === void 0) { obj = null; }
@@ -165,13 +165,13 @@ function showPopup(header, message, options) {
                     return __VUE.currentDropDown;
                 },
                 colors: function () {
-                    return __COLORS;
+                    return __VUE.hardcoded ? __VUE.hardcoded.Colors : null;
                 },
                 modes: function () {
-                    return __VUE.hardcoded.LightStates;
+                    return __VUE.hardcoded ? __VUE.hardcoded.LightStates : null;
                 },
                 audioClips: function () {
-                    return __VUE.hardcoded.AudioClips;
+                    return __VUE.hardcoded ? __VUE.hardcoded.AudioClips : null;
                 }
             },
             methods: {
@@ -542,10 +542,15 @@ function showPopup(header, message, options) {
                         currentSheetName: '',
                         numOfLights: 8,
                         sheets: []
+                    },
+                    editFile: {
+                        name: null,
+                        data: null
                     }
                 },
                 updated: function () {
                     fixInputSelectable();
+                    fixTextareaTabs();
                 },
                 computed: {
                     modes: function () {
@@ -559,6 +564,11 @@ function showPopup(header, message, options) {
                             __VUE.hardcoded.AudioClipsGithub = [];
                         }
                         return __VUE.hardcoded.AudioClipsGithub;
+                    },
+                    editFileName: function () {
+                        if (!this.editFile || !this.editFile.name)
+                            return '';
+                        return this.editFile.name.split('/').pop();
                     }
                 },
                 methods: {
@@ -747,6 +757,25 @@ function showPopup(header, message, options) {
                         stopEvent(e);
                         this.$refs.stripLight.playSequence();
                         this.$refs.ringLight.playSequence();
+                    },
+                    ///////////////////////////////////////////////
+                    requestEditFile: function (filename) {
+                        trace("Request: " + filename);
+                        this.isBusy = true;
+                        projectCommand('getEditFile', filename);
+                    },
+                    saveEditFile: function () {
+                        if (this.isBusy)
+                            return;
+                        this.isBusy = true;
+                        trace("Save the edit file...");
+                        projectCommand('saveEditFile', this.editFile);
+                    },
+                    cancelEditFile: function () {
+                        this.editFile = null;
+                    },
+                    onServerEditFile: function (fileObj) {
+                        this.editFile = fileObj;
                     }
                 }
             };
@@ -761,8 +790,7 @@ function showPopup(header, message, options) {
             //$$$.
             fadeIn($$$.details, 0.2);
             //If we don't have any hardcoded data, forget the rest!
-            if (!checkHardcodedData(projectData))
-                return;
+            //if(!checkHardcodedData(projectData)) return;
             if (!projectData || !projectData.json || !projectData.json) {
                 $$$.boxError.showBox("Starting with fresh data... :--1:");
                 createNewSheetAt(0, null);
@@ -779,12 +807,16 @@ function showPopup(header, message, options) {
             }
             ERDS.io.on('github-webhook', onGithubWebhook);
             ERDS.io.on("server-error", function () { __VUE.isBusy = false; });
+            ERDS.io.on("hardcoded", checkHardcodedData);
+            ERDS.io.on("edit-file", __VUE.onServerEditFile);
             ERDS.io.on('isBusy', function (status) {
                 __VUE.isBusy = status;
             });
             loadSounds();
             loadNavBarMenu();
+            projectCommand('getHardcoded');
             getGithubLiveData(function () { return __VUE.$forceUpdate(); });
+            $('.init-hidden').removeClass('init-hidden');
         }
     });
     function loadSounds() {
@@ -802,16 +834,15 @@ function showPopup(header, message, options) {
             return first;
         return arrNew[id];
     }
-    function checkHardcodedData(projectData) {
-        if (!projectData || !projectData.hardcoded) {
+    function checkHardcodedData(data) {
+        if (!data || !data.hardcoded) {
             trace("NO HARDCODED DATA!");
             $$$.boxError.showBox('Oh no! We don\'t have any hardcoded data! :cry:');
-            return false;
+            return;
         }
-        __VUE.hardcoded = projectData.hardcoded;
+        __VUE.hardcoded = _.extend([], __VUE.hardcoded, data.hardcoded);
         __ARACOMMANDS = __VUE.hardcoded.AraCommands;
-        __COLORS = __VUE.hardcoded.Colors;
-        return true;
+        trace(__VUE.hardcoded);
     }
     function createNewSheetAt(id, duplicate) {
         if (id == null)
@@ -876,7 +907,7 @@ function showPopup(header, message, options) {
         __VUE[vueProperty] = id < 0 ? (list.length > 0 ? list.first() : null) : list[id];
     }
     function loadNavBarMenu() {
-        addMenu("\n\t\t\t<div class=\"menu\">\n\t\t\t\t<i title=\"Tools\">\n\t\t\t\t\t<i title=\"Convert LEDs to 12\" onclick=\"convertLEDs(12)\"></i>\n\t\t\t\t\t<i title=\"Convert LEDs to 8\" onclick=\"convertLEDs(8)\"></i>\n\t\t\t\t</i>\n\t\t\t</div>\n\t\t");
+        addMenu("\n\t\t\t<div class=\"menu\">\n\t\t\t\t<i title=\"Tools\">\n\t\t\t\t\t<i title=\"Convert LEDs to 12\" onclick=\"convertLEDs(12)\"></i>\n\t\t\t\t\t<i title=\"Convert LEDs to 8\" onclick=\"convertLEDs(8)\"></i>\n\t\t\t\t</i>\n\t\t\t\t<i title=\"Edit\">\n\t\t\t\t\t<i title=\"Hardcoded Data<br/>(WebPanel, Trigger, etc.)\" onclick=\"__VUE.requestEditFile('hardcoded.js')\"></i>\n\t\t\t\t\t\n\t\t\t\t</i>\n\t\t\t</div>\n\t\t"); //<i title="Raw Project JSON Data" onclick="requestEditFile('raw-project-json')"></i>
     }
 })(ERDS);
 function duplicateItem(item, list) {
@@ -952,9 +983,9 @@ function getGithubLiveData(cb) {
     //Get AudioClips:
     $.ajax('/github/EggRollDigital/aevenavr/tree/vive/ara-vr/Assets/Resources/AudioClips?' + filters, {
         success: function (data) {
-            trace(data);
+            //trace(data);
             __VUE.hardcoded.AudioClipsGithub = data.files.toKeyValues();
-            trace(__VUE.hardcoded.AudioClipsGithub);
+            //trace(__VUE.hardcoded.AudioClipsGithub);
             __VUE.$nextTick(cb);
         },
         error: function (err) {
@@ -984,6 +1015,20 @@ function fixInputSelectable() {
             $step.attr("draggable", true);
         });
     });
+}
+function fixTextareaTabs() {
+    var textareas = document.getElementsByTagName('textarea');
+    var count = textareas.length;
+    for (var i = 0; i < count; i++) {
+        textareas[i].onkeydown = function (e) {
+            if (e.keyCode == 9 || e.which == 9) {
+                e.preventDefault();
+                var s = this.selectionStart;
+                this.value = this.value.substring(0, this.selectionStart) + "\t" + this.value.substring(this.selectionEnd);
+                this.selectionEnd = s + 1;
+            }
+        };
+    }
 }
 function onGithubWebhook(data) {
     var jsonHook = data.hook;

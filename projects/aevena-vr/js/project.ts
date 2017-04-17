@@ -4,7 +4,7 @@
 declare var ERDS, _, $, $$$, Vue, TweenMax, TimelineMax,
 	trace, traceError, traceClear, toIcon, window, document, prompt;
 
-var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS, __COLORS;
+var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS;
 var __JSONDATA, __KEYS = {SHIFT: 1, CTRL: 2, ALT: 4};
 
 function traceJSON(obj=null) {
@@ -231,15 +231,15 @@ function showPopup(header, message, options) {
 				},
 
 				colors() {
-					return __COLORS;
+					return __VUE.hardcoded ? __VUE.hardcoded.Colors : null;
 				},
 
 				modes() {
-					return __VUE.hardcoded.LightStates;
+					return __VUE.hardcoded ? __VUE.hardcoded.LightStates : null;
 				},
 
 				audioClips() {
-					return __VUE.hardcoded.AudioClips;
+					return __VUE.hardcoded ? __VUE.hardcoded.AudioClips : null;
 				},
 			},
 
@@ -744,7 +744,7 @@ function showPopup(header, message, options) {
 	ERDS.Project = function Project() {};
 	
 	_.extend(ERDS.Project.prototype, {
-		extendVue() {
+		extendVue() { //vueConfig, config
 			return {
 				data: {
 					view: getCookie('view', 0),
@@ -771,11 +771,16 @@ function showPopup(header, message, options) {
 						currentSheetName: '',
 						numOfLights: 8,
 						sheets: []
-					}
+					},
+					editFile: {
+						name: null,
+						data: null
+					},
 				},
 
 				updated() {
 					fixInputSelectable();
+					fixTextareaTabs();
 				},
 
 				computed: {
@@ -793,6 +798,11 @@ function showPopup(header, message, options) {
 						}
 
 						return __VUE.hardcoded.AudioClipsGithub;
+					},
+
+					editFileName() {
+						if(!this.editFile || !this.editFile.name) return '';
+						return this.editFile.name.split('/').pop();
 					}
 				},
 
@@ -1017,6 +1027,29 @@ function showPopup(header, message, options) {
 						stopEvent(e);
 						this.$refs.stripLight.playSequence();
 						this.$refs.ringLight.playSequence();
+					},
+
+					///////////////////////////////////////////////
+
+					requestEditFile(filename) {
+						trace("Request: " + filename);
+						this.isBusy = true;
+						projectCommand('getEditFile', filename);
+					},
+
+					saveEditFile() {
+						if(this.isBusy) return;
+						this.isBusy = true;
+						trace("Save the edit file...");
+						projectCommand('saveEditFile', this.editFile);
+					},
+
+					cancelEditFile() {
+						this.editFile = null;
+					},
+
+					onServerEditFile(fileObj) {
+						this.editFile = fileObj;
 					}
 				}
 			};
@@ -1036,7 +1069,7 @@ function showPopup(header, message, options) {
 			fadeIn($$$.details, 0.2);
 
 			//If we don't have any hardcoded data, forget the rest!
-			if(!checkHardcodedData(projectData)) return;
+			//if(!checkHardcodedData(projectData)) return;
 
 			if(!projectData || !projectData.json || !projectData.json) {
 				$$$.boxError.showBox("Starting with fresh data... :--1:");
@@ -1056,6 +1089,8 @@ function showPopup(header, message, options) {
 
 			ERDS.io.on('github-webhook', onGithubWebhook);
 			ERDS.io.on("server-error", function() { __VUE.isBusy = false; });
+			ERDS.io.on("hardcoded", checkHardcodedData);
+			ERDS.io.on("edit-file", __VUE.onServerEditFile);
 			ERDS.io.on('isBusy', function(status) {
 				__VUE.isBusy = status;
 			});
@@ -1063,7 +1098,11 @@ function showPopup(header, message, options) {
 			loadSounds();
 			loadNavBarMenu();
 
+			projectCommand('getHardcoded');
+
 			getGithubLiveData(() => __VUE.$forceUpdate());
+
+			$('.init-hidden').removeClass('init-hidden');
 		}
 	});
 
@@ -1083,18 +1122,17 @@ function showPopup(header, message, options) {
 		return arrNew[id];
 	}
 
-	function checkHardcodedData(projectData) {
-		if(!projectData || !projectData.hardcoded) {
+	function checkHardcodedData(data) {
+		if(!data || !data.hardcoded) {
 			trace("NO HARDCODED DATA!");
 			$$$.boxError.showBox('Oh no! We don\'t have any hardcoded data! :cry:');
-			return false;
+			return;
 		}
 		
-		__VUE.hardcoded = projectData.hardcoded;
+		__VUE.hardcoded = _.extend([], __VUE.hardcoded, data.hardcoded);
 		__ARACOMMANDS = __VUE.hardcoded.AraCommands;
-		__COLORS = __VUE.hardcoded.Colors;
 
-		return true;
+		trace(__VUE.hardcoded);
 	}
 	
 	function createNewSheetAt(id, duplicate) {
@@ -1194,8 +1232,12 @@ function showPopup(header, message, options) {
 					<i title="Convert LEDs to 12" onclick="convertLEDs(12)"></i>
 					<i title="Convert LEDs to 8" onclick="convertLEDs(8)"></i>
 				</i>
+				<i title="Edit">
+					<i title="Hardcoded Data<br/>(WebPanel, Trigger, etc.)" onclick="__VUE.requestEditFile('hardcoded.js')"></i>
+					
+				</i>
 			</div>
-		`);
+		`);//<i title="Raw Project JSON Data" onclick="requestEditFile('raw-project-json')"></i>
 	}
 	
 })(ERDS);
@@ -1285,9 +1327,9 @@ function getGithubLiveData(cb) {
 	//Get AudioClips:
 	$.ajax('/github/EggRollDigital/aevenavr/tree/vive/ara-vr/Assets/Resources/AudioClips?' + filters, {
 		success(data) {
-			trace(data);
+			//trace(data);
 			__VUE.hardcoded.AudioClipsGithub = data.files.toKeyValues();
-			trace(__VUE.hardcoded.AudioClipsGithub);
+			//trace(__VUE.hardcoded.AudioClipsGithub);
 			__VUE.$nextTick(cb);
 		},
 		error(err) {
@@ -1323,7 +1365,21 @@ function fixInputSelectable() {
 			$step.attr("draggable", true);
 		});
 	});
+}
 
+function fixTextareaTabs() {
+	var textareas = document.getElementsByTagName('textarea');
+	var count = textareas.length;
+	for(var i=0;i<count;i++){
+		textareas[i].onkeydown = function(e){
+			if(e.keyCode==9 || e.which==9){
+				e.preventDefault();
+				var s = this.selectionStart;
+				this.value = this.value.substring(0,this.selectionStart) + "\t" + this.value.substring(this.selectionEnd);
+				this.selectionEnd = s+1;
+			}
+		}
+	}
 }
 
 function onGithubWebhook(data) {

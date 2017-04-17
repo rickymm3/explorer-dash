@@ -48,6 +48,7 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
 .shadowy { text-shadow: rgba(255,255,255,0.8) 1px 1px 1px; }
 
 .hidden { display: none; }
+.init-hidden { .hidden; }
 
 .digits-1 { width: 1em !important; }
 .digits-2 { width: 2em !important; }
@@ -80,6 +81,14 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
 .v-align-mid { vertical-align: middle; }
 .v-align-bottom { vertical-align: bottom; }
 .inline-block { display: inline-block; }
+.top-right {
+  position: absolute;
+  display: inline-block;
+  top: 0px;
+  right: 0px;
+  left: auto;
+  width: auto;
+}
 
 .border { outline: 2px #000; }
 
@@ -126,6 +135,7 @@ h1,h2,h3,h4,h5 { margin: 0; display: inline-block; }
 .pointer {
   cursor: pointer;
 }
+
 /////////////////////////////////////// CLASSES for EVERYTHING ELSE!
 
 .git-info {

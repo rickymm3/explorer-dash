@@ -16,7 +16,7 @@ $$$.on('load', function() {
 	ERDS.io.on('beep', onBeep);
 	ERDS.io.on("echo", response => $$$.boxInfo.showBox(response));
 	ERDS.io.on("saved", onSaved);
-	ERDS.io.on("server-error", response => $$$.boxError.showBox(response));
+	ERDS.io.on("server-error", response => {traceError(response); $$$.boxError.showBox(response);});
 	ERDS.io.on('file-changed', onFileChanged);
 	ERDS.io.on('project-fetch', onProjectFetch);
 	ERDS.io.on('has-many-backups', onHasManyBackups);
@@ -59,6 +59,8 @@ function onProjectFetch(projectData) {
 
 		$(window).trigger('vue-extend');
 	}
+
+	$('.init-hidden').removeClass('init-hidden');
 
 	ERDS.vue = new Vue(ERDS.vueConfig);
 

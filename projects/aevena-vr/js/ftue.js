@@ -15,13 +15,19 @@ var __STEPS;
                 return [{ name: 'none' }].concat(__SHEET.actionSequence);
             },
             ftue_webPanels: function () {
-                return [{ name: 'none' }].concat(__VUE.hardcoded.WebPanels);
+                return [{ name: 'none' }].concat(this._webPanels);
             },
             ftue_triggerNames: function () {
-                return [{ name: 'none' }].concat(__VUE.hardcoded.TriggerNames);
+                return [{ name: 'none' }].concat(this._triggerNames);
             },
             ftue_nextStepRefNames: function () {
                 return [{ name: 'none' }, { name: 'COMPLETE_LAUNCH_APP' }].concat(__SHEET.ftueSequence.steps);
+            },
+            _webPanels: function () {
+                return __VUE.hardcoded.WebPanels || [];
+            },
+            _triggerNames: function () {
+                return __VUE.hardcoded.TriggerNames || [];
             }
         });
         _.extend(vueMethods, {

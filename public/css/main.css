@@ -82,6 +82,9 @@ h5 {
 .hidden {
   display: none;
 }
+.init-hidden {
+  display: none;
+}
 .digits-1 {
   width: 1em !important;
 }
@@ -156,6 +159,14 @@ h5 {
 }
 .inline-block {
   display: inline-block;
+}
+.top-right {
+  position: absolute;
+  display: inline-block;
+  top: 0px;
+  right: 0px;
+  left: auto;
+  width: auto;
 }
 .border {
   outline: 2px #000;

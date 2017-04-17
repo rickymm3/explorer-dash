@@ -9,7 +9,7 @@ $$$.on('load', function () {
     ERDS.io.on('beep', onBeep);
     ERDS.io.on("echo", function (response) { return $$$.boxInfo.showBox(response); });
     ERDS.io.on("saved", onSaved);
-    ERDS.io.on("server-error", function (response) { return $$$.boxError.showBox(response); });
+    ERDS.io.on("server-error", function (response) { traceError(response); $$$.boxError.showBox(response); });
     ERDS.io.on('file-changed', onFileChanged);
     ERDS.io.on('project-fetch', onProjectFetch);
     ERDS.io.on('has-many-backups', onHasManyBackups);
@@ -46,6 +46,7 @@ function onProjectFetch(projectData) {
         ERDS.vueConfig = _.merge(ERDS.vueConfig, project.extendVue());
         $(window).trigger('vue-extend');
     }
+    $('.init-hidden').removeClass('init-hidden');
     ERDS.vue = new Vue(ERDS.vueConfig);
     initializeUI();
     project.init && project.init(projectData);

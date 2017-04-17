@@ -115,129 +115,42 @@ module.exports = function(PROJ) {
 
 				echo(cmd, 'Backup recovered!');
 			})
+		},
+
+		getHardcoded(cmd) {
+			var hardcodedData = ERDS.requireNoCache(cmd.proj.__data + "/hardcoded.js");
+
+			cmd.client.emit('hardcoded', {hardcoded: hardcodedData});
+		},
+
+		getEditFile(cmd) {
+			ERDS.fileRead(cmd.proj.__data + "/" + cmd.params, (err, content, file) => {
+				if(err) return ERDS.sendServerError(cmd.client, "Error opening file: " + file);
+				cmd.client.emit('edit-file', {name: file, data: content});
+				isBusy(cmd, false);
+			});
+		},
+
+		saveEditFile(cmd) {
+			var name = cmd.params.name.replace(cmd.proj.__data, '');
+			echo(cmd, "Saving file... " + name);
+			ERDS.fileWrite(cmd.proj.__data + name, cmd.params.data, (err, file) => {
+				if(err) return ERDS.sendServerError(cmd.client, "Error writing file: " + file);
+
+				cmd.client.emit('edit-file', null);
+
+				if(name.has('hardcoded')) {
+					PROJ.commands.getHardcoded(cmd);
+				}
+
+				isBusy(cmd, false);
+			})
 		}
 	};
 
-	var responseData = PROJ.responseData;
-
-	if(responseData) {
-		responseData.hardcoded = {
-			AraCommands: [
-				"TakeOff",
-				"Fly Straight",
-				"Dock",
-				"Go To Dock",
-				"Find User",
-				"Patrol",
-				"PatrolShort",
-				"Waiting",
-				"TurnNE",
-				"TurnE",
-				"TurnSE",
-				"TurnS",
-				"TurnNW",
-				"TurnW",
-				"TurnSW",
-				"SleepLowBatt",
-				"SleepHalfBatt",
-				"SleepMostBatt",
-				"SleepFullBatt",
-				"Ready",
-				"Error Minor",
-				"Error Standard",
-				"Error Critical",
-				"Battery Low",
-				"Obstacle In Path",
-				"Task In Progress",
-				"Thinking",
-				"Changing Task",
-				"Camera On"
-			].toKeyValues(),
-
-			Colors: [
-				"#fff", //white
-				"#f00", //red
-				"#f80", //orange
-				"#ff0", //yellow
-				"#0f0", //green
-				"#084", //forestgreen
-				"#888", //gray
-				"#0ff", //cyan
-				"#08f", //skyblue
-				"#00f", //blue
-				"#80f", //purple
-				"#f0f", //magenta
-			].toKeyValues(),
-
-			AudioClips: [
-				'Off',
-				'startup',
-				'battery low',
-				'camera off',
-				'camera on',
-				'changing task',
-				'docking',
-				'error',
-				'find user',
-				'fly to dock',
-				'obstacle in course',
-				'pairing completed',
-				'pairing started',
-				'patrol short',
-				'patrol',
-				'ready',
-				'setup complete',
-				'starting to charge',
-				'take off',
-				'task in progress',
-				'thinking',
-				'waiting'
-			].toKeyValues(),
-
-			LightStates: [
-				"Colors",
-				"Off",
-				"Full",
-				"Half",
-				"Quarter",
-				"FadeOn",
-				"FadeOff",
-				"FadeHalf"
-			].toKeyValues(),
-
-			WebPanels: [
-				"downloadapp",
-				"openapp",
-				"pairbluetooth",
-				"choosebluetoothdevice",
-				"completebluetooth",
-				"startwifi",
-				"choosewifinetwork",
-				"setwifipassword",
-				"connectwifi",
-				"wificonnected",
-				"spacecheck",
-				"testflight",
-				"flightinprogress",
-				"setupcomplete",
-				"loadingpage",
-				"intropage"
-			].toKeyValues(),
-
-			TriggerNames: [
-				"AppStoreClick",
-				"HomeScreenClick",
-				"BluetoothPairedClick",
-				"BluetoothChooseNetworkClick",
-				"WifiSetupClick",
-				"WifiChooseNetworkClick",
-				"WifiSubmitPasswordClick",
-				"WifiConnectedClick",
-				"TestFlightLaunchClick",
-				"SetupCompleteClick",
-				"LoadingPageClick",
-				"IntroPageClick"
-			].toKeyValues()
-		}
-	}
+	// var responseData = PROJ.responseData;
+	//
+	// if(responseData) {
+	// 	//responseData.hardcoded =
+	// }
 };

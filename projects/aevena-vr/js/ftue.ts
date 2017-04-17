@@ -12,7 +12,6 @@ var __STEPS;
 
         _.extend(vueData, {
             ftue_currentStep: null
-
         });
 
         _.extend(vueComputed, {
@@ -25,16 +24,24 @@ var __STEPS;
             },
 
             ftue_webPanels() {
-                return [{name: 'none'}].concat(__VUE.hardcoded.WebPanels);
+                return [{name: 'none'}].concat(this._webPanels);
             },
 
             ftue_triggerNames() {
-                return [{name: 'none'}].concat(__VUE.hardcoded.TriggerNames);
+                return [{name: 'none'}].concat(this._triggerNames);
             },
 
             ftue_nextStepRefNames() {
                 return [{name: 'none'}, {name: 'COMPLETE_LAUNCH_APP'}].concat(__SHEET.ftueSequence.steps);
             },
+
+            _webPanels() {
+                return __VUE.hardcoded.WebPanels || [];
+            },
+
+            _triggerNames() {
+                return __VUE.hardcoded.TriggerNames || [];
+            }
         });
 
         _.extend(vueMethods, {

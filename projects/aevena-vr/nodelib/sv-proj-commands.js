@@ -208,7 +208,8 @@ module.exports = function(PROJ) {
 			WebPanels: [
 				"downloadapp",
 				"openapp",
-				"choosebluetooth",
+				"pairbluetooth",
+				"choosebluetoothdevice",
 				"completebluetooth",
 				"startwifi",
 				"choosewifinetwork",
@@ -227,6 +228,7 @@ module.exports = function(PROJ) {
 				"AppStoreClick",
 				"HomeScreenClick",
 				"BluetoothPairedClick",
+				"BluetoothChooseNetworkClick",
 				"WifiSetupClick",
 				"WifiChooseNetworkClick",
 				"WifiSubmitPasswordClick",

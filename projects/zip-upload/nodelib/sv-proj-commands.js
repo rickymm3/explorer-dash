@@ -11,8 +11,8 @@ const JSZip = require("jszip");
 module.exports = function(PROJ) {
 	//trace("ZIP-Upload Project!");
 
-	var ERDS = PROJ.ERDS;
-	var app = ERDS.app;
+	var $$$ = PROJ.$$$;
+	var app = $$$.app;
 
 	var __projData = require(PROJ.__json.replace('.json', '.js'));
 	var __temp = PROJ.__data + '/temp';
@@ -101,11 +101,11 @@ module.exports = function(PROJ) {
 
 		var zip = __zip = new JSZip();
 
-		if(!ERDS.fileExists(__targetPath)) {
+		if(!$$$.fileExists(__targetPath)) {
 			return status500("The target directory for the ZIP does NOT exists! " + __proj.path);
 		}
 
-		var targetFiles = ERDS.filesFilter(__targetPath, () => true, true);
+		var targetFiles = $$$.filesFilter(__targetPath, () => true, true);
 
 		targetFiles = targetFiles.map( file => file.replace(__targetPath,''));
 
@@ -199,14 +199,14 @@ module.exports = function(PROJ) {
 			//__targetPath
 			//var count = __json.target.fileNames.length;
 			try {
-				var allTargetFiles = ERDS.filesFilter(__targetPath, () => true);
+				var allTargetFiles = $$$.filesFilter(__targetPath, () => true);
 				allTargetFiles.forEach( targetName => {
-					if(!ERDS.fileExists(targetName)) return;
+					if(!$$$.fileExists(targetName)) return;
 					trace("Removing: " + targetName);
 					fs.unlink(targetName);
 				});
 
-				ERDS.getDirs(__targetPath, myDirs => {
+				$$$.getDirs(__targetPath, myDirs => {
 					myDirs.forEach(dir => {
 						dir = targetDir + dir;
 						trace("Removing dir: " + dir);

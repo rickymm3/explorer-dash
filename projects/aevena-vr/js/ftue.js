@@ -1,9 +1,9 @@
 var __STEPS;
-(function (ERDS) {
+(function ($$$) {
     $$$.on('vue-extend', function () {
-        var vueData = ERDS.vueConfig.data;
-        var vueComputed = ERDS.vueConfig.computed;
-        var vueMethods = ERDS.vueConfig.methods;
+        var vueData = $$$.vueConfig.data;
+        var vueComputed = $$$.vueConfig.computed;
+        var vueMethods = $$$.vueConfig.methods;
         _.extend(vueData, {
             ftue_currentStep: null
         });
@@ -36,7 +36,7 @@ var __STEPS;
             },
             ftue_validateSteps: function () {
                 var _this = this;
-                ERDS.isDataValid = true;
+                $$$.isDataValid = true;
                 if (!__STEPS || !__STEPS.length) {
                     return __VUE.$forceUpdate();
                 }
@@ -57,7 +57,7 @@ var __STEPS;
                     var lowName = step.name.toLowerCase().trim();
                     if (stepNames.has(lowName)) {
                         step.isNameDuplicate = true;
-                        ERDS.isDataValid = false;
+                        $$$.isDataValid = false;
                         return;
                     }
                     step.isNameDuplicate = false;
@@ -151,4 +151,4 @@ var __STEPS;
     $$$.on('vue-ready', function () {
         trace("vue-ready: FTUE");
     });
-})(ERDS);
+})($$$);

@@ -1,7 +1,7 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
 var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
-(function (ERDS) {
+(function ($$$) {
     registerComponents({
         'btn': {
             props: ['obj', 'label', 'emoji', 'icon'],
@@ -9,8 +9,8 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
             template: "<div class=\"btn\" v-on:click.capture.stop.prevent=\"click\">\n\t\t\t\t\t<i v-if=\"emoji\" :class=\"'v-align-mid em em-'+emoji\" aria-hidden=\"true\"></i>\n\t\t\t\t\t<i v-if=\"icon\" :class=\"'v-align-mid icon fa fa-'+icon\" aria-hidden=\"true\"></i>\n\t\t\t\t\t<i v-html=\"label\"></i>\n\t\t\t\t</div>"
         }
     });
-    ERDS.Project = function Project() { };
-    _.extend(ERDS.Project.prototype, {
+    $$$.Project = function Project() { };
+    _.extend($$$.Project.prototype, {
         extendVue: function (vueConfig) {
             return _.merge(vueConfig, {
                 data: {
@@ -35,7 +35,7 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
             });
         },
         init: function (projectData) {
-            __VUE = ERDS.vue;
+            __VUE = $$$.vue;
             __VUE.json = __JSON = projectData.json;
             __SPINNER = $('#spinner');
             __SPINNER.hide();
@@ -117,4 +117,4 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
             }
         });
     }
-})(ERDS);
+})($$$);

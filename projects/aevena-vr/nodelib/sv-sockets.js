@@ -5,8 +5,8 @@
 module.exports = function(PROJ) {
 	trace("Aevena Sockets!");
 
-	const ERDS = PROJ.ERDS;
-	const io = ERDS.io;
+	const $$$ = PROJ.$$$;
+	const io = $$$.io;
 
 	if(!io) {
 		return traceError("Missing Socket.IO for project!");
@@ -20,11 +20,11 @@ module.exports = function(PROJ) {
 	//	if(!proj) return next();
 	//
 	//	var svJSONFile = proj.__nodelib + "/sv-json.js";
-	//	if(!ERDS.fileExists(svJSONFile)) {
+	//	if(!$$$.fileExists(svJSONFile)) {
 	//		throw new Error("JSON service not found for project: " + proj.name);
 	//	}
 	//
-	//	var svJSON = require(svJSONFile)(ERDS, proj);
+	//	var svJSON = require(svJSONFile)($$$, proj);
 	//
 	//	res.send({test: true});
 	//

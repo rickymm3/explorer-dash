@@ -173,7 +173,7 @@ module.exports = function($$$) {
 				return;
 			}
 
-			$$$.sendJSON(content);
+			$$$.sendJSON(res, content);
 		}
 	}
 

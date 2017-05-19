@@ -322,7 +322,7 @@ function showPopup(header, message, options) {
 
 				playSFX(step) {
 					if(!step) step = this.currentStep;
-					playSFX($$$.audiosprite, step.audioClipName, step.audioVolume)
+					playSFX($$$.audiosprite, step.audioClipName, step.audioVolume * 0.6);
 				},
 
 				isAudioSelected(item) {
@@ -769,7 +769,6 @@ function showPopup(header, message, options) {
 					hardcoded: {},
 					jsonData: {
 						currentSheetName: '',
-						numOfLights: 8,
 						sheets: []
 					},
 					editFile: {
@@ -901,7 +900,6 @@ function showPopup(header, message, options) {
 					copySheet() {
 						var sheet = createNewSheetAt(__SHEETS.length, this.currentSheet);
 						sheet.name += " Copy";
-						this.currentSheetUpdate(__SHEETS.length-1);
 					},
 
 					removeSheet() {
@@ -955,7 +953,7 @@ function showPopup(header, message, options) {
 
 						this.currentSheetID = id;
 
-						TweenMax.fromTo($$$.details, 0.5, {alpha:0}, {alpha:1});
+						flashInterface();
 
 						if(__SHEETS==null) return null;
 
@@ -972,26 +970,8 @@ function showPopup(header, message, options) {
 						__ACTIONS = __SHEET.actionSequence;
 						__JSONDATA.currentSheetName = __SHEET.name;
 
-						if(!__JSONDATA.numOfLights) {
-							(function setDefaultNumOfLights() {
-								function setDefaultLights() {
-									__JSONDATA.numOfLights = 8;
-								}
+						this.verifyLightCounts();
 
-								if(!__LIGHTS || !__LIGHTS.length) return setDefaultLights();
-
-								var seq = __LIGHTS[0];
-								var steps = seq.ringSteps;
-								if(!steps || !steps.length) return setDefaultLights();
-
-								var step = steps[0];
-								var lights = step.lights;
-								if(!lights || !lights.length) return setDefaultLights();
-
-								trace("Setting numOfLights according to lightSequence[0].ringSteps[0].lights");
-								__JSONDATA.numOfLights = lights.length;
-							})();
-						}
 						//Try to preserve the selection index:
 						this.currentActionItem = trySameIndex(__ACTIONS, old.__ACTIONS, this.currentActionItem);
 						this.currentLightItem = trySameIndex(__LIGHTS, old.__LIGHTS, this.currentLightItem);
@@ -999,6 +979,29 @@ function showPopup(header, message, options) {
 						$(window).trigger('vue-validate');
 
 						return this.currentSheet = __SHEET;
+					},
+
+					verifyLightCounts() {
+						var step, steps, lights, seq = !__LIGHTS || !__LIGHTS.length ? null : __LIGHTS[0];
+
+						if(!seq) return;
+
+						//Default to 8, but check further to see if existing lights rings/strips don't match.
+						if(!__SHEET.numOfLights) __SHEET.numOfLights = {ring: 8, strip: 8};
+
+						_.keys(__SHEET.numOfLights).forEach((id, type) => {
+							var prop = type+'Steps';
+							steps = seq[prop];
+
+							if(!steps) return;
+
+							step = steps[0];
+							lights = step.lights;
+							if(!lights || !lights.length) return;
+
+							trace(`Setting "numOfLights.${type}" to match array count: ${lights.length}`);
+							__SHEET.numOfLights[type] = lights.length;
+						});
 					},
 					
 					setCurrentDropDown(item) {
@@ -1152,6 +1155,7 @@ function showPopup(header, message, options) {
 
 			__SHEET = sheet = {
 				name: "Sheet " + (__SHEETS.length+1),
+				numOfLights: null,
 				definableValues: [],
 				lightSequence: [],
 				actionSequence: []
@@ -1181,6 +1185,8 @@ function showPopup(header, message, options) {
 		}
 		
 		__SHEETS[id] = sheet;
+
+		this.currentSheetUpdate(id);
 		
 		return sheet;
 	}
@@ -1229,8 +1235,9 @@ function showPopup(header, message, options) {
 		addMenu(`
 			<div class="menu">
 				<i title="Tools">
-					<i title="Convert LEDs to 12" onclick="convertLEDs(12)"></i>
-					<i title="Convert LEDs to 8" onclick="convertLEDs(8)"></i>
+					<i title="Convert LEDs to 12" onclick="convertLEDs(12, 12)"></i>
+					<i title="Convert LEDs to 8" onclick="convertLEDs(8, 8)"></i>
+					<i title="Convert LEDs to 12-ring and 2-strip" onclick="convertLEDs(12, 2)"></i>
 				</i>
 				<i title="Edit">
 					<i title="Hardcoded Data<br/>(WebPanel, Trigger, etc.)" onclick="__VUE.requestEditFile('hardcoded.js')"></i>
@@ -1249,7 +1256,7 @@ function duplicateItem(item, list) {
 	return dup;
 }
 
-function globalAddLight(lights, dontFocus=false) {
+function globalAddLight(lights=null, dontFocus=false) {
 	if(!lights) lights = __LIGHTS;
 
 	lights.push({
@@ -1288,36 +1295,47 @@ function globalAddLightState(lights) {
 	lights.push({state: 'Full', color: '#fff'});
 }
 
-function convertLEDs(newCount) {
-	if(newCount==__JSONDATA.numOfLights) {
-		return $$$.boxError.showBox(`~lightbulb-o fa-2x v-align-mid~ - Already set to ${newCount} lights!`);
+function convertLEDs(ringCount, stripCount) {
+	var numLights = __SHEET.numOfLights;
+
+	if(ringCount==numLights.ring && stripCount==numLights.stripCount) {
+		return $$$.boxError.showBox(`~lightbulb-o fa-2x v-align-mid~ - Already using correct # of lights. (${ringCount}, ${stripCount})`);
 	}
 
-	showPopup("Convert LEDs", `Are you sure you want to convert to ${newCount} LEDs?`, {
-		ok(options) {
-			__JSONDATA.numOfLights = newCount;
-			__SHEETS.forEach( sheet => forEachLightSeq(sheet.lightSequence) );
-			__VUE.$forceUpdate();
-		}
-	});
+	showPopup(
+		"Convert LEDs",
+		`Are you sure you want to convert to ${ringCount} rings & ${stripCount} strips LEDs?`,
+		{ ok: onOK }
+	);
+
+	function onOK(options) {
+		numLights = __SHEET.numOfLights = {ring: ringCount, strip: stripCount};
+		//__SHEETS.forEach( sheet => forEachLightSeq(sheet.lightSequence) );
+		forEachLightSeq(__SHEET.lightSequence );
+		flashInterface();
+		__VUE.$forceUpdate();
+	}
 
 	function forEachLightSeq( lightSequence ) {
 		lightSequence.forEach( seq => {
-			seq.ringSteps.forEach( forEachLightSteps );
-			seq.stripSteps.forEach( forEachLightSteps );
+			seq.ringSteps.forEach( step => forEachLightSteps(step, numLights.ring) );
+			seq.stripSteps.forEach( step => forEachLightSteps(step, numLights.strip) );
 		});
 	}
 
-	function forEachLightSteps( step ) {
+	function forEachLightSteps( step, numLEDs ) {
+		trace("numLEDs: " + numLEDs);
 		if(!step.lights) step.lights = [];
 
-		while(step.lights.length>newCount) {
+		while(step.lights.length>numLEDs) {
 			step.lights.pop();
 		}
 
-		while(step.lights.length<newCount) {
+		while(step.lights.length<numLEDs) {
 			globalAddLightState(step.lights);
 		}
+
+		trace(step);
 	}
 }
 
@@ -1397,4 +1415,8 @@ function onGithubWebhook(data) {
 	$$$.boxInfo.showBox(socketMessage);
 
 	playSFX($$$.defaultSFX, 'mario_mushroom', 0.1);
+}
+
+function flashInterface() {
+	TweenMax.fromTo($$$.details, 0.5, {alpha:0}, {alpha:1});
 }

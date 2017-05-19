@@ -219,4 +219,15 @@ module.exports = function($$$) {
 		_invalidateRequireCacheForFile(filePath);
 		return require(filePath);
 	};
+
+	$$$.hideProperties = function(obj, prop) {
+		var props = prop.split(',');
+
+		props.forEach( (prop) => {
+			Object.defineProperty(obj, prop.trim(), {
+				enumerable: false,
+				writable: true
+			});
+		});
+	}
 };

@@ -15,6 +15,7 @@ $$$.on('load', function () {
     $$$.io.emit('project-fetch', $$$.projectName);
 });
 function projectCommand(command, params) {
+    if (params === void 0) { params = null; }
     $$$.io.emit('project-command', {
         project: $$$.projectName,
         dateClient: new Date(),
@@ -242,9 +243,9 @@ function onBeep() {
     $('.git-info').append($$$.$restart);
 }
 function onSaved(response) {
+    $$$.boxInfo.showBox(response);
     if (isMuted())
         return;
-    $$$.boxInfo.showBox(response);
     playSFX($$$.defaultSFX, 'mario_1up', 0.5);
 }
 function onHasManyBackups(numBackups) {

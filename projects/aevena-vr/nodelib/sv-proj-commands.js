@@ -23,15 +23,13 @@ module.exports = function(PROJ) {
 		io.emit('isBusy', status);
 	}
 
-	function checkFileCount(jsonPath) {
+	function checkFileCount(jsonPath, eventName) {
 		var pathinfo = jsonPath.toPath();
 		var count = 0;
-		$$$.filesFilter(pathinfo.path, (file) => {
-			count++;
-		});
+		$$$.filesFilter(pathinfo.path, file => count++);
 
 		if(count>30) {
-			$$$.io.emit("has-many-backups", count);
+			$$$.io.emit(eventName, count);
 		}
 	}
 	
@@ -42,7 +40,7 @@ module.exports = function(PROJ) {
 				return $$$.sendServerError(cmd.client, "The JSON does not even exists, therefore it can't be deleted!");
 			}
 			
-			if(clearCommandFlag==-1) {
+			if(clearCommandFlag===-1) {
 				echo(cmd, 'Are you sure you want to clear the data?<br/>:--1: CTRL Click Again<br/>:-1: Wait 4s and forget about it!');
 				
 				//Shut the clear flag back off shortly if it's never re-executed
@@ -91,10 +89,10 @@ module.exports = function(PROJ) {
 
 					var clientIp = cmd.client.request.connection.remoteAddress.split(':').pop();
 
-					io.emit('saved', `JSON data saved to the server! from client: ${clientIp} <i class="twn twn-bounce em em---1"></i>`);
+					io.emit('saved', `JSON data saved to the server! from client: {IP: ${clientIp}} <i class="twn twn-bounce em em---1"></i>`);
 					isBusy(cmd, false);
 
-					checkFileCount(jsonPath);
+					checkFileCount(jsonPath, "has-many-backups");
 				});
 			}
 		},
@@ -145,6 +143,37 @@ module.exports = function(PROJ) {
 
 				isBusy(cmd, false);
 			})
+		},
+
+		onJSONParams(cmd) {
+			if(!cmd.res) return traceError("Missing cmd.res reference!");
+
+			var jsonData = JSON.parse(cmd.content);
+
+			var whichSheet = cmd.params[0].toLowerCase();
+
+			var __SHEET = null;
+			jsonData.sheets.forEach(sheet => {
+				var sheetName = sheet.name.toLowerCase();
+				if(sheetName!==whichSheet) return;
+
+				__SHEET = sheet;
+			});
+
+			if(!__SHEET) {
+				return $$$.status500(cmd.res, "Sheet not found: " + whichSheet);
+			}
+
+			var sheetJSON = {
+				sheetRequested: __SHEET.name,
+				sheets: [__SHEET]
+			};
+
+			$$$.sendJSON(cmd.res, _.jsonPretty(sheetJSON));
+
+			// if(cmd.res) {
+			// 	cmd.res.send("Hey you are here! " );
+			// }
 		}
 	};
 

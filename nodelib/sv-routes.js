@@ -16,6 +16,9 @@ module.exports = function($$$) {
 		res.status(500).send(errorHeader + msg);
 	}
 
+	$$$.status500 = status500;
+
+
 	app.use(function(req, res, next) {
 		var url = req.url;
 		if(url.endsWith('/') && url.length > 1) {
@@ -132,24 +135,50 @@ module.exports = function($$$) {
 		var projectName = req.params.project;
 		var proj = projectsUtils.getProjectObj(projectName);
 		if(!proj) return status500(res, "Requested JSON of unknown project: " + projectName);
-		
+
+		var fullpath = $$$.fullUrl(req);
+		var paramStr = fullpath.split('/json').pop().trim();
+
 		switch(req.method) {
 			case 'PUT':
 			case 'POST':
 			case 'GET':
-				res.set({ 'content-type': 'application/json; charset=utf-8' });
+
 				if(!$$$.fileExists(proj.__json)) {
 					return res.send({error: 'missing file'});
 				}
-				
-				$$$.fileRead(proj.__json, (err, content) => {
-					if(err) return status500(res, 'Error while reading the JSON file.');
-					return res.send(content);
-				});
+
+				$$$.fileRead(proj.__json, onJSONRead);
 				
 				break;
 			
 			default: status500(res, 'Unhandled JSON HTTP method: ' + req.method);	
 		}
+
+		function onJSONRead(err, content) {
+			if(err) return status500(res, 'Error while reading the JSON file.');
+
+			if(!!paramStr && !!paramStr.length) {
+				var cmd = {
+					command: 'onJSONParams',
+					content: content,
+					params: paramStr.substr(1).split('/'),
+					proj: proj,
+					res: res,
+				};
+
+				$$$.hideProperties(cmd, 'content,res');
+				$$$.processProjectCommand(cmd);
+
+				return;
+			}
+
+			$$$.sendJSON(content);
+		}
+	}
+
+	$$$.sendJSON = function(res, content) {
+		res.set({ 'content-type': 'application/json; charset=utf-8' });
+		res.send(content);
 	}
 };

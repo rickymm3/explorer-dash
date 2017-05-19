@@ -34,7 +34,7 @@ module.exports = function($$$) {
 
 	$$$.sendServerError = function(client, msg) {
 		traceError(msg);
-		client.emit("server-error", msg);
+		client && client.emit("server-error", msg);
 	};
 
 	function onDisconnect() {
@@ -52,21 +52,12 @@ module.exports = function($$$) {
 		var proj = projectsUtils.getProjectObj(projectName);
 		if(!proj) return $$$.sendServerError(this, "Project does not exists: " + projectName);
 
-		//Set circular reference (for sub-modules to find $$$ or the Project):
-		proj.$$$ = $$$;
 		$$$.projects[proj.name] = proj;
 		
 		var responseData = proj.responseData = {
 			name: proj.name,
 			yargs: $$$.yargs
 		};
-		
-		//Load specific project's modules:
-		if($$$.fileExists(proj.__nodelib)) {
-			$$$.loadModules(proj.__nodelib, proj, true); //$$$.isDev
-		} else {
-			traceError("No /nodelib/ folder found for project: \n" + proj.__nodelib);
-		}
 
 		tryLoadingJSON(client, proj, responseData);
 	}
@@ -94,23 +85,30 @@ module.exports = function($$$) {
 	
 	function onProjectCommand(cmd) {
 		var _this = this;
-		var proj = $$$.projects[cmd.project];
+		var proj = projectsUtils.getProjectObj(cmd.project);
 		if(!proj) return $$$.sendServerError(this, "Project does not exists OR requires refresh: " + cmd.project);
 
 		cmd.proj = proj;
 		cmd.client = this;
-		cmd.dateServer = new Date();
-		
+
 		//_.delay(() => {
 		//	
 		//}, 500);
 
-		processProjectCommand(cmd);
+		$$$.processProjectCommand(cmd);
 	}
 	
-	function processProjectCommand(cmd) {
+	$$$.processProjectCommand = function(cmd) {
+		cmd.dateServer = new Date();
+
 		var cmdMethod = cmd.proj.commands[cmd.command];
-		if(!cmdMethod) return $$$.sendServerError(cmd.client, "Unknown command! " + cmd.command);
+		if(!cmdMethod) {
+			if(cmd.res) {
+				$$$.status500(cmd.res, `Unknown Project Command: <b>${cmd.command}</b>`);
+			}
+
+			return $$$.sendServerError(cmd.client, "Unknown command! " + cmd.command);
+		}
 		cmdMethod(cmd);
 	}
 };

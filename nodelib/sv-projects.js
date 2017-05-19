@@ -1,12 +1,12 @@
-module.exports = function (ERDS) {
+module.exports = function ($$$) {
 	return {
 		getProjectObj(projectName) {
 			if (!projectName || !projectName.length) return null;
 
-			var projectPath = ERDS.__projects + '/' + projectName;
-			var projectData = ERDS.__data + '/' + projectName;
+			var projectPath = $$$.__projects + '/' + projectName;
+			var projectData = $$$.__data + '/' + projectName;
 			
-			if (!ERDS.fileExists(projectPath)) {
+			if (!$$$.fileExists(projectPath)) {
 				traceError("Project does not exists! " + projectName);
 				return null;
 			}

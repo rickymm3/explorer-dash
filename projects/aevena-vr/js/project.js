@@ -22,7 +22,7 @@ function showPopup(header, message, options) {
     }
     __VUE.popup = options;
 }
-(function (ERDS) {
+(function ($$$) {
     registerComponents({
         comp: {
             props: ['obj'],
@@ -242,7 +242,7 @@ function showPopup(header, message, options) {
                 playSFX: function (step) {
                     if (!step)
                         step = this.currentStep;
-                    playSFX(ERDS.audiosprite, step.audioClipName, step.audioVolume);
+                    playSFX($$$.audiosprite, step.audioClipName, step.audioVolume);
                 },
                 isAudioSelected: function (item) {
                     return this.currentStep.audioClipName == item.name;
@@ -442,7 +442,7 @@ function showPopup(header, message, options) {
     //Key modifier:
     $(window).on('keydown keyup', function (e) {
         var status = "Save";
-        var ctrlOrAlt = ERDS.isMac ? e.altKey : e.ctrlKey;
+        var ctrlOrAlt = $$$.isMac ? e.altKey : e.ctrlKey;
         switch (true) {
             case ctrlOrAlt && e.shiftKey:
                 status = "Recover";
@@ -510,16 +510,16 @@ function showPopup(header, message, options) {
             }
         }
     });
-    if (ERDS.ftue) {
-        ERDS.ftue.init();
+    if ($$$.ftue) {
+        $$$.ftue.init();
     }
     $(document).on('click', function (e) {
         if (!__VUE.currentDropDown)
             return;
         __VUE.currentDropDown = null;
     });
-    ERDS.Project = function Project() { };
-    _.extend(ERDS.Project.prototype, {
+    $$$.Project = function Project() { };
+    _.extend($$$.Project.prototype, {
         extendVue: function () {
             return {
                 data: {
@@ -573,7 +573,7 @@ function showPopup(header, message, options) {
                 },
                 methods: {
                     changeView: function (id) {
-                        ERDS.vue.view = id;
+                        $$$.vue.view = id;
                         setCookie('view', id);
                     },
                     trace: trace,
@@ -617,7 +617,7 @@ function showPopup(header, message, options) {
                     handleSaveButton: function (e) {
                         if (this.isBusy)
                             return;
-                        if (!ERDS.isDataValid) {
+                        if (!$$$.isDataValid) {
                             $$$.boxError.showBox('Fix any data issues first before saving');
                             return;
                         }
@@ -671,7 +671,7 @@ function showPopup(header, message, options) {
                                 var mySheets = _.jsonClone(__SHEETS)
                                     .filter(function (sheet) { return mySheetIDs.has(sheet.name); });
                                 //Now do a client-side file download:
-                                downloadJSON({ sheets: mySheets }, ERDS.projectName + ".json");
+                                downloadJSON({ sheets: mySheets }, $$$.projectName + ".json");
                             }
                         });
                     },
@@ -781,7 +781,7 @@ function showPopup(header, message, options) {
             };
         },
         init: function (projectData) {
-            __VUE = ERDS.vue;
+            __VUE = $$$.vue;
             __JSONDATA = __VUE.jsonData;
             __SHEETS = __JSONDATA.sheets;
             $(window).trigger("vue-ready");
@@ -805,11 +805,11 @@ function showPopup(header, message, options) {
                 __VUE.currentLightItem = __LIGHTS[getCookie('light', 0)];
                 __VUE.currentActionItem = __ACTIONS[getCookie('action', 0)];
             }
-            ERDS.io.on('github-webhook', onGithubWebhook);
-            ERDS.io.on("server-error", function () { __VUE.isBusy = false; });
-            ERDS.io.on("hardcoded", checkHardcodedData);
-            ERDS.io.on("edit-file", __VUE.onServerEditFile);
-            ERDS.io.on('isBusy', function (status) {
+            $$$.io.on('github-webhook', onGithubWebhook);
+            $$$.io.on("server-error", function () { __VUE.isBusy = false; });
+            $$$.io.on("hardcoded", checkHardcodedData);
+            $$$.io.on("edit-file", __VUE.onServerEditFile);
+            $$$.io.on('isBusy', function (status) {
                 __VUE.isBusy = status;
             });
             loadSounds();
@@ -820,8 +820,8 @@ function showPopup(header, message, options) {
         }
     });
     function loadSounds() {
-        ERDS.__media = ERDS.projectName + '/media/';
-        loadAudioSprite('audiosprite.json', ERDS.__media, function (howl) { return ERDS.audiosprite = howl; });
+        $$$.__media = $$$.projectName + '/media/';
+        loadAudioSprite('audiosprite.json', $$$.__media, function (howl) { return $$$.audiosprite = howl; });
     }
     function trySameIndex(arrNew, arrOld, itemOld) {
         var first = arrNew[0];
@@ -909,7 +909,7 @@ function showPopup(header, message, options) {
     function loadNavBarMenu() {
         addMenu("\n\t\t\t<div class=\"menu\">\n\t\t\t\t<i title=\"Tools\">\n\t\t\t\t\t<i title=\"Convert LEDs to 12\" onclick=\"convertLEDs(12)\"></i>\n\t\t\t\t\t<i title=\"Convert LEDs to 8\" onclick=\"convertLEDs(8)\"></i>\n\t\t\t\t</i>\n\t\t\t\t<i title=\"Edit\">\n\t\t\t\t\t<i title=\"Hardcoded Data<br/>(WebPanel, Trigger, etc.)\" onclick=\"__VUE.requestEditFile('hardcoded.js')\"></i>\n\t\t\t\t\t\n\t\t\t\t</i>\n\t\t\t</div>\n\t\t"); //<i title="Raw Project JSON Data" onclick="requestEditFile('raw-project-json')"></i>
     }
-})(ERDS);
+})($$$);
 function duplicateItem(item, list) {
     var id = list.indexOf(item);
     var dup = _.jsonClone(item);
@@ -1041,5 +1041,5 @@ function onGithubWebhook(data) {
         "  <i class=\"twn twn-bounce em em-mushroom\"></i>"
     ].join(' ');
     $$$.boxInfo.showBox(socketMessage);
-    playSFX(ERDS.defaultSFX, 'mario_mushroom', 0.1);
+    playSFX($$$.defaultSFX, 'mario_mushroom', 0.1);
 }

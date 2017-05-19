@@ -1,31 +1,29 @@
-declare var ERDS, window, Howl, Vue, trace, traceError, io, $, _, TweenMax, Back, Cookies;
+declare var $$$, window, Howl, Vue, trace, traceError, io, $, _, TweenMax, Back, Cookies;
 
-var $$$:any = $(window);
-
-ERDS.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
+$$$.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
 
 $$$.on('load', function() {
 	//Vue.config.debug = true;
 	Cookies._prefix = "erds.web.";
 
-	loadAudioSprite('defaultSFX.json', '../media/', howl => ERDS.defaultSFX = howl);
+	loadAudioSprite('defaultSFX.json', '../media/', howl => $$$.defaultSFX = howl);
 
-	//ERDS.beep = new Howl();
+	//$$$.beep = new Howl();
 
-	ERDS.io = io(); //Create a socket connection:
-	ERDS.io.on('beep', onBeep);
-	ERDS.io.on("echo", response => $$$.boxInfo.showBox(response));
-	ERDS.io.on("saved", onSaved);
-	ERDS.io.on("server-error", response => {traceError(response); $$$.boxError.showBox(response);});
-	ERDS.io.on('file-changed', onFileChanged);
-	ERDS.io.on('project-fetch', onProjectFetch);
-	ERDS.io.on('has-many-backups', onHasManyBackups);
-	ERDS.io.emit('project-fetch', ERDS.projectName);
+	$$$.io = io(); //Create a socket connection:
+	$$$.io.on('beep', onBeep);
+	$$$.io.on("echo", response => $$$.boxInfo.showBox(response));
+	$$$.io.on("saved", onSaved);
+	$$$.io.on("server-error", response => {traceError(response); $$$.boxError.showBox(response);});
+	$$$.io.on('file-changed', onFileChanged);
+	$$$.io.on('project-fetch', onProjectFetch);
+	$$$.io.on('has-many-backups', onHasManyBackups);
+	$$$.io.emit('project-fetch', $$$.projectName);
 });
 
 function projectCommand(command, params) {
-	ERDS.io.emit('project-command', {
-		project: ERDS.projectName,
+	$$$.io.emit('project-command', {
+		project: $$$.projectName,
 		dateClient: new Date(),
 		command: command,
 		params: params
@@ -37,13 +35,13 @@ function onFileChanged(whichFile) {
 }
 
 function onProjectFetch(projectData) {
-	ERDS.projectData = projectData;
+	$$$.projectData = projectData;
 
-	if(!ERDS.Project) return traceError("Missing ERDS.Project");
-	if(ERDS.vue) return traceError("Vue already created!");
+	if(!$$$.Project) return traceError("Missing $$$.Project");
+	if($$$.vue) return traceError("Vue already created!");
 
-	var project = ERDS.project = new ERDS.Project();
-	ERDS.vueConfig = {
+	var project = $$$.project = new $$$.Project();
+	$$$.vueConfig = {
 		el: '#app',
 		data: {
 			message: 'Test VueJS Message!',
@@ -55,14 +53,14 @@ function onProjectFetch(projectData) {
 	};
 
 	if(project.extendVue) {
-		ERDS.vueConfig = _.merge(ERDS.vueConfig, project.extendVue());
+		$$$.vueConfig = _.merge($$$.vueConfig, project.extendVue());
 
 		$(window).trigger('vue-extend');
 	}
 
 	$('.init-hidden').removeClass('init-hidden');
 
-	ERDS.vue = new Vue(ERDS.vueConfig);
+	$$$.vue = new Vue($$$.vueConfig);
 
 	initializeUI();
 
@@ -119,17 +117,22 @@ function addMenu( fragment ) {
 }
 
 function initializeUI() {
+	$$$.app = $('#app');
 	$$$.navbarHeader = $('.navbar-header');
 	$$$.boxError = $('.box-error');
 	$$$.boxInfo = $('.box-info');
 	$$$.boxes = [$$$.boxError,$$$.boxInfo];
 
+	$$$.app.on('copy', event => {
+		trace("Copying... " + event);
+	});
+
 	_makeQueueBox($$$.boxInfo, (obj) => {
-		ERDS.vue.infos = !_.isString(obj) && _.isObject(obj) ? JSON.stringify(obj) : obj;
+		$$$.vue.infos = !_.isString(obj) && _.isObject(obj) ? JSON.stringify(obj) : obj;
 	}, 0);
 
 	_makeQueueBox($$$.boxError, (err) => {
-		ERDS.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
+		$$$.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
 	}, 50);
 
 	$$$.on('mousedown', function(e) {
@@ -272,27 +275,27 @@ function downloadJSON(jsonData, fileName="download.json") {
 }
 
 function isMuted() {
-	return ERDS.projectData && ERDS.projectData.yargs && ERDS.projectData.yargs.muted;
+	return $$$.projectData && $$$.projectData.yargs && $$$.projectData.yargs.muted;
 }
 
 function playSound() {
 	if(isMuted()) return;
 
-	playSFX(ERDS.defaultSFX, 'mario_coin', 0.5);
+	playSFX($$$.defaultSFX, 'mario_coin', 0.5);
 }
 
 function onBeep() {
-	if(ERDS.$restart) return;
+	if($$$.$restart) return;
 	trace("BEEPING!");
 
 	playSound();
 
-	ERDS.$restart = $('<a class="server-restart" href="javascript:;">RESTART SERVER!</a>');
-	ERDS.$restart.click(function() {
-		ERDS.io.emit('kill');
+	$$$.$restart = $('<a class="server-restart" href="javascript:;">RESTART SERVER!</a>');
+	$$$.$restart.click(function() {
+		$$$.io.emit('kill');
 	});
 	
-	$('.git-info').append(ERDS.$restart);
+	$('.git-info').append($$$.$restart);
 }
 
 function onSaved(response) {
@@ -300,7 +303,7 @@ function onSaved(response) {
 
 	$$$.boxInfo.showBox(response);
 
-	playSFX(ERDS.defaultSFX, 'mario_1up', 0.5);
+	playSFX($$$.defaultSFX, 'mario_1up', 0.5);
 }
 
 function onHasManyBackups(numBackups) {
@@ -335,4 +338,8 @@ function loadAudioSprite(url, prefix, cb) {
 function playSFX(howler, name, volume=1.0) {
 	var sfxID = howler.play(name);
 	howler.volume(volume, sfxID);
+}
+
+function triggerCopy(content) {
+	$$$.app.trigger(new ClipboardEvent("copy"));
 }

@@ -8,11 +8,11 @@ const dateFormat = require('dateformat');
 const FILE_ENCODING = {encoding: 'utf8'};
 const url = require('url');
 
-module.exports = function(ERDS) {
+module.exports = function($$$) {
 
 	//////////////////////////////////////////// File & Directory Helpers:
 
-	ERDS.fullUrl = function(req) {
+	$$$.fullUrl = function(req) {
 		return url.format({
 			protocol: req.protocol,
 			host: req.get('host'),
@@ -20,21 +20,21 @@ module.exports = function(ERDS) {
 		});
 	};
 
-	ERDS.isDir = function isDir(path) {
+	$$$.isDir = function isDir(path) {
 		var stat = fs.statSync(path);
 		return stat.isDirectory();
 	};
 
-	ERDS.getDirs = function(dir, cb) {
+	$$$.getDirs = function(dir, cb) {
 		dir = dir.fixSlashes();
 
 		fs.readdir(dir, (err, files) => {
-			var dirs = files.filter(file => ERDS.isDir(dir+'/'+file));
+			var dirs = files.filter(file => $$$.isDir(dir+'/'+file));
 			cb(dirs);
 		});
 	};
 	
-	ERDS.makeDir = function(path, cb) {
+	$$$.makeDir = function(path, cb) {
 		path = path.fixSlashes();
 		var pathArr = path.split('/');
 		var ending = pathArr.last();
@@ -47,7 +47,7 @@ module.exports = function(ERDS) {
 		mkdirp(path, cb);
 	};
 	
-	ERDS.fileBackup = function(path, isOverwrite, cb) {
+	$$$.fileBackup = function(path, isOverwrite, cb) {
 		if(_.isFunction(isOverwrite)) {
 			cb = isOverwrite;
 			isOverwrite = false;
@@ -57,19 +57,19 @@ module.exports = function(ERDS) {
 		fs.copy(path, path + '.bak', {overwrite: isOverwrite, errorOnExists: true}, cb);
 	};
 	
-	ERDS.safeBackup = function(path, isOverwrite, cb) {
-		ERDS.fileBackup(path, isOverwrite, (err) => {
+	$$$.safeBackup = function(path, isOverwrite, cb) {
+		$$$.fileBackup(path, isOverwrite, (err) => {
 			if(err) return cb(err);
 			
 			fs.remove(path, cb);
 		});
 	};
 	
-	ERDS.fileRename = function(path, path2, cb) {
+	$$$.fileRename = function(path, path2, cb) {
 		fs.move(path, path2,  {overwrite: true}, cb);
 	};
 	
-	ERDS.fileCopyNow = function(path, cb) {
+	$$$.fileCopyNow = function(path, cb) {
 		var pathinfo = path.toPath();
 		var pathCopy = pathinfo.path +
 						pathinfo.filename +
@@ -78,11 +78,11 @@ module.exports = function(ERDS) {
 		fs.copy(path, pathCopy, cb);
 	};
 
-	ERDS.fileExists = function(dirOrFile) {
+	$$$.fileExists = function(dirOrFile) {
 		return fs.existsSync(dirOrFile);
 	};
 	
-	ERDS.filesFilter = function(dir, filterFunc, isRecursive) {
+	$$$.filesFilter = function(dir, filterFunc, isRecursive) {
 		if(!dir || !filterFunc) return [];
 		if(isRecursive==null) isRecursive = true;
 		
@@ -102,7 +102,7 @@ module.exports = function(ERDS) {
 			files.forEach(file => {
 				var fullpath = path.resolve(subdir + '/' + file).fixSlashes();
 				
-				if(ERDS.isDir(fullpath)) {
+				if($$$.isDir(fullpath)) {
 					isRecursive && _readDir(fullpath);
 					return;
 				}
@@ -117,7 +117,7 @@ module.exports = function(ERDS) {
 		return found;
 	};
 	
-	ERDS.filesMerge = function(dir, filterFunc, isRecursive, cb) {
+	$$$.filesMerge = function(dir, filterFunc, isRecursive, cb) {
 		if(!cb) throw new Error("filesMerge needs a callback function!");
 
 		//filterFunc could also be an *.extension
@@ -127,11 +127,11 @@ module.exports = function(ERDS) {
 		}
 		
 		
-		var files = ERDS.filesFilter(dir, filterFunc, isRecursive);
+		var files = $$$.filesFilter(dir, filterFunc, isRecursive);
 		var obj = {};
 		var f = files.length;
 
-		files.forEach(fullpath => ERDS.fileRead(fullpath, mergeFileContent));
+		files.forEach(fullpath => $$$.fileRead(fullpath, mergeFileContent));
 		
 		function mergeFileContent(err, content, fullpath) {
 			if(err) throw err;
@@ -144,7 +144,7 @@ module.exports = function(ERDS) {
 		}
 	};
 
-	ERDS.fileRead = function(file, cb) {
+	$$$.fileRead = function(file, cb) {
 		if(cb==null) return fs.readFileSync(file, FILE_ENCODING);
 
 		fs.readFile(file, FILE_ENCODING, (err, content) => {
@@ -152,7 +152,7 @@ module.exports = function(ERDS) {
 		});
 	};
 
-	ERDS.fileWrite = function(file, content, cb) {
+	$$$.fileWrite = function(file, content, cb) {
 		if(cb==null) return fs.writeFileSync(file, content, FILE_ENCODING);
 
 		fs.writeFile(file, content, FILE_ENCODING, (err) => {
@@ -160,45 +160,45 @@ module.exports = function(ERDS) {
 		});
 	};
 
-	ERDS.jsonRead = function(file, cb) {
-		if(!cb) return JSON.parse(ERDS.fileRead(file));
-		ERDS.fileRead(file, (err, content, file) => {
+	$$$.jsonRead = function(file, cb) {
+		if(!cb) return JSON.parse($$$.fileRead(file));
+		$$$.fileRead(file, (err, content, file) => {
 			cb(err, JSON.parse(content), file);
 		});
 	};
 
-	ERDS.jsonWrite = function(file, content, cb) {
+	$$$.jsonWrite = function(file, content, cb) {
 		var prettyJSON = typeof(content)=="string" ? content : JSON.stringify(content, null, true);
 
-		ERDS.fileWrite(file, prettyJSON, cb);
+		$$$.fileWrite(file, prettyJSON, cb);
 	};
 
 	//////////////////////////////////////////// HTML Helpers:
 	
-	ERDS.createScriptTags = function(URLs) {
+	$$$.createScriptTags = function(URLs) {
 		return URLs.map(url => '<script src="$0"></script>'.rep([url]));
 	}
 
-	ERDS.createCSSTags = function(URLs) {
+	$$$.createCSSTags = function(URLs) {
 		return URLs.map(url => '<link rel="stylesheet" href="$0">'.rep([url]));
 	};
 
 	//////////////////////////////////////////// Require & Module Helpers:
 
-	ERDS.loadModules = function(dir, NS, reload, expr) {
+	$$$.loadModules = function(dir, NS, reload, expr) {
 		if(!expr) expr = /\.*\.js/;
 
-		var svScripts = ERDS.filesFilter(dir, (file, full) => expr.test(file));
+		var svScripts = $$$.filesFilter(dir, (file, full) => expr.test(file));
 
 		if(!svScripts || !svScripts.length) {
 			return traceError("Could not find modules in: " + dir);
 		}
 
 		svScripts.forEach( mod => {
-			if(ERDS.isModuleLoaded(mod)) {
+			if($$$.isModuleLoaded(mod)) {
 				if(!reload) return;
 				
-				if(ERDS.isDev) {
+				if($$$.isDev) {
 					require('decache')(mod);
 				}
 			}
@@ -207,7 +207,7 @@ module.exports = function(ERDS) {
 		} );
 	};
 
-	ERDS.isModuleLoaded = function(modName) {
+	$$$.isModuleLoaded = function(modName) {
 		return !!require.cache[require.resolve(modName)];
 	};
 
@@ -215,7 +215,7 @@ module.exports = function(ERDS) {
 		delete require.cache[require.resolve(filePath)];
 	};
 
-	ERDS.requireNoCache =  function(filePath){
+	$$$.requireNoCache =  function(filePath){
 		_invalidateRequireCacheForFile(filePath);
 		return require(filePath);
 	};

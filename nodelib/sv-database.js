@@ -8,7 +8,7 @@ const Query = mongoose.Query;
 const ObjectID = Schema.ObjectId;
 const Redis = require('redis');
 
-module.exports = function(ERDS) {
+module.exports = function($$$) {
 	return;
 
 	startRedisClient();
@@ -16,7 +16,7 @@ module.exports = function(ERDS) {
 	function startRedisClient() {
 		trace("Attempting to connect on Redis...");
 		
-		var client = ERDS.redis = Redis.createClient({
+		var client = $$$.redis = Redis.createClient({
 			retry_strategy(options) {
 				if(options.error) return options.error;
 				if(options.attempt<2) {
@@ -39,7 +39,7 @@ module.exports = function(ERDS) {
 	trace("(Mongo Disabled for now)".yellow);
 
 	mongoose
-		.connect(ERDS.__mongodb)
+		.connect($$$.__mongodb)
 		.then(() => {
 			trace("Mongo is connected!".yellow);
 		})
@@ -47,17 +47,17 @@ module.exports = function(ERDS) {
 			trace("Mongo: Oh no something happened! $0".rep([err]).red)
 		});
 
-	ERDS.models = {};
-	ERDS.mongo = mongoose;
-	ERDS.schemas = SCHEMAS;
+	$$$.models = {};
+	$$$.mongo = mongoose;
+	$$$.schemas = SCHEMAS;
 
 	extendMongoose();
 
-	_.keys(ERDS.schemas).forEach(name => {
-		ERDS.models[name] = mongoose.model(name, ERDS.schemas[name]);
+	_.keys($$$.schemas).forEach(name => {
+		$$$.models[name] = mongoose.model(name, $$$.schemas[name]);
 	});
 
-	const UserLogin = ERDS.models.UserLogin;
+	const UserLogin = $$$.models.UserLogin;
 
 	/*
 	UserLogin.has(

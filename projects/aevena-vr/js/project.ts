@@ -1,7 +1,7 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
 
-declare var ERDS, _, $, $$$, Vue, TweenMax, TimelineMax,
+declare var $$$, _, $, $$$, Vue, TweenMax, TimelineMax,
 	trace, traceError, traceClear, toIcon, window, document, prompt;
 
 var __VUE, __SHEETS, __SHEET, __DEFS, __LIGHTS, __ACTIONS, __ARACOMMANDS;
@@ -28,7 +28,7 @@ function showPopup(header, message, options) {
 }
 
 
-(function(ERDS) {
+(function($$$) {
 	registerComponents({
 		comp: {
 			props: ['obj'],
@@ -322,7 +322,7 @@ function showPopup(header, message, options) {
 
 				playSFX(step) {
 					if(!step) step = this.currentStep;
-					playSFX(ERDS.audiosprite, step.audioClipName, step.audioVolume)
+					playSFX($$$.audiosprite, step.audioClipName, step.audioVolume)
 				},
 
 				isAudioSelected(item) {
@@ -677,7 +677,7 @@ function showPopup(header, message, options) {
 	//Key modifier:
 	$(window).on('keydown keyup', function(e) {
 		var status = "Save";
-		var ctrlOrAlt = ERDS.isMac ? e.altKey : e.ctrlKey;
+		var ctrlOrAlt = $$$.isMac ? e.altKey : e.ctrlKey;
 		switch(true) {
 			case ctrlOrAlt && e.shiftKey: status = "Recover"; break;
 			case e.shiftKey: status = "Trace"; break;
@@ -732,8 +732,8 @@ function showPopup(header, message, options) {
 		}
 	});
 
-	if(ERDS.ftue) {
-		ERDS.ftue.init();
+	if($$$.ftue) {
+		$$$.ftue.init();
 	}
 	
 	$(document).on('click', (e) => {
@@ -741,9 +741,9 @@ function showPopup(header, message, options) {
 		__VUE.currentDropDown = null;
 	});
 
-	ERDS.Project = function Project() {};
+	$$$.Project = function Project() {};
 	
-	_.extend(ERDS.Project.prototype, {
+	_.extend($$$.Project.prototype, {
 		extendVue() { //vueConfig, config
 			return {
 				data: {
@@ -808,7 +808,7 @@ function showPopup(header, message, options) {
 
 				methods: {
 					changeView(id) {
-						ERDS.vue.view = id;
+						$$$.vue.view = id;
 						setCookie('view', id);
 					},
 					
@@ -862,7 +862,7 @@ function showPopup(header, message, options) {
 					handleSaveButton(e) {
 						if(this.isBusy) return;
 
-						if(!ERDS.isDataValid) {
+						if(!$$$.isDataValid) {
 							$$$.boxError.showBox('Fix any data issues first before saving');
 							return;
 						}
@@ -924,7 +924,7 @@ function showPopup(header, message, options) {
 									.filter(sheet => mySheetIDs.has(sheet.name));
 
 								//Now do a client-side file download:
-								downloadJSON({sheets: mySheets}, ERDS.projectName + ".json");
+								downloadJSON({sheets: mySheets}, $$$.projectName + ".json");
 							}
 						});
 					},
@@ -1056,7 +1056,7 @@ function showPopup(header, message, options) {
 		},
 
 		init(projectData) {
-			__VUE = ERDS.vue;
+			__VUE = $$$.vue;
 			__JSONDATA = __VUE.jsonData;
 			__SHEETS = __JSONDATA.sheets;
 
@@ -1087,11 +1087,11 @@ function showPopup(header, message, options) {
 				__VUE.currentActionItem = __ACTIONS[getCookie('action', 0)];
 			}
 
-			ERDS.io.on('github-webhook', onGithubWebhook);
-			ERDS.io.on("server-error", function() { __VUE.isBusy = false; });
-			ERDS.io.on("hardcoded", checkHardcodedData);
-			ERDS.io.on("edit-file", __VUE.onServerEditFile);
-			ERDS.io.on('isBusy', function(status) {
+			$$$.io.on('github-webhook', onGithubWebhook);
+			$$$.io.on("server-error", function() { __VUE.isBusy = false; });
+			$$$.io.on("hardcoded", checkHardcodedData);
+			$$$.io.on("edit-file", __VUE.onServerEditFile);
+			$$$.io.on('isBusy', function(status) {
 				__VUE.isBusy = status;
 			});
 
@@ -1107,9 +1107,9 @@ function showPopup(header, message, options) {
 	});
 
 	function loadSounds() {
-		ERDS.__media = ERDS.projectName + '/media/';
+		$$$.__media = $$$.projectName + '/media/';
 
-		loadAudioSprite('audiosprite.json', ERDS.__media, howl => ERDS.audiosprite = howl);
+		loadAudioSprite('audiosprite.json', $$$.__media, howl => $$$.audiosprite = howl);
 	}
 	
 	function trySameIndex(arrNew, arrOld, itemOld) {
@@ -1240,7 +1240,7 @@ function showPopup(header, message, options) {
 		`);//<i title="Raw Project JSON Data" onclick="requestEditFile('raw-project-json')"></i>
 	}
 	
-})(ERDS);
+})($$$);
 
 function duplicateItem(item, list) {
 	var id = list.indexOf(item);
@@ -1396,5 +1396,5 @@ function onGithubWebhook(data) {
 
 	$$$.boxInfo.showBox(socketMessage);
 
-	playSFX(ERDS.defaultSFX, 'mario_mushroom', 0.1);
+	playSFX($$$.defaultSFX, 'mario_mushroom', 0.1);
 }

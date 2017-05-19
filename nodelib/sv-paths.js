@@ -2,32 +2,32 @@ const os = require('os');
 const mkdirp = require('mkdirp');
 const argv = require('yargs').argv;
 
-module.exports = function(ERDS) {
+module.exports = function($$$) {
 	//Store a bunch of common useful root & subfolder paths:
-	const app = ERDS.app;
-	const __rootpath = ERDS.__dirname;
+	const app = $$$.app;
+	const __rootpath = $$$.__dirname;
 
 	//Local Filesystem Addresses:
-	app.set('__rootpath', ERDS.__rootpath = __rootpath);
-	app.set('__test', ERDS.__test = __rootpath + '/test');
-	app.set('__public', ERDS.__public = __rootpath + '/public');
-	app.set('__nodelib', ERDS.__nodelib = __rootpath + '/nodelib');
-	app.set('__indexhtml', ERDS.__indexhtml = __rootpath + '/public/index.html');
-	app.set('__projects', ERDS.__projects = __rootpath + '/projects');
-	app.set('__private', ERDS.__private = __rootpath + '/.private');
-	app.set('__common', ERDS.__common = __rootpath + '/nodelib/common');
-	app.set('__data', ERDS.__data = __rootpath + '/.private/data');
+	app.set('__rootpath', $$$.__rootpath = __rootpath);
+	app.set('__test', $$$.__test = __rootpath + '/test');
+	app.set('__public', $$$.__public = __rootpath + '/public');
+	app.set('__nodelib', $$$.__nodelib = __rootpath + '/nodelib');
+	app.set('__indexhtml', $$$.__indexhtml = __rootpath + '/public/index.html');
+	app.set('__projects', $$$.__projects = __rootpath + '/projects');
+	app.set('__private', $$$.__private = __rootpath + '/.private');
+	app.set('__common', $$$.__common = __rootpath + '/nodelib/common');
+	app.set('__data', $$$.__data = __rootpath + '/.private/data');
 
-	mkdirp(ERDS.__data);
+	mkdirp($$$.__data);
 
 	//Remote Addresses:
-	app.set('port', ERDS.port = process.env.PORT || 9999);
-	app.set('__localhost', ERDS.__localhost = 'localhost:' + ERDS.port);
-	app.set('__hostname', ERDS.__hostname = os.hostname());
-	app.set('__host', ERDS.__host = ERDS.__hostname + ':' + ERDS.port);
-	app.set('__mongodb', ERDS.__mongodb = 'mongodb://localhost/erds');
+	app.set('port', $$$.port = process.env.PORT || 9999);
+	app.set('__localhost', $$$.__localhost = 'localhost:' + $$$.port);
+	app.set('__hostname', $$$.__hostname = os.hostname());
+	app.set('__host', $$$.__host = $$$.__hostname + ':' + $$$.port);
+	app.set('__mongodb', $$$.__mongodb = 'mongodb://localhost/erds');
 
-	ERDS.isTest = _.isTruthy(process.env.IS_TEST);
-	ERDS.isDev = _.isTruthy(process.env.IS_DEV);
-	ERDS.yargs = argv;
+	$$$.isTest = _.isTruthy(process.env.IS_TEST);
+	$$$.isDev = _.isTruthy(process.env.IS_DEV);
+	$$$.yargs = argv;
 };

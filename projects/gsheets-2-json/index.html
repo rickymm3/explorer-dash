@@ -1,0 +1,25 @@
+<div class="header">
+    <h1 class="title padded-5">$projectName</h1>
+    <p>(Google API Email: <a href="javascript: ;" @click="copyClipboard($event)">erds-google-api@erds-2017.iam.gserviceaccount.com</a>)</p>
+    <i id="spinner" class="fa fa-3x fa-circle-o-notch"></i>
+</div>
+
+<div class="main init-hidden" v-show="json">
+    <p>
+        Here is a list of Google Sheets currently subscribed:
+        <btn icon="plus" label="Add Google Sheet" @click="onAddGoogleSheet()"></btn>
+    </p>
+
+    <ul>
+        <li v-for="(proj, index) in json.projects">
+
+            <btn icon="clipboard" @click="copyRoot" :label="'Copy ZIP\'s /'+json.zip.rootFolder+'/ root content'" v-if="json.zip.rootFolder"></btn>
+            <btn icon="files-o" @click="copyAsIs" label="Copy ZIP as is"></btn>
+            <btn icon="trash" @click="clearTarget" label="Clear target directory"></btn>
+        </li>
+    </ul>
+
+    <!--
+    <input id="upload-input" type="file" name="uploads[]" multiple="multiple">
+    -->
+</div>

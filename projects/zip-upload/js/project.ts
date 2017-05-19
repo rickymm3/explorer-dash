@@ -1,12 +1,12 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
 
-declare var ERDS, FormData, _, $, $$$, Vue, TweenMax, TimelineMax,
+declare var $$$, FormData, _, $, $$$, Vue, TweenMax, TimelineMax,
     trace, traceError, traceClear, toIcon, window, document, prompt;
 
 var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
 
-(function(ERDS) {
+(function($$$) {
 
     registerComponents({
         'btn': {
@@ -21,9 +21,9 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
         },
     });
 
-    ERDS.Project = function Project() {};
+    $$$.Project = function Project() {};
 
-    _.extend(ERDS.Project.prototype, {
+    _.extend($$$.Project.prototype, {
         extendVue(vueConfig) {
             return _.merge(vueConfig, {
                 data: {
@@ -53,7 +53,7 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
         },
 
         init(projectData) {
-            __VUE = ERDS.vue;
+            __VUE = $$$.vue;
             __VUE.json = __JSON = projectData.json;
 
             __SPINNER = $('#spinner');
@@ -153,4 +153,4 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
         });
     }
 
-})(ERDS);
+})($$$);

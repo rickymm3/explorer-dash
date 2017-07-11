@@ -1,8 +1,8 @@
 @import (reference) "../../../public/css/main.less";
 
-body { background: #caefd0; }
+body { background: @colorBG; }
 
-
+@colorBG: #caefd0;;
 @colorModifiableBtn: #f80;
 
 .btn {
@@ -67,4 +67,54 @@ a.btn {
 
 #spinner {
 
+}
+
+.clippy {
+  position: relative;
+}
+
+.clippy-ok {
+  position: absolute;
+  left: 102%;
+  top: -3px;
+  padding: 5px;
+  .round(5px);
+  background: @colorBG * 0.8;
+  color: @colorBG * 1.5;
+  .shadow-dark();
+  .box-shadow(0px 1px 1px #000);
+  white-space: nowrap;
+}
+
+.popup {
+  .label {
+    display: inline-block;
+    text-align: right;
+    width: 180px;
+    font-weight: bold;
+    font-size: 120%;
+    color: #000;
+
+  }
+
+  .title {
+    padding-bottom: 10px;
+  }
+
+  .field {
+    display: block;
+    padding: 5px;
+  }
+
+  .long-field {
+    width: 400px;
+  }
+}
+
+
+.sheet {
+  .round(5px);
+  background: #fff;
+  padding: 5px;
+  margin-bottom: 5px;
 }

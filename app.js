@@ -9,6 +9,10 @@ const app =				$$$.app = express();
 const server =			$$$.server = require('http').createServer(app);
 const io =				$$$.io = require('socket.io')(server);
 
+const bodyParser =		require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 require('./nodelib/sv-helpers')($$$);
 require('./nodelib/sv-paths')($$$);
 

@@ -1,21 +1,39 @@
 <div class="header">
-    <h1 class="title padded-5">$projectName</h1>
-    <p>(Google API Email: <a href="javascript: ;" @click="copyClipboard($event)">erds-google-api@erds-2017.iam.gserviceaccount.com</a>)</p>
-    <i id="spinner" class="fa fa-3x fa-circle-o-notch"></i>
+    <h1 class="title padded-5">$projectName</h1><i id="spinner" class="fa fa-3x fa-circle-o-notch"></i>
+    <p>(Google API Email:
+        <clippy text="erds-google-api@erds-2017.iam.gserviceaccount.com"
+                on_copied="<b>Copied!</b><br/>Add this email to your<br/>Google Doc's permissions (read-only).">
+        </clippy>)</p>
+
 </div>
 
 <div class="main init-hidden" v-show="json">
+    <btn icon="plus" label="Add Google Sheet" @click="onAddGoogleSheet()"></btn>
+
+    <popup id="popup-add-sheet"
+           :hidden="true"
+           :handler="handlers.addSheet"
+           :title="labelAddOrEdit + ' Google Spreadsheet...'"
+           question="Please provide the spreadsheet details below:"
+           choices="OK,CANCEL">
+
+        urlSource = URL Source | Link to your Google Spreadsheet
+        projectName = Project Name | Ex: Summoners Frontier
+        urlAlias = URL Alias | Ex: sf-dev (must be lowercase, alphanumeric, -, _)
+    </popup>
+
     <p>
         Here is a list of Google Sheets currently subscribed:
-        <btn icon="plus" label="Add Google Sheet" @click="onAddGoogleSheet()"></btn>
+        https://docs.google.com/spreadsheets/d/test
     </p>
 
     <ul>
-        <li v-for="(proj, index) in json.projects">
-
-            <btn icon="clipboard" @click="copyRoot" :label="'Copy ZIP\'s /'+json.zip.rootFolder+'/ root content'" v-if="json.zip.rootFolder"></btn>
-            <btn icon="files-o" @click="copyAsIs" label="Copy ZIP as is"></btn>
-            <btn icon="trash" @click="clearTarget" label="Clear target directory"></btn>
+        <li class="sheet" v-if="json.sheets" v-for="(sheet, index) in json.sheets">
+            <btn icon="trash" @click="removeSheet(sheet)"></btn>
+            <btn icon="cog" @click="editSheet(sheet)"></btn>
+            <i>{{sheet.projectName}} - {{sheet.urlAlias}}
+                (<a :href="sheet.urlSource" target="blank">{{trimmedDoc(sheet.urlSource)}}</a>)
+            </i>
         </li>
     </ul>
 

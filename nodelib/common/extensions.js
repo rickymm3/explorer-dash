@@ -146,6 +146,19 @@ Function.prototype.defer = function() {
 
 //////////////////////////////////////////////////////////////
 
+_.loop = function(cb) {
+	var result = {id:-1};
+	function _loop() {
+		var time = cb();
+		if(time<=0) return;
+		result.id =  setTimeout(_loop, time);
+	}
+
+	setTimeout(_loop, 0);
+
+	return result;
+};
+
 _.isTruthy = function(bool) {
 	return bool===true || bool===1 || "true,1,on,yes".has(bool);
 };
@@ -210,6 +223,33 @@ _.jsonFixBooleans = function(obj) {
 			else if(_.isObject(value)) fixBool(value);
 		});
 	}
+};
+
+function Counter(arr, onDone, onEach) {
+	this.arr = arr;
+	this.id = 0;
+	this.onEach = onEach;
+	this.onDone = onDone;
+
+	var _this = this;
+
+	setTimeout(() => _this.next(), 1);
+}
+
+GLOBALS.Counter = Counter;
+
+Counter.prototype.next = function() {
+	trace("Counter next: " + this.id);
+
+	if(this.id >= this.arr.length) {
+		return this.onDone();
+	}
+
+	var id = this.id++;
+	//trace(id);
+	//trace("Counter next.....: " + this.id);
+
+	this.onEach(this.arr[id], id);
 };
 
 //////////////////////////////////////////////////////////////

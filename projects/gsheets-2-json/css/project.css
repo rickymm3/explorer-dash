@@ -88,4 +88,34 @@ a.btn {
   background: #fff;
   padding: 5px;
   margin-bottom: 5px;
+  text-align: left;
+}
+.sheet .col-1 {
+  display: inline-block;
+  width: 500px;
+}
+.sheet .col-2 {
+  display: inline-block;
+  width: 200px;
+  text-align: left;
+}
+.sheet .timestamp {
+  font-style: italic;
+  color: #888;
+}
+.header {
+  font-weight: bold;
+  text-align: left;
+}
+.btn-red,
+.btn-red:hover {
+  background: #f00;
+}
+.btn-yellow,
+.btn-yellow:hover {
+  background: #fa0;
+}
+.btn-green,
+.btn-green:hover {
+  background: #0a0;
 }

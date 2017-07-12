@@ -373,6 +373,10 @@ function postJSON(options) {
 }
 
 function postAuthJSON(options) {
+	if(!$$$.authorization) {
+		throw new Error("Cannot use 'postAuthJSON()' while $$$.authorization is not defined!");
+	}
+
 	options = _.extend(options, {
 		beforeSend(ajax) {
 			ajax.setRequestHeader('Authorization', $$$.authorization);

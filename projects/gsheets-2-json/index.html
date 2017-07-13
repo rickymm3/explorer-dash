@@ -1,0 +1,59 @@
+<div class="header">
+    <h1 class="title padded-5">$projectName</h1><i id="spinner" class="fa fa-3x fa-circle-o-notch"></i>
+    <p>(Google API Email:
+        <clippy :text="client_email"
+                on_copied="<b>Copied!</b><br/>Add this email to your<br/>Google Doc's permissions (read-only).">
+        </clippy>)</p>
+
+</div>
+
+<div class="main init-hidden" v-show="json">
+    <btn icon="plus" label="Add Google Sheet" @click="onAddGoogleSheet()"></btn>
+    <btn v-if="!json.status" class="btn-green" :label="ctrlKey ? 'Force Fetching' : 'Start Fetching'" @click="setServerStatus(true)"></btn>
+    <btn v-if="json.status" class="btn-red" label="Stop Fetching" @click="setServerStatus(false)"></btn>
+
+    <popup id="popup-add-sheet"
+           :hidden="true"
+           :handler="handlers.addSheet"
+           :title="labelAddOrEdit + ' Google Spreadsheet...'"
+           question="Please provide the spreadsheet details below:"
+           choices="OK,CANCEL">
+
+        urlSource = Googld Doc URL | Link to your Google Spreadsheet
+        projectName = Project Name | Ex: Summoners Frontier
+        urlAlias = URL Alias | Ex: sf-dev (must be lowercase, alphanumeric, -, _)
+    </popup>
+
+    <p>
+        Here is a list of Google Sheets currently subscribed:
+    </p>
+
+    <ul>
+        <li class="sheet header">
+            <i class="col-1">Project Name and Details:</i>
+            <i class="col-2">Last Fetched On:</i>
+            <i class="col-3">Status:</i>
+        </li>
+        <li class="sheet" v-if="json.sheets" v-for="(sheet, index) in json.sheets">
+            <i class="col-1">
+                <btn v-if="ctrlKey" icon="trash" @click="removeSheet(sheet)" class="btn-red"></btn>
+                <btn v-if="!ctrlKey" icon="cog" @click="editSheet(sheet)"></btn>
+
+                <a :href="sheet.urlSource" target="blank">Google Doc</a> |
+                <a :href="toG2JLink(sheet.urlAlias)" target="blank">Json-Data ({{toG2JLink(sheet.urlAlias)}})</a>
+                {{sheet.projectName}}
+            </i>
+
+            <i class="col-2 timestamp">{{toTimestamp(sheet.lastFetched)}}</i>
+            <i class="col-3 status" v-if="sheet.status!=null">
+                <btn v-if="sheet.status.error" class="btn-red" icon="exclamation-triangle" @click="showMessage('Sheet Error!', sheet.status.error)"></btn>
+                <btn v-if="sheet.status.processing" class="btn-yellow" icon="hourglass" @click="showMessage('Sheet Processing...', sheet.status.processing)"></btn>
+                <btn v-if="sheet.status.done" class="btn-green" icon="check" @click="showMessage('Sheet Completed!', sheet.status.done)"></btn>
+            </i>
+        </li>
+    </ul>
+
+    <!--
+    <input id="upload-input" type="file" name="uploads[]" multiple="multiple">
+    -->
+</div>

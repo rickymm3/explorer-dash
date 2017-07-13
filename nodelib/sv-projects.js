@@ -1,17 +1,22 @@
-module.exports = function (ERDS) {
+var cachedProject = {};
+
+module.exports = function ($$$) {
 	return {
 		getProjectObj(projectName) {
 			if (!projectName || !projectName.length) return null;
 
-			var projectPath = ERDS.__projects + '/' + projectName;
-			var projectData = ERDS.__data + '/' + projectName;
+			if(cachedProject[projectName]) return cachedProject[projectName];
+
+			var projectPath = $$$.__projects + '/' + projectName;
+			var projectData = $$$.__data + '/' + projectName;
 			
-			if (!ERDS.fileExists(projectPath)) {
+			if (!$$$.fileExists(projectPath)) {
 				traceError("Project does not exists! " + projectName);
 				return null;
 			}
 
-			return {
+			var proj = cachedProject[projectName] = {
+				$$$: $$$,
 				name: projectName,
 				__path: projectPath,
 				__indexhtml: projectPath + '/index.html',
@@ -21,6 +26,17 @@ module.exports = function (ERDS) {
 				__data: projectData,
 				__json: projectData + '/data.json'
 			};
+
+			$$$.hideProperties(proj, "$$$");
+
+			//Load specific project's modules:
+			if($$$.fileExists(proj.__nodelib)) {
+				$$$.loadModules(proj.__nodelib, proj, true); //$$$.isDev
+			} else {
+				traceError("No /nodelib/ folder found for project: \n" + proj.__nodelib);
+			}
+
+			return proj;
 		}
 	}
 };

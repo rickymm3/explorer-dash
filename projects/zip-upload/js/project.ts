@@ -1,31 +1,31 @@
 /// <reference path="../../../public/js/main.ts" />
 /// <reference path="../../../public/js/jquery-cookie.ts" />
 
-declare var ERDS, FormData, _, $, $$$, Vue, TweenMax, TimelineMax,
+declare var $$$, FormData, _, $, $$$, Vue, TweenMax, TimelineMax,
     trace, traceError, traceClear, toIcon, window, document, prompt;
 
-var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
+var __VUE, __UPLOAD, __JSON, __CURRENT_PROJ, __SPINNER;
 
-(function(ERDS) {
+(function($$$) {
 
     registerComponents({
-        'btn': {
-            props: ['obj', 'label', 'emoji', 'icon'],
-            methods: { click(e) { this.$emit('click', e); } },
-            template:
-                `<div class="btn" v-on:click.capture.stop.prevent="click">
-					<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>
-					<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>
-					<i v-html="label"></i>
-				</div>`
-        },
+        // 'btn': {
+        //     props: ['obj', 'label', 'emoji', 'icon'],
+        //     methods: { click(e) { this.$emit('click', e); } },
+        //     template:
+        //         `<div class="btn" v-on:click.capture.stop.prevent="click">
+			// 		<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>
+			// 		<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>
+			// 		<i v-html="label"></i>
+			// 	</div>`
+        // },
     });
 
-    ERDS.Project = function Project() {};
+    $$$.Project = function Project() {};
 
-    _.extend(ERDS.Project.prototype, {
-        extendVue(vueConfig) {
-            return _.merge(vueConfig, {
+    _.extend($$$.Project.prototype, {
+        extendVue() {
+            return {
                 data: {
                     json: {}
                 },
@@ -49,35 +49,27 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
                         confirmAction('clearTarget', true);
                     }
                 }
-            });
+            };
         },
 
         init(projectData) {
-            __VUE = ERDS.vue;
+            __VUE = $$$.vue;
             __VUE.json = __JSON = projectData.json;
 
-            __SPINNER = $('#spinner');
-            __SPINNER.hide();
-            TweenMax.set(__SPINNER, {alpha: 0});
-
-            var isBusy = false;
+            __SPINNER = new Spinner();
+            __SPINNER.onStopBusy = () => {
+                __UPLOAD.val('');
+            };
 
             __UPLOAD = $('#upload-input');
             __UPLOAD.on('change', function() {
                 var files = __UPLOAD[0].files;
-                if(isBusy || !files || !files.length) return; //No files selected.
+                if(__SPINNER.isBusy || !files || !files.length) return; //No files selected.
 
                 trace(files);
                 trace("Uploading to project: " +  __CURRENT_PROJ.name);
 
-                if(__SPINNER.twn) {
-                    __SPINNER.twn.kill();
-                }
-
-                __SPINNER.show();
-
-                TweenMax.to(__SPINNER, 0.3, {alpha: 1});
-                startBusy(0.8);
+                __SPINNER.startBusy(0.8);
 
                 var formData = new FormData();
                 for (var i = 0; i < files.length; i++) {
@@ -94,37 +86,19 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
                     processData: false,
                     contentType: false,
                     success: function(data){
-                        startBusy(0.5);
+                        __SPINNER.startBusy();
                         window.setTimeout(() => {
-                            stopBusy();
+                            __SPINNER.stopBusy();
                             $$$.boxInfo.showBox("Successfully uploaded!");
                             onZIPUploadedOK(data);
                         }, 1000);
                     },
                     error: function(err) {
-                        stopBusy();
+                        __SPINNER.stopBusy();
                         $$$.boxError.showBox("Failed to upload! :cry:\n" + err.statusText + " - " + err.responseText);
                     }
                 });
             });
-
-            function startBusy(spinTime) {
-                isBusy = true;
-                __SPINNER.twn = TweenMax.to(__SPINNER, spinTime, {rotation: "+=360", repeat: -1, ease: Linear.easeNone});
-            }
-
-            function stopBusy() {
-                if(__SPINNER.twn) {
-                    __SPINNER.twn.kill();
-                    __SPINNER.twn = null;
-
-                    TweenMax.to(__SPINNER, 0.3, {alpha: 0});
-                }
-
-                __UPLOAD.val('');
-
-                isBusy = false;
-            }
 
             //$('.init-hidden').removeClass('init-hidden');
         }
@@ -153,4 +127,4 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __CURRENT_PROJ;
         });
     }
 
-})(ERDS);
+})($$$);

@@ -6,16 +6,16 @@
 const session = require('express-session');
 const timeMSOneDay = 1000 * 60 * 24;
 
-module.exports = function(ERDS) {
-	ERDS.app.set('trust proxy', 1);
-	ERDS.app.use( session({
+module.exports = function($$$) {
+	$$$.app.set('trust proxy', 1);
+	$$$.app.use( session({
 		secret: 'erds-web',
 		resave: false,
 		saveUninitialized: true,
 		cookie: {maxAge: timeMSOneDay}
 	}));
 
-	ERDS.auth = AUTH;
+	$$$.auth = AUTH;
 };
 
 const AUTH = {

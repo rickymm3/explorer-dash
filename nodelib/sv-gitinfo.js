@@ -8,11 +8,11 @@ const GitHubApi = require('github');
 const anymatch = require('anymatch');
 const bodyParser = require('body-parser');
 
-module.exports = function(ERDS, next) {
+module.exports = function($$$, next) {
 	var gitDate = git.date();
 	var env = process.env;
 
-	ERDS.git = _.assign(ERDS.git || {}, {
+	$$$.git = _.assign($$$.git || {}, {
 		clientID: process.env.GITHUB_CLIENT,
 		clientSecret: process.env.GITHUB_SECRET,
 		branch: git.branch(),
@@ -35,18 +35,18 @@ module.exports = function(ERDS, next) {
 
 	github.authenticate({ type: "token", token: env.GITHUB_PERSONAL_TOKEN });
 
-	var __githubListingsJSON = ERDS.__private + "/github-listings.json";
+	var __githubListingsJSON = $$$.__private + "/github-listings.json";
 	var githubListings = {repos:{}};
 
-	if(ERDS.fileExists(__githubListingsJSON)) {
-		githubListings = ERDS.jsonRead(__githubListingsJSON);
+	if($$$.fileExists(__githubListingsJSON)) {
+		githubListings = $$$.jsonRead(__githubListingsJSON);
 	}
 
-	//ERDS.path
-	ERDS.app.use('/github/:user/:repo/:view/:branch', function(req, res, next) {
+	//$$$.path
+	$$$.app.use('/github/:user/:repo/:view/:branch', function(req, res, next) {
 		var p = req.params;
 		var sha = null, commit = null;
-		var fullURL = ERDS.fullUrl(req);
+		var fullURL = $$$.fullUrl(req);
 		var uniqueID = [p.user,p.repo,p.branch].join(':');
 		var subpath = req.path.substr(1);
 		var repoOptions = {
@@ -106,7 +106,7 @@ module.exports = function(ERDS, next) {
 
 			onOutputTreeData(repoCurrent);
 
-			ERDS.jsonWrite(__githubListingsJSON, githubListings, (err, file) => {
+			$$$.jsonWrite(__githubListingsJSON, githubListings, (err, file) => {
 				if(err) return traceError("Failed to write JSON in private folder!");
 				trace("JSON written successfully!".green);
 			});
@@ -142,11 +142,11 @@ module.exports = function(ERDS, next) {
 		}
 	});
 
-	ERDS.app.use('/github-webhook', bodyParser.json(), function(req, res, next) {
-		var fullURL = ERDS.fullUrl(req);
+	$$$.app.use('/github-webhook', bodyParser.json(), function(req, res, next) {
+		var fullURL = $$$.fullUrl(req);
 
 		trace("github-webhook: " + fullURL);
-		ERDS.io.emit('github-webhook', req.body);
+		$$$.io.emit('github-webhook', req.body);
 
 		return res.send('ok');
 	});

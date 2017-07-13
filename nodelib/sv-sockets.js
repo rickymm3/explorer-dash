@@ -4,15 +4,15 @@
 
 var app, server, io, clients;
 
-module.exports = function(ERDS) {
-	const projectsUtils = require('./sv-projects')(ERDS);
+module.exports = function($$$) {
+	const projectsUtils = require('./sv-projects')($$$);
 
-	server = ERDS.server;
-	app = ERDS.app;
-	io = ERDS.io;
-	clients = ERDS.clients = [];
+	server = $$$.server;
+	app = $$$.app;
+	io = $$$.io;
+	clients = $$$.clients = [];
 
-	ERDS.projects = {};
+	$$$.projects = {};
 	//test
 	io.on('connection', client => {
 		trace((" >>> " + client.id).yellow);
@@ -23,18 +23,18 @@ module.exports = function(ERDS) {
 		client.on('project-fetch', onProjectFetch);
 		client.on('project-command', onProjectCommand);
 		
-		if(ERDS.isDev) {
+		if($$$.isDev) {
 			client.on('kill', () => process.exit());
 		}
 	});
 	
-	ERDS.beep = function() {
-		ERDS.io.emit('beep');
+	$$$.beep = function() {
+		$$$.io.emit('beep');
 	};
 
-	ERDS.sendServerError = function(client, msg) {
+	$$$.sendServerError = function(client, msg) {
 		traceError(msg);
-		client.emit("server-error", msg);
+		client && client.emit("server-error", msg);
 	};
 
 	function onDisconnect() {
@@ -50,30 +50,21 @@ module.exports = function(ERDS) {
 
 		var client = this;
 		var proj = projectsUtils.getProjectObj(projectName);
-		if(!proj) return ERDS.sendServerError(this, "Project does not exists: " + projectName);
+		if(!proj) return $$$.sendServerError(this, "Project does not exists: " + projectName);
 
-		//Set circular reference (for sub-modules to find ERDS or the Project):
-		proj.ERDS = ERDS;
-		ERDS.projects[proj.name] = proj;
+		$$$.projects[proj.name] = proj;
 		
 		var responseData = proj.responseData = {
 			name: proj.name,
-			yargs: ERDS.yargs
+			yargs: $$$.yargs
 		};
-		
-		//Load specific project's modules:
-		if(ERDS.fileExists(proj.__nodelib)) {
-			ERDS.loadModules(proj.__nodelib, proj, true); //ERDS.isDev
-		} else {
-			traceError("No /nodelib/ folder found for project: \n" + proj.__nodelib);
-		}
 
 		tryLoadingJSON(client, proj, responseData);
 	}
 
 	function tryLoadingJSON(client, proj, responseData) {
-		if(ERDS.fileExists(proj.__json)) {
-			ERDS.fileRead(proj.__json, (err, content) => {
+		if($$$.fileExists(proj.__json)) {
+			$$$.fileRead(proj.__json, (err, content) => {
 				if(err) responseData.json = null;
 				else responseData.json = JSON.parse(content);
 
@@ -83,7 +74,7 @@ module.exports = function(ERDS) {
 		}
 
 		var __jsData = proj.__json.replace('.json', '.js');
-		if(ERDS.fileExists(__jsData)) {
+		if($$$.fileExists(__jsData)) {
 			responseData.json = require(__jsData);
 			client.emit('project-fetch', responseData);
 			return;
@@ -94,23 +85,30 @@ module.exports = function(ERDS) {
 	
 	function onProjectCommand(cmd) {
 		var _this = this;
-		var proj = ERDS.projects[cmd.project];
-		if(!proj) return ERDS.sendServerError(this, "Project does not exists OR requires refresh: " + cmd.project);
+		var proj = projectsUtils.getProjectObj(cmd.project);
+		if(!proj) return $$$.sendServerError(this, "Project does not exists OR requires refresh: " + cmd.project);
 
 		cmd.proj = proj;
 		cmd.client = this;
-		cmd.dateServer = new Date();
-		
+
 		//_.delay(() => {
 		//	
 		//}, 500);
 
-		processProjectCommand(cmd);
+		$$$.processProjectCommand(cmd);
 	}
 	
-	function processProjectCommand(cmd) {
+	$$$.processProjectCommand = function(cmd) {
+		cmd.dateServer = new Date();
+
 		var cmdMethod = cmd.proj.commands[cmd.command];
-		if(!cmdMethod) return ERDS.sendServerError(cmd.client, "Unknown command! " + cmd.command);
+		if(!cmdMethod) {
+			if(cmd.res) {
+				$$$.status500(cmd.res, `Unknown Project Command: <b>${cmd.command}</b>`);
+			}
+
+			return $$$.sendServerError(cmd.client, "Unknown command! " + cmd.command);
+		}
 		cmdMethod(cmd);
 	}
 };

@@ -124,6 +124,13 @@ function toIcon(str) {
 	return str.replace(regexIcon, '<i class="fa fa-$1"></i>')
 }
 
+function guid() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}
+
 p.camelToTitleCase = function() {
 	var text = this.toString();
 	var result = text.replace( /([A-Z])/g, " $1" );
@@ -139,8 +146,27 @@ Function.prototype.defer = function() {
 
 //////////////////////////////////////////////////////////////
 
+_.loop = function(cb) {
+	var result = {id:-1};
+	function _loop() {
+		var time = cb();
+		if(time<=0) return;
+		result.id =  setTimeout(_loop, time);
+	}
+
+	setTimeout(_loop, 0);
+
+	return result;
+};
+
 _.isTruthy = function(bool) {
 	return bool===true || bool===1 || "true,1,on,yes".has(bool);
+};
+
+_.isNullOrEmpty = function(prop) {
+	if(!prop) return true;
+	if(prop.hasOwnProperty('length')) return !prop.length;
+	return false
 };
 
 _.mapRename = function(obj, filter) {
@@ -199,6 +225,72 @@ _.jsonFixBooleans = function(obj) {
 	}
 };
 
+_.omit = function(obj, blacklist) {
+	var iterator = key => key.startsWith('_');
+
+	if(_.isFunction(blacklist)) {
+		iterator = key => blacklist(key);
+	} else if(!_.isNullOrEmpty(blacklist)) {
+		if(_.isString(blacklist)) blacklist = blacklist.split(',');
+
+		iterator = key => blacklist.has(key.toLowerCase());
+	}
+
+	var newObj = {};
+
+	_.keys(obj).forEach(key => {
+		if(iterator(key)) return;
+
+		newObj[key] = obj[key];
+	});
+
+	return newObj;
+};
+
+function AsyncEach(objList, funcList, cb) {
+	this.objList = objList;
+	this.funcList = _.isArray(funcList) ? funcList : [funcList];
+	this.cb = cb;
+	this._objID = -1;
+	this._obj = null;
+	this._funcID = -1;
+
+	this._nextObj = this.nextObj.bind(this);
+	this._nextFunc = this.nextFunc.bind(this);
+
+	setTimeout(this._nextObj, 1);
+}
+
+_.extend(AsyncEach.prototype, {
+	nextObj() {
+		if((++this._objID) >= this.objList.length) {
+			return this.cb();
+		}
+
+		this._obj = this.objList[this._objID];
+
+		//Reset the callback ID before we start iterating on each one:
+		this._funcID = -1;
+		this._nextFunc();
+	},
+
+	nextFunc() {
+		if((++this._funcID) >= this.funcList.length) {
+			return this._nextObj();
+		}
+
+		var func = this.funcList[this._funcID];
+
+		func(this._nextFunc, this._obj, this._objID);
+	}
+});
+
+AsyncEach.make = function(arr, onDone, onEach) {
+	new AsyncEach(arr, onDone, onEach);
+};
+
+GLOBALS.AsyncEach = AsyncEach;
+
 //////////////////////////////////////////////////////////////
 
 GLOBALS.trace = console.log.bind(console);
@@ -211,6 +303,8 @@ GLOBALS.traceObj = function(o) {
 if(isNode()) {
 	GLOBALS.traceClear = function() { process.stdout.write('\033c'); };
 	GLOBALS.traceError = function(err) { trace(err.toString().red); };
+
+	module.exports = GLOBALS;
 } else {
 	GLOBALS.traceClear = function() { console.clear && console.clear(); };
 	GLOBALS.traceError = function(err) { console.error(err); };

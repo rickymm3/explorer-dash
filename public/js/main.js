@@ -1,23 +1,21 @@
-var $$$ = $(window);
-ERDS.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
+$$$.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
 $$$.on('load', function () {
-    //Vue.config.debug = true;
     Cookies._prefix = "erds.web.";
-    loadAudioSprite('defaultSFX.json', '../media/', function (howl) { return ERDS.defaultSFX = howl; });
-    //ERDS.beep = new Howl();
-    ERDS.io = io(); //Create a socket connection:
-    ERDS.io.on('beep', onBeep);
-    ERDS.io.on("echo", function (response) { return $$$.boxInfo.showBox(response); });
-    ERDS.io.on("saved", onSaved);
-    ERDS.io.on("server-error", function (response) { traceError(response); $$$.boxError.showBox(response); });
-    ERDS.io.on('file-changed', onFileChanged);
-    ERDS.io.on('project-fetch', onProjectFetch);
-    ERDS.io.on('has-many-backups', onHasManyBackups);
-    ERDS.io.emit('project-fetch', ERDS.projectName);
+    loadAudioSprite('defaultSFX.json', '../media/', function (howl) { return $$$.defaultSFX = howl; });
+    var _io = $$$.io = io(); //Create a socket connection:
+    _io.on('beep', onBeep);
+    _io.on("echo", function (response) { return $$$.boxInfo.showBox(response); });
+    _io.on("saved", onSaved);
+    _io.on("server-error", function (response) { traceError(response); $$$.boxError.showBox(response); });
+    _io.on('file-changed', onFileChanged);
+    _io.on('project-fetch', onProjectFetch);
+    _io.on('has-many-backups', onHasManyBackups);
+    _io.emit('project-fetch', $$$.projectName);
 });
-function projectCommand(command, params) {
-    ERDS.io.emit('project-command', {
-        project: ERDS.projectName,
+function sendProjectCommand(command, params) {
+    if (params === void 0) { params = null; }
+    $$$.io.emit('project-command', {
+        project: $$$.projectName,
         dateClient: new Date(),
         command: command,
         params: params
@@ -27,13 +25,13 @@ function onFileChanged(whichFile) {
     window.location.reload(true);
 }
 function onProjectFetch(projectData) {
-    ERDS.projectData = projectData;
-    if (!ERDS.Project)
-        return traceError("Missing ERDS.Project");
-    if (ERDS.vue)
+    $$$.projectData = projectData;
+    if (!$$$.Project)
+        return traceError("Missing $$$.Project");
+    if ($$$.vue)
         return traceError("Vue already created!");
-    var project = ERDS.project = new ERDS.Project();
-    ERDS.vueConfig = {
+    var project = $$$.project = new $$$.Project();
+    $$$.vueConfig = {
         el: '#app',
         data: {
             message: 'Test VueJS Message!',
@@ -42,12 +40,17 @@ function onProjectFetch(projectData) {
         },
         methods: {}
     };
-    if (project.extendVue) {
-        ERDS.vueConfig = _.merge(ERDS.vueConfig, project.extendVue());
-        $(window).trigger('vue-extend');
+    if (!project.extendVue) {
+        $$$.boxError.showBox("Missing 'project.extendVue()' method!");
+        return;
     }
+    if ($$$.extendVue) {
+        $$$.vueConfig = _.merge($$$.vueConfig, $$$.extendVue());
+    }
+    $$$.vueConfig = _.merge($$$.vueConfig, project.extendVue());
+    $(window).trigger('vue-extend');
     $('.init-hidden').removeClass('init-hidden');
-    ERDS.vue = new Vue(ERDS.vueConfig);
+    $$$.vue = new Vue($$$.vueConfig);
     initializeUI();
     project.init && project.init(projectData);
 }
@@ -92,15 +95,30 @@ function addMenu(fragment) {
     addNav(fragment);
 }
 function initializeUI() {
+    $$$.app = $('#app');
     $$$.navbarHeader = $('.navbar-header');
     $$$.boxError = $('.box-error');
     $$$.boxInfo = $('.box-info');
     $$$.boxes = [$$$.boxError, $$$.boxInfo];
+    $$$.Clipboard = new Clipboard('.clippy');
+    $$$.Clipboard.on('success', function (e) {
+        trace(e);
+        var $trigger = $(e.trigger);
+        var $span = $trigger.find('.clippy-ok');
+        if (!$span || !$span.length)
+            return;
+        var timeAlive = 1.0 + (e.text.length) * 0.05;
+        trace(timeAlive);
+        $span.show();
+        TweenMax.set($span, { alpha: 1 });
+        TweenMax.from($span, 0.4, { alpha: 0, y: "-=5", ease: Sine.easeOut });
+        TweenMax.to($span, 0.8, { alpha: 0, delay: timeAlive, ease: Linear.easeNone });
+    });
     _makeQueueBox($$$.boxInfo, function (obj) {
-        ERDS.vue.infos = !_.isString(obj) && _.isObject(obj) ? JSON.stringify(obj) : obj;
+        $$$.vue.infos = !_.isString(obj) && _.isObject(obj) ? JSON.stringify(obj) : obj;
     }, 0);
     _makeQueueBox($$$.boxError, function (err) {
-        ERDS.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
+        $$$.vue.errors = _.isString(err) ? err : (err ? err.responseText : "Error...");
     }, 50);
     $$$.on('mousedown', function (e) {
         var stopMouse = false;
@@ -220,29 +238,27 @@ function downloadJSON(jsonData, fileName) {
     $downloads[0].click();
 }
 function isMuted() {
-    return ERDS.projectData && ERDS.projectData.yargs && ERDS.projectData.yargs.muted;
+    return $$$.projectData && $$$.projectData.yargs && $$$.projectData.yargs.muted;
 }
 function playSound() {
-    if (isMuted())
-        return;
-    playSFX(ERDS.defaultSFX, 'mario_coin', 0.5);
+    playSFX($$$.defaultSFX, 'mario_coin', 0.5);
 }
 function onBeep() {
-    if (ERDS.$restart)
+    if ($$$.$restart)
         return;
     trace("BEEPING!");
     playSound();
-    ERDS.$restart = $('<a class="server-restart" href="javascript:;">RESTART SERVER!</a>');
-    ERDS.$restart.click(function () {
-        ERDS.io.emit('kill');
+    $$$.$restart = $('<a class="server-restart" href="javascript:;">RESTART SERVER!</a>');
+    $$$.$restart.click(function () {
+        $$$.io.emit('kill');
     });
-    $('.git-info').append(ERDS.$restart);
+    $('.git-info').append($$$.$restart);
 }
 function onSaved(response) {
+    $$$.boxInfo.showBox(response);
     if (isMuted())
         return;
-    $$$.boxInfo.showBox(response);
-    playSFX(ERDS.defaultSFX, 'mario_1up', 0.5);
+    playSFX($$$.defaultSFX, 'mario_1up', 0.5);
 }
 function onHasManyBackups(numBackups) {
     $$$.boxInfo.showBox("ATTENTION: There are currently $0 backups on the server!".rep([numBackups]));
@@ -271,6 +287,93 @@ function loadAudioSprite(url, prefix, cb) {
 }
 function playSFX(howler, name, volume) {
     if (volume === void 0) { volume = 1.0; }
+    if (isMuted()) {
+        traceError("muted sounds.");
+        return;
+    }
     var sfxID = howler.play(name);
     howler.volume(volume, sfxID);
 }
+function postJSON(options) {
+    options = _.extend(options, {
+        type: 'POST',
+        contentType: 'application/json'
+    });
+    if (options.json) {
+        options.data = JSON.stringify(options.json);
+    }
+    return $.ajax(options);
+}
+function postAuthJSON(options) {
+    if (!$$$.authorization) {
+        throw new Error("Cannot use 'postAuthJSON()' while $$$.authorization is not defined!");
+    }
+    options = _.extend(options, {
+        beforeSend: function (ajax) {
+            ajax.setRequestHeader('Authorization', $$$.authorization);
+        }
+    });
+    postJSON(options);
+}
+function fieldsParser(string) {
+    var fields = { _raw: null };
+    var cbFieldSplitter = function (t) { return t.split('=')
+        .map(function (f) { return f.trim(); })
+        .map(function (f) { return f.split('|')
+        .map(function (e) { return e.trim(); }); }); };
+    var strSplit = string.trim()
+        .split('\n')
+        .map(function (t) { return t.trim(); })
+        .map(cbFieldSplitter);
+    strSplit.forEach(function (item, index) {
+        fields[item[0]] = item[1];
+    });
+    fields._raw = strSplit;
+    return fields;
+}
+$$$.fx = {
+    show: function ($el) {
+        $el.show();
+        TweenMax.fromTo($el, 0.3, { alpha: 0 }, { alpha: 1 });
+    },
+    hide: function ($el) {
+        TweenMax.fromTo($el, 0.3, { alpha: 1 }, { alpha: 0, onComplete: function () { return $el.hide(); } });
+    }
+};
+var Spinner = (function () {
+    function Spinner() {
+        this._el = null;
+        this._twn = null;
+        this.isBusy = false;
+        this.onStopBusy = null;
+        this._el = $('#spinner');
+        this._el.hide();
+        TweenMax.set(this._el, { alpha: 0 });
+    }
+    Spinner.prototype._killTween = function () {
+        if (!this._twn)
+            return;
+        this._twn.kill();
+        this._twn = null;
+    };
+    Spinner.prototype.startBusy = function (spinTime, predelay, cb) {
+        if (spinTime === void 0) { spinTime = 0.5; }
+        if (predelay === void 0) { predelay = 0; }
+        if (cb === void 0) { cb = null; }
+        this.isBusy = true;
+        this._killTween();
+        this._el.show();
+        TweenMax.to(this._el, 0.3, { alpha: 1 });
+        this._twn = TweenMax.to(this._el, spinTime, { rotation: "+=360", repeat: -1, ease: Linear.easeNone });
+        var _stopBusy = this.stopBusy.bind(this);
+        if (cb)
+            setTimeout(function () { return cb(_stopBusy); }, predelay * 1000);
+    };
+    Spinner.prototype.stopBusy = function () {
+        this._killTween();
+        TweenMax.to(this._el, 0.3, { alpha: 0 });
+        this.onStopBusy && this.onStopBusy();
+        this.isBusy = false;
+    };
+    return Spinner;
+}());

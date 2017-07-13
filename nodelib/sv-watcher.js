@@ -1,7 +1,7 @@
 const chokidar = require('chokidar');
 
-module.exports = function(ERDS) {
-    if(!ERDS.isDev) {
+module.exports = function($$$) {
+    if(!$$$.isDev) {
         return trace("Skip Watcher since we're running PRODUCTION".yellow);
     }
     
@@ -10,7 +10,7 @@ module.exports = function(ERDS) {
     var requiresRestart = false;
     
     // One-liner for current directory, ignores .dotfiles 
-    chokidar.watch([ERDS.__nodelib, ERDS.__projects, ERDS.__public], {ignored: /[\/\\]\./}).on('all', (event, path) => {
+    chokidar.watch([$$$.__nodelib, $$$.__projects, $$$.__public], {ignored: /[\/\\]\./}).on('all', (event, path) => {
         path = path.fixSlashes();
         
         if (event.has('add') || 
@@ -18,14 +18,14 @@ module.exports = function(ERDS) {
             path.has('.less')) return;
         
         if(path.has('/nodelib/')) {
-            ERDS.beep();
+            $$$.beep();
             requiresRestart = true;
             return traceError("CHANGED server-side node JS file:\n  " + path);
         }
 
         trace("File changed: " + path);
 
-        if(!ERDS.io) return;
+        if(!$$$.io) return;
         
         if(timeoutID>-1) clearTimeout(timeoutID);
         fileChanged(path);
@@ -33,13 +33,13 @@ module.exports = function(ERDS) {
     
     function fileChanged(path, time) {
         if(requiresRestart) return;
-        ERDS.beep();
+        $$$.beep();
         
         timeoutID = setTimeout(() => {
             timeoutID = -1;
             
             if(requiresRestart) return;
-            ERDS.io.emit('file-changed', path);
+            $$$.io.emit('file-changed', path);
         }, time || 500);
     }
     

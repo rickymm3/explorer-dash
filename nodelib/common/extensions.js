@@ -225,32 +225,71 @@ _.jsonFixBooleans = function(obj) {
 	}
 };
 
-function Counter(arr, onDone, onEach) {
-	this.arr = arr;
-	this.id = 0;
-	this.onEach = onEach;
-	this.onDone = onDone;
+_.omit = function(obj, blacklist) {
+	var iterator = key => key.startsWith('_');
 
-	var _this = this;
+	if(_.isFunction(blacklist)) {
+		iterator = key => blacklist(key);
+	} else if(!_.isNullOrEmpty(blacklist)) {
+		if(_.isString(blacklist)) blacklist = blacklist.split(',');
 
-	setTimeout(() => _this.next(), 1);
-}
-
-GLOBALS.Counter = Counter;
-
-Counter.prototype.next = function() {
-	trace("Counter next: " + this.id);
-
-	if(this.id >= this.arr.length) {
-		return this.onDone();
+		iterator = key => blacklist.has(key.toLowerCase());
 	}
 
-	var id = this.id++;
-	//trace(id);
-	//trace("Counter next.....: " + this.id);
+	var newObj = {};
 
-	this.onEach(this.arr[id], id);
+	_.keys(obj).forEach(key => {
+		if(iterator(key)) return;
+
+		newObj[key] = obj[key];
+	});
+
+	return newObj;
 };
+
+function AsyncEach(objList, funcList, cb) {
+	this.objList = objList;
+	this.funcList = _.isArray(funcList) ? funcList : [funcList];
+	this.cb = cb;
+	this._objID = -1;
+	this._obj = null;
+	this._funcID = -1;
+
+	this._nextObj = this.nextObj.bind(this);
+	this._nextFunc = this.nextFunc.bind(this);
+
+	setTimeout(this._nextObj, 1);
+}
+
+_.extend(AsyncEach.prototype, {
+	nextObj() {
+		if((++this._objID) >= this.objList.length) {
+			return this.cb();
+		}
+
+		this._obj = this.objList[this._objID];
+
+		//Reset the callback ID before we start iterating on each one:
+		this._funcID = -1;
+		this._nextFunc();
+	},
+
+	nextFunc() {
+		if((++this._funcID) >= this.funcList.length) {
+			return this._nextObj();
+		}
+
+		var func = this.funcList[this._funcID];
+
+		func(this._nextFunc, this._obj, this._objID);
+	}
+});
+
+AsyncEach.make = function(arr, onDone, onEach) {
+	new AsyncEach(arr, onDone, onEach);
+};
+
+GLOBALS.AsyncEach = AsyncEach;
 
 //////////////////////////////////////////////////////////////
 
@@ -264,6 +303,8 @@ GLOBALS.traceObj = function(o) {
 if(isNode()) {
 	GLOBALS.traceClear = function() { process.stdout.write('\033c'); };
 	GLOBALS.traceError = function(err) { trace(err.toString().red); };
+
+	module.exports = GLOBALS;
 } else {
 	GLOBALS.traceClear = function() { console.clear && console.clear(); };
 	GLOBALS.traceError = function(err) { console.error(err); };

@@ -9,7 +9,7 @@
 
 <div class="main init-hidden" v-show="json">
     <btn icon="plus" label="Add Google Sheet" @click="onAddGoogleSheet()"></btn>
-    <btn v-if="!json.status" class="btn-green" label="Start Fetching" @click="setServerStatus(true)"></btn>
+    <btn v-if="!json.status" class="btn-green" :label="ctrlKey ? 'Force Fetching' : 'Start Fetching'" @click="setServerStatus(true)"></btn>
     <btn v-if="json.status" class="btn-red" label="Stop Fetching" @click="setServerStatus(false)"></btn>
 
     <popup id="popup-add-sheet"

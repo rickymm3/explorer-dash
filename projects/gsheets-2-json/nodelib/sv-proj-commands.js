@@ -38,6 +38,9 @@ module.exports = function(PROJ) {
 
 	$$$.rewriteJSON = rewriteJSON;
 
+	$$$.getPathSheetJSON = function(str) {
+		return PROJ.__sheets + `/${str}.json`;
+	};
 
 	function status500(res, msg) {
 		return res.status(500).send("GSheet-2-JSON Error: " + msg);
@@ -116,25 +119,22 @@ module.exports = function(PROJ) {
 	});
 
 	route('/g2j/status', {}, (req, res, next) => {
-		//trace(req.method);
-		//trace(req.body);
 
 		switch(req.method) {
 			case 'POST':
 				var isActive = _.isTruthy(req.body.status);
 				if(isActive) {
-					$$$.startFetching();
+					$$$.startFetching(req.body.forceUpdate);
 				} else {
 					$$$.stopFetching();
 				}
-
-				res.send('Setting server status to: ' + isActive);
-
 				break;
+
 			default:
-				res.json({status: !!PROJ._status});
 				break;
 		}
+
+		res.json({status: !!PROJ._status});
 	});
 
 	app.use('/g2j/creds', (req, res) => {
@@ -149,12 +149,17 @@ module.exports = function(PROJ) {
 	app.use('/g2j/json/*', (req, res, next) => {
 		var urlAlias = req.params[0];
 
-		var __sheetJSON = __sheets + `/${urlAlias}.json`;
+		var __sheetJSON = $$$.getPathSheetJSON(urlAlias);
 
 		if(!$$$.fileExists(__sheetJSON)) {
 			return status500(res, `JSON data not found for "${urlAlias}". May need to fetch and parse the sheet first.`);
 		}
 
-		res.json({sheets: 'OK'});
+		$$$.fileRead(__sheetJSON, (err, content) => {
+			if(err) return status500(res, `Trouble reading the JSON file: ${__sheetJSON}`);
+
+			res.type('json');
+			res.send(content);
+		});
 	});
 };

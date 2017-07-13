@@ -81,10 +81,9 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
                     },
 
                     setServerStatus(bool) {
-                        trace("set status: " + bool);
                         postAuthJSON({
                             url: '/g2j/status',
-                            json: {status: bool},
+                            json: {status: bool, forceUpdate: __VUE.ctrlKey},
                             success(data) {
                                 trace(data);
                             },
@@ -215,7 +214,6 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
     }
 
     function onRefresh(jsonData) {
-        trace("refreshed...");
         __VUE.json = jsonData;
     }
 

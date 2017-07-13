@@ -8,6 +8,7 @@
     "blessed": "^0.1.81",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
+    "change-case": "^3.0.1",
     "chokidar": "^1.6.1",
     "clipboard": "^1.6.1",
     "colors": "^1.1.2",

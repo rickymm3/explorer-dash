@@ -1,27 +1,25 @@
-declare var $$$, window, Howl, Vue, trace, traceError, io, $, _, TweenMax, Back, Cookies;
+declare var $$$, window, navigator, Howl, Vue, trace, traceError, setTimeout, io, ClipboardEvent, toIcon, toEmoji,
+	$, _, TweenMax, TimelineMax, Back, Linear, Cookies;
 
 $$$.isMac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
 
 $$$.on('load', function() {
-	//Vue.config.debug = true;
 	Cookies._prefix = "erds.web.";
 
 	loadAudioSprite('defaultSFX.json', '../media/', howl => $$$.defaultSFX = howl);
 
-	//$$$.beep = new Howl();
-
-	$$$.io = io(); //Create a socket connection:
-	$$$.io.on('beep', onBeep);
-	$$$.io.on("echo", response => $$$.boxInfo.showBox(response));
-	$$$.io.on("saved", onSaved);
-	$$$.io.on("server-error", response => {traceError(response); $$$.boxError.showBox(response);});
-	$$$.io.on('file-changed', onFileChanged);
-	$$$.io.on('project-fetch', onProjectFetch);
-	$$$.io.on('has-many-backups', onHasManyBackups);
-	$$$.io.emit('project-fetch', $$$.projectName);
+	var _io = $$$.io = io(); //Create a socket connection:
+	_io.on('beep', onBeep);
+	_io.on("echo", response => $$$.boxInfo.showBox(response));
+	_io.on("saved", onSaved);
+	_io.on("server-error", response => {traceError(response); $$$.boxError.showBox(response);});
+	_io.on('file-changed', onFileChanged);
+	_io.on('project-fetch', onProjectFetch);
+	_io.on('has-many-backups', onHasManyBackups);
+	_io.emit('project-fetch', $$$.projectName);
 });
 
-function projectCommand(command, params=null) {
+function sendProjectCommand(command, params=null) {
 	$$$.io.emit('project-command', {
 		project: $$$.projectName,
 		dateClient: new Date(),
@@ -52,11 +50,18 @@ function onProjectFetch(projectData) {
 		methods: {}
 	};
 
-	if(project.extendVue) {
-		$$$.vueConfig = _.merge($$$.vueConfig, project.extendVue());
-
-		$(window).trigger('vue-extend');
+	if(!project.extendVue) {
+		$$$.boxError.showBox("Missing 'project.extendVue()' method!");
+		return;
 	}
+
+	if($$$.extendVue) {
+		$$$.vueConfig = _.merge($$$.vueConfig, $$$.extendVue());
+	}
+
+	$$$.vueConfig = _.merge($$$.vueConfig, project.extendVue());
+
+	$(window).trigger('vue-extend');
 
 	$('.init-hidden').removeClass('init-hidden');
 
@@ -123,8 +128,20 @@ function initializeUI() {
 	$$$.boxInfo = $('.box-info');
 	$$$.boxes = [$$$.boxError,$$$.boxInfo];
 
-	$$$.app.on('copy', event => {
-		trace("Copying... " + event);
+	$$$.Clipboard = new Clipboard('.clippy');
+	$$$.Clipboard.on('success', e => {
+		trace(e);
+		var $trigger = $(e.trigger);
+		var $span = $trigger.find('.clippy-ok');
+		if(!$span || !$span.length) return;
+
+		var timeAlive = 1.0 + (e.text.length) * 0.05;
+		trace(timeAlive);
+
+		$span.show();
+		TweenMax.set($span, {alpha: 1});
+		TweenMax.from($span, 0.4, {alpha: 0, y: "-=5", ease: Sine.easeOut});
+		TweenMax.to($span, 0.8, {alpha: 0, delay: timeAlive, ease: Linear.easeNone});
 	});
 
 	_makeQueueBox($$$.boxInfo, (obj) => {
@@ -279,8 +296,6 @@ function isMuted() {
 }
 
 function playSound() {
-	if(isMuted()) return;
-
 	playSFX($$$.defaultSFX, 'mario_coin', 0.5);
 }
 
@@ -336,10 +351,115 @@ function loadAudioSprite(url, prefix, cb) {
 }
 
 function playSFX(howler, name, volume=1.0) {
+	if(isMuted()) {
+		traceError("muted sounds.");
+		return;
+	}
 	var sfxID = howler.play(name);
 	howler.volume(volume, sfxID);
 }
 
-function triggerCopy(content) {
-	$$$.app.trigger(new ClipboardEvent("copy"));
+function postJSON(options) {
+	options = _.extend(options, {
+		type: 'POST',
+		contentType: 'application/json',
+	});
+
+	if(options.json) {
+		options.data = JSON.stringify(options.json);
+	}
+
+	return $.ajax(options);
+}
+
+function postAuthJSON(options) {
+	if(!$$$.authorization) {
+		throw new Error("Cannot use 'postAuthJSON()' while $$$.authorization is not defined!");
+	}
+
+	options = _.extend(options, {
+		beforeSend(ajax) {
+			ajax.setRequestHeader('Authorization', $$$.authorization);
+		}
+	});
+
+	postJSON(options);
+}
+
+function fieldsParser(string) {
+	var fields = {_raw: null};
+
+	var cbFieldSplitter = t => t.split('=')
+		.map(f => f.trim())
+		.map(f => f.split('|')
+            .map(e => e.trim())
+		);
+
+	var strSplit = string.trim()
+		.split('\n')
+		.map(t => t.trim())
+		.map(cbFieldSplitter);
+
+	strSplit.forEach( (item, index) => {
+		fields[item[0]] = item[1];
+	});
+
+	fields._raw = strSplit;
+
+	return fields;
+}
+
+$$$.fx = {
+	show($el) {
+		$el.show();
+		TweenMax.fromTo($el, 0.3, {alpha: 0}, {alpha: 1});
+	},
+	hide($el) {
+		TweenMax.fromTo($el, 0.3, {alpha: 1}, {alpha: 0, onComplete: () => $el.hide()});
+	}
+};
+
+class Spinner {
+	_el = null;
+	_twn = null;
+	isBusy = false;
+	onStopBusy = null;
+
+	constructor() {
+		this._el = $('#spinner');
+		this._el.hide();
+		TweenMax.set(this._el, {alpha: 0});
+	}
+
+	_killTween() {
+		if(!this._twn) return;
+
+		this._twn.kill();
+		this._twn = null;
+	}
+
+	startBusy(spinTime=0.5, predelay=0, cb=null) {
+		this.isBusy = true;
+
+		this._killTween();
+
+		this._el.show();
+
+		TweenMax.to(this._el, 0.3, {alpha: 1});
+
+		this._twn = TweenMax.to(this._el, spinTime, {rotation: "+=360", repeat: -1, ease: Linear.easeNone});
+
+		var _stopBusy = this.stopBusy.bind(this);
+		if(cb) setTimeout(() => cb(_stopBusy), predelay * 1000);
+	}
+
+	stopBusy() {
+		this._killTween();
+
+		TweenMax.to(this._el, 0.3, {alpha: 0});
+
+		this.onStopBusy && this.onStopBusy();
+
+		this.isBusy = false;
+	}
 }

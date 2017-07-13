@@ -125,7 +125,8 @@ module.exports = function($$$) {
 		var urlFile = proj.__path + urlEnd;
 
 		if(!$$$.fileExists(urlFile)) {
-			return status500(res, 'Missing File: ' + urlEnd);
+			return next();
+			//return status500(res, 'Missing File: ' + urlEnd);
 		}
 
 		return res.sendFile(urlFile);

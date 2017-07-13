@@ -1,3 +1,5 @@
+require('v8-profiler');
+
 const _ = global._ =	require('underscore');
 const env =				require('dotenv').load({path: '.private/env.ini'});
 const extensions =		require('./nodelib/common/extensions');
@@ -8,6 +10,10 @@ const express =			$$$.express = require('express');
 const app =				$$$.app = express();
 const server =			$$$.server = require('http').createServer(app);
 const io =				$$$.io = require('socket.io')(server);
+
+const bodyParser =		require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 require('./nodelib/sv-helpers')($$$);
 require('./nodelib/sv-paths')($$$);

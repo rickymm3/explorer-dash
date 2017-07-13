@@ -98,16 +98,16 @@ function showPopup(header, message, options) {
 				</div>`
 		},
 
-		'btn': {
-			props: ['obj', 'label', 'emoji', 'icon'],
-			methods: { click(e) { this.$emit('click', e); } },
-			template:
-				`<div class="btn" v-on:click.capture.stop.prevent="click">
-					<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>
-					<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>
-					<i v-html="label"></i>
-				</div>`
-		},
+		// 'btn': {
+		// 	props: ['obj', 'label', 'emoji', 'icon'],
+		// 	methods: { click(e) { this.$emit('click', e); } },
+		// 	template:
+		// 		`<div class="btn" v-on:click.capture.stop.prevent="click">
+		// 			<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>
+		// 			<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>
+		// 			<i v-html="label"></i>
+		// 		</div>`
+		// },
 
 		'dropdown': {
 			props: {
@@ -876,15 +876,15 @@ function showPopup(header, message, options) {
 					},
 
 					saveJSON() {
-						projectCommand('saveJSON', JSON.stringify(__JSONDATA, null, ' '));
+						sendProjectCommand('saveJSON', JSON.stringify(__JSONDATA, null, ' '));
 					},
 
 					clearJSON() {
-						projectCommand('clearJSON', null);
+						sendProjectCommand('clearJSON', null);
 					},
 
 					recoverJSON() {
-						projectCommand('recoverJSON', null);
+						sendProjectCommand('recoverJSON', null);
 					},
 
 					addSheet() {
@@ -1037,14 +1037,14 @@ function showPopup(header, message, options) {
 					requestEditFile(filename) {
 						trace("Request: " + filename);
 						this.isBusy = true;
-						projectCommand('getEditFile', filename);
+						sendProjectCommand('getEditFile', filename);
 					},
 
 					saveEditFile() {
 						if(this.isBusy) return;
 						this.isBusy = true;
 						trace("Save the edit file...");
-						projectCommand('saveEditFile', this.editFile);
+						sendProjectCommand('saveEditFile', this.editFile);
 					},
 
 					cancelEditFile() {
@@ -1101,7 +1101,7 @@ function showPopup(header, message, options) {
 			loadSounds();
 			loadNavBarMenu();
 
-			projectCommand('getHardcoded');
+			sendProjectCommand('getHardcoded');
 
 			getGithubLiveData(() => __VUE.$forceUpdate());
 

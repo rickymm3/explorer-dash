@@ -70,11 +70,16 @@ function showPopup(header, message, options) {
             },
             template: "<div class=\"item action-item\" :class=\"isSelected\">\n\t\t\t\t\t<btn :label=\"obj.name\" v-on:click=\"showPanel()\"></btn><slot></slot>\n\t\t\t\t</div>"
         },
-        'btn': {
-            props: ['obj', 'label', 'emoji', 'icon'],
-            methods: { click: function (e) { this.$emit('click', e); } },
-            template: "<div class=\"btn\" v-on:click.capture.stop.prevent=\"click\">\n\t\t\t\t\t<i v-if=\"emoji\" :class=\"'v-align-mid em em-'+emoji\" aria-hidden=\"true\"></i>\n\t\t\t\t\t<i v-if=\"icon\" :class=\"'v-align-mid icon fa fa-'+icon\" aria-hidden=\"true\"></i>\n\t\t\t\t\t<i v-html=\"label\"></i>\n\t\t\t\t</div>"
-        },
+        // 'btn': {
+        // 	props: ['obj', 'label', 'emoji', 'icon'],
+        // 	methods: { click(e) { this.$emit('click', e); } },
+        // 	template:
+        // 		`<div class="btn" v-on:click.capture.stop.prevent="click">
+        // 			<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>
+        // 			<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>
+        // 			<i v-html="label"></i>
+        // 		</div>`
+        // },
         'dropdown': {
             props: {
                 list: Array,
@@ -631,13 +636,13 @@ function showPopup(header, message, options) {
                         }
                     },
                     saveJSON: function () {
-                        projectCommand('saveJSON', JSON.stringify(__JSONDATA, null, ' '));
+                        sendProjectCommand('saveJSON', JSON.stringify(__JSONDATA, null, ' '));
                     },
                     clearJSON: function () {
-                        projectCommand('clearJSON', null);
+                        sendProjectCommand('clearJSON', null);
                     },
                     recoverJSON: function () {
-                        projectCommand('recoverJSON', null);
+                        sendProjectCommand('recoverJSON', null);
                     },
                     addSheet: function () {
                         createNewSheetAt(__SHEETS.length, null);
@@ -762,14 +767,14 @@ function showPopup(header, message, options) {
                     requestEditFile: function (filename) {
                         trace("Request: " + filename);
                         this.isBusy = true;
-                        projectCommand('getEditFile', filename);
+                        sendProjectCommand('getEditFile', filename);
                     },
                     saveEditFile: function () {
                         if (this.isBusy)
                             return;
                         this.isBusy = true;
                         trace("Save the edit file...");
-                        projectCommand('saveEditFile', this.editFile);
+                        sendProjectCommand('saveEditFile', this.editFile);
                     },
                     cancelEditFile: function () {
                         this.editFile = null;
@@ -814,7 +819,7 @@ function showPopup(header, message, options) {
             });
             loadSounds();
             loadNavBarMenu();
-            projectCommand('getHardcoded');
+            sendProjectCommand('getHardcoded');
             getGithubLiveData(function () { return __VUE.$forceUpdate(); });
             $('.init-hidden').removeClass('init-hidden');
         }

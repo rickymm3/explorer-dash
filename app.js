@@ -1,3 +1,5 @@
+require('v8-profiler');
+
 const _ = global._ =	require('underscore');
 const env =				require('dotenv').load({path: '.private/env.ini'});
 const extensions =		require('./nodelib/common/extensions');

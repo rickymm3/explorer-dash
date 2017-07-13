@@ -5,7 +5,8 @@
 const GoogleSheet = require('google-spreadsheet');
 const async = require('async');
 const dateFormat = require('dateformat');
-const _str = require('lodash/string');
+const changeCase = require('change-case');
+
 
 const STATUS = { IDLE: 0, READY: 1, BUSY: 2 };
 
@@ -96,7 +97,7 @@ module.exports = function(PROJ) {
 			} else {
 				var info = current.sheet.info;
 				var urlProjectName = encodeURIComponent(`[G2J] Spreadsheet "${current.sheet.projectName}"`);
-				var authorName = _str.capitalize(info.author.name);
+				var authorName = changeCase.titleCase(info.author.name);
 
 				current.sheet.status = {
 					done: `Finished processing the sheet:<br/>`
@@ -181,8 +182,6 @@ module.exports = function(PROJ) {
 				};
 
 				var sheetData, headers, headersType, headersIndicesIgnored, dataEntries;
-				var regex_invalid_chars = /[^\w \-_]*/g;
-				var regex_to_hyphens = /[ _]+/g;
 
 				//Process each worksheets:
 				AsyncEach.make(info.worksheets, [
@@ -204,17 +203,23 @@ module.exports = function(PROJ) {
 
 							reduceCells(cells, c => cols = c);
 
+							var regex_invalid_chars = /[^\w \-_]*/g;
+							var regex_to_hyphens = /[ _]+/g;
+
 							sheetData._headersRaw = cells.slice(0, cols);
 							sheetData._headersRaw.forEach((header, id) => {
-								if(header.has('[]')) {
-									headersType.push('array');
-								} else if(header.startsWith('//')) {
+								if(header.startsWith('//')) {
 									return headersIndicesIgnored.push(id);
 								}
 
-								var headerClean = header.replace(regex_invalid_chars, '')
-													.trim().replace(regex_to_hyphens, '-');
+								if(header.has('[]')) {
+									headersType.push('array');
+								} else {
+									headersType.push('string');
+								}
 
+								var headerClean = header.replace(regex_invalid_chars, '').trim();
+								headerClean = changeCase.paramCase(headerClean);
 								headers.push(headerClean);
 							});
 
@@ -261,7 +266,7 @@ module.exports = function(PROJ) {
 								headerID++;
 							});
 
-							allData.sheets[worksheet.title.toLowerCase()] = _.omit(sheetData);
+							allData.sheets[changeCase.paramCase(worksheet.title)] = _.omit(sheetData);
 
 							step();
 						});

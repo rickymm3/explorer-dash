@@ -60,7 +60,7 @@ module.exports = function($$$) {
 
 		SlackCommands[command](slashSplit, req.body);
 
-		res.sendStatus(200);
+		res.status(200);
 	});
 
 	var timeouts = -1;

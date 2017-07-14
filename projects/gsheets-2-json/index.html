@@ -47,7 +47,7 @@
             <i class="col-2 timestamp">{{toTimestamp(sheet.lastFetched)}}</i>
             <i class="col-3 status" v-if="sheet.status!=null">
                 <btn v-if="sheet.status.error" class="btn-red" icon="exclamation-triangle" @click="showMessage('Sheet Error!', sheet.status.error)"></btn>
-                <btn v-if="sheet.status.processing" class="btn-yellow" icon="hourglass" @click="showMessage('Sheet Processing...', sheet.status.processing)"></btn>
+                <btn v-if="sheet.status.processing" class="btn-yellow" icon="hourglass" :label="sheet.status.fileCount" @click="showMessage('Sheet Processing...', sheet.status.processing)"></btn>
                 <btn v-if="sheet.status.done" class="btn-green" icon="check" @click="showMessage('Sheet Completed!', sheet.status.done)"></btn>
             </i>
         </li>

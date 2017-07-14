@@ -17,6 +17,7 @@ module.exports = function(PROJ) {
 	var intervals = [3000, 3000, 3000];
 
 	var current = null;
+	var processingStartedAt = null;
 	var sheets;
 
 	$$$.startFetching = function(forceUpdate) {
@@ -62,6 +63,15 @@ module.exports = function(PROJ) {
 		return intervals[current.status] || 1000;
 	}
 
+	function sendProcessing(fileCount) {
+		current.sheet.status = {
+			processing: `This sheet started processing at:<br/><b>${processingStartedAt}</b>`,
+			fileCount: fileCount
+		};
+
+		sendRefresh(true);
+	}
+
 	function processSheet() {
 		if(!current.sheet) {
 			current.status = STATUS.IDLE;
@@ -72,11 +82,8 @@ module.exports = function(PROJ) {
 			}
 
 			current.sheet = sheets[current.id];
-			current.sheet.status = {
-				processing: 'This sheet started processing at:<br/><b>' + getTimestamp() + '</b>'
-			};
-
-			sendRefresh(true);
+			processingStartedAt = getTimestamp();
+			sendProcessing('...');
 		}
 
 		if(current.status===STATUS.BUSY) {
@@ -173,19 +180,21 @@ module.exports = function(PROJ) {
 					return cbOnDone(null);
 				}
 
+				var totalSheets = info.worksheets.length;
 				current.sheet.info = currentInfo = {
 					id: info.id,
 					title: info.title,
 					updated: info.updated,
 					author: info.author,
-					numWorksheets: info.worksheets.length
+					numWorksheets: totalSheets
 				};
 
 				var sheetData, headers, headersType, headersIndicesIgnored, dataEntries;
 
 				//Process each worksheets:
 				AsyncEach.make(info.worksheets, [
-					(step, worksheet) => {
+					(step, worksheet, id) => {
+						sendProcessing((id+1) + '/' + totalSheets);
 						rows = Math.min(PROJ.creds.maxRows, worksheet.rowCount);
 						cols = Math.min(PROJ.creds.maxCols, worksheet.colCount);
 

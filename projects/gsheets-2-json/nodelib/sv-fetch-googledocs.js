@@ -115,12 +115,16 @@ module.exports = function(PROJ) {
 				}
 			}
 
-			current.status = STATUS.READY;
-			current.sheet = null;
-
 			sendRefresh(true);
 
 			trace("Done!".yellow);
+
+			if($$$.slack) {
+				$$$.slack.sayUser("chamberlainpi", `\`Google-2-JSON\` Updated JSON of project *${current.sheet.projectName}*`);
+			}
+
+			current.status = STATUS.READY;
+			current.sheet = null;
 		});
 	}
 

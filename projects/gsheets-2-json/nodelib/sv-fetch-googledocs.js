@@ -120,7 +120,8 @@ module.exports = function(PROJ) {
 			trace("Done!".yellow);
 
 			if($$$.slack) {
-				$$$.slack.sayUser("chamberlainpi", `\`Google-2-JSON\` Updated JSON of project *${current.sheet.projectName}*`);
+				//$$$.slack.sayUser("chamberlainpi", `\`Google-2-JSON\` Updated JSON of project *${current.sheet.projectName}*`);
+				$$$.slack.sayChannel("notifications", `*Google-2-JSON*: Updated JSON of project \`${current.sheet.projectName}\``);
 			}
 
 			current.status = STATUS.READY;

@@ -20,7 +20,7 @@ module.exports = function($$$) {
 		res.status(500).send(err)
 	}
 
-	function isDM(body) {
+	function isDirectMessage(body) {
 		return body.channel_name==="directmessage";
 	}
 
@@ -36,7 +36,7 @@ module.exports = function($$$) {
 				return traceError("Slack.say missing body object.");
 			}
 
-			if(isDM(body)) {
+			if(isDirectMessage(body)) {
 				this.sayUser(body.user_name, msg);
 			} else {
 				this.sayChannel(body.channel_name, msg);

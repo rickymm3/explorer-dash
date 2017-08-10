@@ -4,7 +4,9 @@ export NODE_ENV=production
 
 now=$(date +"%T")
 
-. $ERDS/bash/colors
+. colors
+
+# test
 
 logRed() {
 	echo "${CLR_RED}$1${CLR_NORMAL}"
@@ -18,10 +20,22 @@ logYellow() {
 	echo "${CLR_YELLOW}$1${CLR_NORMAL}"
 }
 
+checkIsRoot() {
+	if [ "$EUID" -ne 0 ]
+	  then logRed "Please run as root (with 'sudo')"
+	  exit 1
+	fi
+}
+
 checkOK() {
 	isOK=1
 	if [ ! -f "app.js" ]; then
 	  logRed "Missing \"$projectPath/app.js\" file!"
+	  isOK=0
+	fi
+
+	if [ ! -f "package.json" ]; then
+	  logRed "Missing \"$projectPath/package.json\" file!"
 	  isOK=0
 	fi
 
@@ -37,21 +51,31 @@ checkOK() {
 
 stop() {
 	checkOK
-	logRed "Stopping Redis-Server, MongoDB and PM2..."
+	logRed "Stopping Redis-Server and PM2..."
 	redis-cli -p 6969 shutdown > /dev/null
-	service mongod stop
+	sudo service mongod stop
 	pm2 stop app.js > /dev/null
 	logRed "Stopped."
 }
 
 start() {
 	checkOK
-	logGreen "Starting Redis-Server (port 6969), MongoDB and PM2 (app.js)"
+	logGreen "Starting Redis-Server (port 6969) and PM2 (app.js)"
 	redis-server redis.conf --port 6969 > /dev/null
-	service mongod start
+	sudo service mongod start
 	pm2 start app.js > /dev/null
 	logGreen "Started."
 }
+
+mongoRestart() {
+	checkIsRoot
+	service mongod restart
+}
+
+if [ "$1" == "mongo" ]; then
+	mongoRestart
+	exit 1
+fi
 
 projectPath="/node-dev/$2"
 if [ "$2" == "" ]
@@ -65,8 +89,9 @@ if [ ! -d "$projectPath" ]; then
 fi
 
 cd $projectPath
-logGreen "Current Dir is now: ${PWD}"
-if [ $projectPath != $ERDS ]; then
+logGreen "Current Dir is now: $PWD"
+
+if [ "$projectPath" != "$ERDS" ]; then
 	select yn in "Yes" "No"; do
 		case $yn in
 			Yes ) break;;
@@ -77,6 +102,7 @@ fi
 
 # Here's the switch statement:
 case $1 in
+	"test") logYellow "Testing..." ;;
 	"stop") stop ;;
 	"stopall")
 		stop

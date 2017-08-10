@@ -4,28 +4,83 @@ export NODE_ENV=production
 
 now=$(date +"%T")
 
-. ./bash/colors
+. $ERDS/bash/colors
+
+logRed() {
+	echo "${CLR_RED}$1${CLR_NORMAL}"
+}
+
+logGreen() {
+	echo "${CLR_GREEN}$1${CLR_NORMAL}"
+}
+
+logYellow() {
+	echo "${CLR_YELLOW}$1${CLR_NORMAL}"
+}
+
+checkOK() {
+	isOK=1
+	if [ ! -f "app.js" ]; then
+	  logRed "Missing \"$projectPath/app.js\" file!"
+	  isOK=0
+	fi
+
+	if [ ! -d ".git" ]; then
+	  logRed "Missing \"$projectPath/.git\" directory!"
+	  isOK=0
+	fi
+
+	if [ $isOK == 0 ]; then
+		exit 1
+	fi
+}
 
 stop() {
-	echo "${CLR_RED}Stopping Redis-Server and PM2...${CLR_NORMAL}"
+	checkOK
+	logRed "Stopping Redis-Server, MongoDB and PM2..."
 	redis-cli -p 6969 shutdown > /dev/null
-	pm2 stop all > /dev/null
-	echo "${CLR_RED}Stopped.${CLR_NORMAL}"
-	# > /dev/null
+	service mongod stop
+	pm2 stop app.js > /dev/null
+	logRed "Stopped."
 }
 
 start() {
-	echo "${CLR_GREEN}Starting Redis-Server (port 6969) and PM2 (app.js)${CLR_NORMAL}"
+	checkOK
+	logGreen "Starting Redis-Server (port 6969), MongoDB and PM2 (app.js)"
 	redis-server redis.conf --port 6969 > /dev/null
+	service mongod start
 	pm2 start app.js > /dev/null
-	echo "${CLR_GREEN}Started.${CLR_NORMAL}"
-	
-	# > /dev/null
+	logGreen "Started."
 }
+
+projectPath="/node-dev/$2"
+if [ "$2" == "" ]
+then
+	projectPath=$PWD
+fi
+
+if [ ! -d "$projectPath" ]; then
+	logRed "NodeJS Project Directory does not exists! $projectPath"
+	exit 1
+fi
+
+cd $projectPath
+logGreen "Current Dir is now: ${PWD}"
+if [ $projectPath != $ERDS ]; then
+	select yn in "Yes" "No"; do
+		case $yn in
+			Yes ) break;;
+			No ) exit;;
+		esac
+	done
+fi
 
 # Here's the switch statement:
 case $1 in
 	"stop") stop ;;
+	"stopall")
+		stop
+		pm2 stop all ;;
 	"start") start ;;
 	"push")
 		echo "Pulling first..."
@@ -34,7 +89,7 @@ case $1 in
 		git add -A
 		git commit -m "Pushed from server at $now"
 		git push origin
-		echo "${CLR_YELLOW}Pushed all server changes to Master.${CLR_NORMAL}"
+		logYellow "Pushed all server changes to Master."
 		;;
 	"pull")
 		stop

@@ -29,10 +29,21 @@ checkIsRoot() {
 
 checkOK() {
 	isOK=1
-	if [ ! -f "app.js" ]; then
-	  logRed "Missing \"$projectPath/app.js\" file!"
-	  isOK=0
+	appJS="$projectPath/app.js"
+	projJS="$projectPath/$projectName.js"
+
+	if [ ! -f "$appJS" ]; then
+	  logYellow "Missing \"$appJS\" file! Trying $projectName.js instead..."
+
+	  if [ ! -f "$projJS" ]; then
+		logRed "Missing \"$projJS\" file!"
+		isOK=0
+	  else
+		appJS="$projJS"
+	  fi
 	fi
+
+	logYellow "App JS found: $appJS"
 
 	if [ ! -f "package.json" ]; then
 	  logRed "Missing \"$projectPath/package.json\" file!"
@@ -51,20 +62,20 @@ checkOK() {
 
 stop() {
 	checkOK
-	logRed "Stopping Redis-Server and PM2..."
-	redis-cli -p 6969 shutdown > /dev/null
-	sudo service mongod stop
-	pm2 stop app.js > /dev/null
-	logRed "Stopped."
+	logRed " ... Stopping ($appJS) ..."
+	# Redis-Server
+	# redis-cli -p 6969 shutdown > /dev/null
+	pm2 stop $appJS > /dev/null
+	logRed "--STOPPED--"
 }
 
 start() {
 	checkOK
-	logGreen "Starting Redis-Server (port 6969) and PM2 (app.js)"
-	redis-server redis.conf --port 6969 > /dev/null
-	sudo service mongod start
-	pm2 start app.js > /dev/null
-	logGreen "Started."
+	logGreen " ... Starting ($appJS) ..."
+	# Redis-Server (port 6969)
+	# redis-server redis.conf --port 6969 > /dev/null
+	pm2 start $appJS > /dev/null
+	logGreen "--STARTED--"
 }
 
 mongoRestart() {
@@ -78,6 +89,8 @@ if [ "$1" == "mongo" ]; then
 fi
 
 projectPath="/node-dev/$2"
+projectName="$(basename $PWD)"
+
 if [ "$2" == "" ]
 then
 	projectPath=$PWD

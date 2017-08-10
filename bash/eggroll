@@ -4,28 +4,122 @@ export NODE_ENV=production
 
 now=$(date +"%T")
 
-. ./bash/colors
+. colors
+
+# test
+
+logRed() {
+	echo "${CLR_RED}$1${CLR_NORMAL}"
+}
+
+logGreen() {
+	echo "${CLR_GREEN}$1${CLR_NORMAL}"
+}
+
+logYellow() {
+	echo "${CLR_YELLOW}$1${CLR_NORMAL}"
+}
+
+checkIsRoot() {
+	if [ "$EUID" -ne 0 ]
+	  then logRed "Please run as root (with 'sudo')"
+	  exit 1
+	fi
+}
+
+checkOK() {
+	isOK=1
+	appJS="$projectPath/app.js"
+	projJS="$projectPath/$projectName.js"
+
+	if [ ! -f "$appJS" ]; then
+	  logYellow "Missing \"$appJS\" file! Trying $projectName.js instead..."
+
+	  if [ ! -f "$projJS" ]; then
+		logRed "Missing \"$projJS\" file!"
+		isOK=0
+	  else
+		appJS="$projJS"
+	  fi
+	fi
+
+	logYellow "App JS found: $appJS"
+
+	if [ ! -f "package.json" ]; then
+	  logRed "Missing \"$projectPath/package.json\" file!"
+	  isOK=0
+	fi
+
+	if [ ! -d ".git" ]; then
+	  logRed "Missing \"$projectPath/.git\" directory!"
+	  isOK=0
+	fi
+
+	if [ $isOK == 0 ]; then
+		exit 1
+	fi
+}
 
 stop() {
-	echo "${CLR_RED}Stopping Redis-Server and PM2...${CLR_NORMAL}"
-	redis-cli -p 6969 shutdown > /dev/null
-	pm2 stop all > /dev/null
-	echo "${CLR_RED}Stopped.${CLR_NORMAL}"
-	# > /dev/null
+	checkOK
+	logRed " ... Stopping ($appJS) ..."
+	# Redis-Server
+	# redis-cli -p 6969 shutdown > /dev/null
+	pm2 stop $appJS > /dev/null
+	logRed "--STOPPED--"
 }
 
 start() {
-	echo "${CLR_GREEN}Starting Redis-Server (port 6969) and PM2 (app.js)${CLR_NORMAL}"
-	redis-server redis.conf --port 6969 > /dev/null
-	pm2 start app.js > /dev/null
-	echo "${CLR_GREEN}Started.${CLR_NORMAL}"
-	
-	# > /dev/null
+	checkOK
+	logGreen " ... Starting ($appJS) ..."
+	# Redis-Server (port 6969)
+	# redis-server redis.conf --port 6969 > /dev/null
+	pm2 start $appJS > /dev/null
+	logGreen "--STARTED--"
 }
+
+mongoRestart() {
+	checkIsRoot
+	service mongod restart
+}
+
+if [ "$1" == "mongo" ]; then
+	mongoRestart
+	exit 1
+fi
+
+projectPath="/node-dev/$2"
+projectName="$(basename $PWD)"
+
+if [ "$2" == "" ]
+then
+	projectPath=$PWD
+fi
+
+if [ ! -d "$projectPath" ]; then
+	logRed "NodeJS Project Directory does not exists! $projectPath"
+	exit 1
+fi
+
+cd $projectPath
+logGreen "Current Dir is now: $PWD"
+
+if [ "$projectPath" != "$ERDS" ]; then
+	select yn in "Yes" "No"; do
+		case $yn in
+			Yes ) break;;
+			No ) exit;;
+		esac
+	done
+fi
 
 # Here's the switch statement:
 case $1 in
+	"test") logYellow "Testing..." ;;
 	"stop") stop ;;
+	"stopall")
+		stop
+		pm2 stop all ;;
 	"start") start ;;
 	"push")
 		echo "Pulling first..."
@@ -34,7 +128,7 @@ case $1 in
 		git add -A
 		git commit -m "Pushed from server at $now"
 		git push origin
-		echo "${CLR_YELLOW}Pushed all server changes to Master.${CLR_NORMAL}"
+		logYellow "Pushed all server changes to Master."
 		;;
 	"pull")
 		stop

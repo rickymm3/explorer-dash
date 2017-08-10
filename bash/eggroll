@@ -20,6 +20,19 @@ logYellow() {
 	echo "${CLR_YELLOW}$1${CLR_NORMAL}"
 }
 
+confirm() {
+	echo $1
+	echo "y: Yes [ENTER]"
+	echo "n: No  [ESCAPE]"
+	read -s -n1 SEL
+
+	case $SEL in
+		$'\e') exit ;;
+		n) exit ;;
+		*) ;;
+	esac
+}
+
 checkIsRoot() {
 	if [ "$EUID" -ne 0 ]
 	  then logRed "Please run as root (with 'sudo')"
@@ -33,7 +46,7 @@ checkOK() {
 	projJS="$projectPath/$projectName.js"
 
 	if [ ! -f "$appJS" ]; then
-	  logYellow "Missing \"$appJS\" file! Trying $projectName.js instead..."
+	  # logYellow "Missing \"$appJS\" file! Trying $projectName.js instead..."
 
 	  if [ ! -f "$projJS" ]; then
 		logRed "Missing \"$projJS\" file!"
@@ -43,7 +56,7 @@ checkOK() {
 	  fi
 	fi
 
-	logYellow "App JS found: $appJS"
+	# logYellow "App JS found: $appJS"
 
 	if [ ! -f "package.json" ]; then
 	  logRed "Missing \"$projectPath/package.json\" file!"
@@ -88,6 +101,25 @@ if [ "$1" == "mongo" ]; then
 	exit 1
 fi
 
+if [ "$1" == "link" ]; then
+	if [ "$2" == "" ]; then
+		logRed "Must specify node-module to register & link."
+		exit 1
+	fi
+
+	logGreen "Registering & Linking existing ERDS node_module: ${CLR_YELLOW}$2"
+
+	curDir=$PWD
+	cd $ERDS/node_modules/$2
+
+	#Register through YARN
+	yarn link > /dev/null
+
+	cd $curDir && yarn link "$2" > /dev/null
+
+	exit 1
+fi
+
 projectPath="/node-dev/$2"
 projectName="$(basename $PWD)"
 
@@ -105,12 +137,7 @@ cd $projectPath
 logGreen "Current Dir is now: $PWD"
 
 if [ "$projectPath" != "$ERDS" ]; then
-	select yn in "Yes" "No"; do
-		case $yn in
-			Yes ) break;;
-			No ) exit;;
-		esac
-	done
+	confirm "Continue with this directory?"
 fi
 
 # Here's the switch statement:

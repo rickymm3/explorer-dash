@@ -179,7 +179,9 @@ module.exports = function($$$) {
 	}
 
 	$$$.sendJSON = function(res, content) {
-		res.set({ 'content-type': 'application/json; charset=utf-8' });
+		//res.header('Access-Control-Allow-Origin','*');
+		//res.header('Access-Control-Allow-Credentials','true');
+		res.header('content-type','application/json'); //text/plain
 		res.send(content);
 	}
 };

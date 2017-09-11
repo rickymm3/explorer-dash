@@ -82,6 +82,9 @@ module.exports = function($$$) {
 
 	const SlackCommands = {
 		'start-g2j'(args, body) {
+			if(!$$$.startFetching) {
+				return $$$.slack.say(body, ":heavy_exclamation_mark: Couldn't start the process! EC2 may have restarted the NodeJS process, so you may just need to visit http://ec2-52-9-42-190.us-west-1.compute.amazonaws.com:9999/p/gsheets-2-json to kick it back into gear. Then retry the Slack command here.");
+			}
 			$$$.startFetching();
 
 			startAuto(`:arrow_forward: *Started* the Google-2-JSON process`, body, 10, () => {

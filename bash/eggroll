@@ -1,7 +1,6 @@
 #!/bin/sh
 
 export NODE_ENV=production
-export NODE_MODS="/home/ec2-user/local/lib/node_modules"
 
 now=$(date +"%T")
 
@@ -26,7 +25,7 @@ confirm() {
 	echo "y: Yes [ENTER]"
 	echo "n: No  [ESCAPE]"
 	read -s -n1 SEL
-	
+
 	case $SEL in
 		$'\e') exit ;;
 		n) exit ;;
@@ -45,10 +44,10 @@ checkOK() {
 	isOK=1
 	appJS="$projectPath/app.js"
 	projJS="$projectPath/$projectName.js"
-	
+
 	if [ ! -f "$appJS" ]; then
 	  # logYellow "Missing \"$appJS\" file! Trying $projectName.js instead..."
-	  
+
 	  if [ ! -f "$projJS" ]; then
 		logRed "Missing \"$projJS\" file!"
 		isOK=0
@@ -56,9 +55,9 @@ checkOK() {
 		appJS="$projJS"
 	  fi
 	fi
-	
+
 	# logYellow "App JS found: $appJS"
-	
+
 	if [ ! -f "package.json" ]; then
 	  logRed "Missing \"$projectPath/package.json\" file!"
 	  isOK=0
@@ -107,25 +106,17 @@ if [ "$1" == "link" ]; then
 		logRed "Must specify node-module to register & link."
 		exit 1
 	fi
-	
+
 	logGreen "Registering & Linking existing ERDS node_module: ${CLR_YELLOW}$2"
-	logRed "$NODE_MODS/$2"
-	
-	MOD_PATH="$NODE_MODS/$2"
-	
-	if [ ! -f MOD_PATH ]; then
-	  logGreen "Installing $2 globally..."
-	  npm install -g $2
-	fi
-	
+
 	curDir=$PWD
-	cd $MOD_PATH
-	
+	cd $ERDS/node_modules/$2
+
 	#Register through YARN
 	yarn link > /dev/null
-	
+
 	cd $curDir && yarn link "$2" > /dev/null
-	
+
 	exit 1
 fi
 
@@ -152,11 +143,6 @@ fi
 # Here's the switch statement:
 case $1 in
 	"test") logYellow "Testing..." ;;
-	"logs")
-		checkOK
-		logYellow "$projectName"
-		pm2 logs "$projectName" --lines 30
-		;;
 	"stop") stop ;;
 	"stopall")
 		stop

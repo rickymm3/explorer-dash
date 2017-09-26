@@ -25,7 +25,7 @@ module.exports = function(PROJ) {
 
 		PROJ.forceUpdate = forceUpdate;
 
-		trace(("Starting Server..." + (forceUpdate ? ' (FORCED)' : '')).green);
+		//trace(("Starting Server..." + (forceUpdate ? ' (FORCED)' : '')).green);
 		current = { sheet: null, id: -1, status: 0 };
 
 		PROJ._status = _.loop(fetch);
@@ -34,7 +34,7 @@ module.exports = function(PROJ) {
 
 	$$$.stopFetching = function() {
 		if(!PROJ._status) return;
-		trace("Stopping Server...".green);
+		//trace("Stopping Server...".green);
 		clearTimeout(PROJ._status.id);
 		PROJ._status = null;
 		sendRefresh();
@@ -91,7 +91,7 @@ module.exports = function(PROJ) {
 			return current.status = STATUS.BUSY;
 		}
 
-		trace(`Started sheet (${current.id+1}/${sheets.length}) ${current.sheet.urlAlias}`.green);
+		//trace(`Started sheet (${current.id+1}/${sheets.length}) ${current.sheet.urlAlias}`.green);
 
 		current.status = STATUS.BUSY;
 
@@ -117,7 +117,7 @@ module.exports = function(PROJ) {
 
 			sendRefresh(true);
 
-			trace("Done!".yellow);
+			//trace("Done!".yellow);
 
 			current.status = STATUS.READY;
 			current.sheet = null;
@@ -157,7 +157,7 @@ module.exports = function(PROJ) {
 		}
 
 		function writeSheetToJSON() {
-			trace(` ... Writing JSON file: ` + `./${sheet.urlAlias}.json`.green);
+			//trace(` ... Writing JSON file: ` + `./${sheet.urlAlias}.json`.green);
 
 			var __sheetJSON = $$$.getPathSheetJSON(sheet.urlAlias);
 			$$$.fileWrite(__sheetJSON, _.jsonPretty(allData), (err, filename) => {
@@ -165,7 +165,7 @@ module.exports = function(PROJ) {
 
 				if($$$.slack) {
 					//$$$.slack.sayUser("chamberlainpi", `\`Google-2-JSON\` Updated JSON of project *${current.sheet.projectName}*`);
-					$$$.slack.sayChannel("notifications", `*Google-2-JSON*: Updated JSON of project \`${current.sheet.projectName}\``);
+					$$$.slack.sayChannel(process.env.SLACK_CHANNEL, `*Google-2-JSON*: Updated JSON of project \`${current.sheet.projectName}\``);
 				}
 
 				cbOnDone(null);
@@ -254,7 +254,7 @@ module.exports = function(PROJ) {
 					},
 
 					(step, worksheet) => {
-						trace(` ... Fetching: ` + `"${worksheet.title}" (${cols}x${rows})`.cyan);
+						//trace(` ... Fetching: ` + `"${worksheet.title}" (${cols}x${rows})`.cyan);
 
 						queryWorksheet(worksheet, 1, 2, cols, rows, (err, cells) => {
 							if(err) return crash(err, step);
@@ -326,29 +326,3 @@ function getGoogleDocID(fullURL) {
 	var matches = regex.exec(fullURL);
 	return matches[1];
 }
-
-
-// function processFirstRow(worksheet, cells) {
-// 	for(var c=0; c<worksheet.colCount; c++) {
-// 		var cell = cells[c];
-// 		if(cell._value=='') {
-// 			//trace(worksheet.headers.join(", "));
-// 			processOtherRows(cells, worksheet.colCount, c);
-// 			return;
-// 		}
-//
-// 		var trimmed = customTrim(cell._value, '_ \\-\\[\\]"\\\'\\{\\}');
-// 		if(cell._value.indexOf('_')==0) {
-// 			skippedCols[cell.col] = true;
-// 			report.red(" -- Ignoring column: " + cell._value);
-// 		} else if(cell._value!=trimmed) {
-// 			report.yellow(" -- Modified column '%s' to '%s'.", [cell._value,trimmed])
-// 			if(cell._value.indexOf("{}")>-1) {
-// 				hasElementsCols[cell.col] = true;
-// 			}
-// 		}
-//
-// 		worksheet.headersRaw.push(cell._value);
-// 		worksheet.headers.push(trimmed);
-// 	}
-// }

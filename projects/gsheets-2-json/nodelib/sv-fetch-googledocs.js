@@ -14,7 +14,7 @@ module.exports = function(PROJ) {
 
 	var $$$ = PROJ.$$$;
 	var app = $$$.app;
-	var intervals = [3000, 3000, 3000];
+	var intervals = [5000, 5000, 5000];
 
 	var current = null;
 	var processingStartedAt = null;
@@ -129,7 +129,6 @@ module.exports = function(PROJ) {
 		var id = getGoogleDocID( sheet.urlSource );
 
 		var gDoc = new GoogleSheet(id);
-		var worksheets;
 		var currentInfo = sheet.info;
 		var rows, cols;
 
@@ -219,7 +218,6 @@ module.exports = function(PROJ) {
 							reduceCells(cells, c => cols = c);
 
 							var regex_invalid_chars = /[^\w \-_]*/g;
-							var regex_to_hyphens = /[ _]+/g;
 
 							sheetData._headersRaw = cells.slice(0, cols);
 							sheetData._headersRaw.forEach((header, id) => {
@@ -301,10 +299,10 @@ module.exports = function(PROJ) {
 				'return-empty': true
 			};
 
-			var cols = colEnd - colStart + 1;
-			var rows = rowEnd - rowStart + 1;
-
-			var total = cols * rows;
+			// var cols = colEnd - colStart + 1;
+			// var rows = rowEnd - rowStart + 1;
+			//
+			// var total = cols * rows;
 
 			//trace(`Fetching ${cols}x${rows} cells (total: ${total})...`.cyan);
 

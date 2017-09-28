@@ -6,6 +6,7 @@ const GoogleSheet = require('google-spreadsheet');
 const async = require('async');
 const dateFormat = require('dateformat');
 const changeCase = require('change-case');
+const needleRequest = require('needle');
 
 
 const STATUS = { IDLE: 0, READY: 1, BUSY: 2 };
@@ -71,6 +72,40 @@ module.exports = function(PROJ) {
 
 		sendRefresh(true);
 	}
+
+	function notifyWebhooks(sheet, hookToTest) {
+		const webhooks = sheet.webhooks;
+		const data = sheet.data;
+
+		return new Promise((resolve, reject) => {
+			const hooks = webhooks.hooks;
+			const promises = [];
+
+			hooks.forEach(hook => {
+				if(hookToTest && hook.guid!==hookToTest.guid) return;
+				// hook.name;
+				// hook.url;
+				// hook.isPostData;
+
+				var url = hook.url.rep(_.merge({}, hook, sheet));
+
+				try {
+					promises[promises.length] = needleRequest(
+						hook.isPostData ? 'post' : 'get',
+						url,
+						hook.isPostData ? data : null,
+						{json: hook.isJSONResponse})
+						.then(response => response.body);
+				} catch(err) {
+					reject(err);
+				}
+			});
+
+			resolve(Promise.all(promises));
+		});
+	}
+
+	$$$.notifyWebhooks = notifyWebhooks;
 
 	function processSheet() {
 		if(!current.sheet) {
@@ -158,16 +193,29 @@ module.exports = function(PROJ) {
 		function writeSheetToJSON() {
 			//trace(` ... Writing JSON file: ` + `./${sheet.urlAlias}.json`.green);
 
-			var __sheetJSON = $$$.getPathSheetJSON(sheet.urlAlias);
-			$$$.fileWrite(__sheetJSON, _.jsonPretty(allData), (err, filename) => {
+			var __sheetJSON = sheet.__sheetJSON;
+
+			$$$.fileWrite(__sheetJSON, JSON.stringify(allData, null, '  '), (err, filename) => {
 				if(err) return cbOnDone(err);
 
 				if($$$.slack) {
 					//$$$.slack.sayUser("chamberlainpi", `\`Google-2-JSON\` Updated JSON of project *${current.sheet.projectName}*`);
-					$$$.slack.sayChannel(process.env.SLACK_CHANNEL, `*Google-2-JSON*: Updated JSON of project \`${current.sheet.projectName}\``);
+					$$$.slack.sayChannel(webhooks.slackChannel, `*Google-2-JSON*: Updated JSON of project \`${current.sheet.projectName}\``);
 				}
 
-				cbOnDone(null);
+				if(!hooks || !hooks.length) {
+					return cbOnDone(null);
+				}
+
+				sheet.data = allData;
+
+				notifyWebhooks(sheet)
+					.then(hookResponses => {
+						cbOnDone(null);
+					})
+					.catch(err => {
+						cbOnDone("Failed to notify webhooks: " + err.message || err);
+					});
 			});
 		}
 

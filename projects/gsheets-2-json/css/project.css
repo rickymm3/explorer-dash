@@ -83,6 +83,11 @@ a.btn {
 .popup .long-field {
   width: 400px;
 }
+.col-1,
+.col-2,
+.col-3 {
+  display: inline-block;
+}
 .sheet {
   border-radius: 5px;
   background: #fff;
@@ -91,11 +96,9 @@ a.btn {
   text-align: left;
 }
 .sheet .col-1 {
-  display: inline-block;
   width: 500px;
 }
 .sheet .col-2 {
-  display: inline-block;
   width: 200px;
   text-align: left;
 }
@@ -118,4 +121,27 @@ a.btn {
 .btn-green,
 .btn-green:hover {
   background: #0a0;
+}
+.webhooks .floppy-o {
+  background: #00aa00;
+}
+.webhooks .row {
+  border-radius: 5px;
+  background: #fff;
+  padding: 5px;
+  margin: 5px;
+}
+.webhooks input {
+  margin: 0;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.webhooks .col-1 {
+  width: 300px;
+}
+.webhooks .col-2 {
+  width: 300px;
 }

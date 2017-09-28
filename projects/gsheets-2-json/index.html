@@ -24,20 +24,22 @@
         urlAlias = URL Alias | Ex: sf-dev (must be lowercase, alphanumeric, -, _)
     </popup>
 
-    <p>
-        Here is a list of Google Sheets currently subscribed:
-    </p>
+    <p>Here is a list of Google Sheets currently subscribed:</p>
 
     <ul>
+        <!-- Top Header -->
         <li class="sheet header">
             <i class="col-1">Project Name and Details:</i>
             <i class="col-2">Last Fetched On:</i>
             <i class="col-3">Status:</i>
         </li>
+
+        <!-- Each rows -->
         <li class="sheet" v-if="json.sheets" v-for="(sheet, index) in json.sheets">
             <i class="col-1">
                 <btn v-if="ctrlKey" icon="trash" @click="removeSheet(sheet)" class="btn-red"></btn>
                 <btn v-if="!ctrlKey" icon="cog" @click="editSheet(sheet)"></btn>
+                <btn icon="anchor" @click="editWebhooks(sheet)"></btn>
 
                 <a :href="sheet.urlSource" target="blank">Google Doc</a> |
                 <a :href="toG2JLink(sheet.urlAlias)" target="blank">Json-Data ({{toG2JLink(sheet.urlAlias)}})</a>
@@ -52,6 +54,57 @@
             </i>
         </li>
     </ul>
+
+    <div id="webhooks">
+        <div v-if="currentSheet" class="webhooks">
+            <h4>
+                <btn icon="times" label="Close" class="btn-red" @click="onCloseWebhooks()"></btn>
+                <btn icon="floppy-o" label="Save" @click="onSaveWebhooks(currentSheet)"></btn>
+                <btn icon="plus" label="Add Webhook" @click="onAddWebhook(currentSheet)"></btn>
+                Webhooks for "{{currentSheet.projectName}}"
+            </h4>
+
+            <ul>
+                <li class="row header">
+                    <p>
+                        <i class="fa fa-slack"></i> Slack Channel to notify:
+                        <input v-model="currentSheet.webhooks.slackChannel">
+                    </p>
+
+                    <i style="display: inline-block; width: 75px;">&nbsp;</i>
+                    <i class="col-1">Webhook Name:</i>
+                    <i class="col-2">URL:</i>
+                    <i class="col-3"></i>
+                </li>
+
+                <li class="row">
+                    <div v-for="(hook, index) in currentSheet.webhooks.hooks">
+                        <btn v-if="ctrlKey" icon="trash" class="btn-red" @click="onRemoveWebhook(currentSheet, hook)"></btn>
+                        <btn v-if="!ctrlKey" icon="refresh" label="Test" class="btn-green" @click="onTestWebhooks(currentSheet, hook)"></btn>
+
+                        <i class="col-1">
+                            <input class="inline-block width100" v-model="hook.name">
+                        </i>
+
+                        <i class="col-2">
+                            <input class="inline-block width100" v-model="hook.url">
+                        </i>
+
+                        <i class="col-3 inline-block v-align-mid margin-h-5">
+                            <input type="checkbox" v-model="hook.isPostData">
+                            Sends JSON as POST data.
+                            <br/>
+
+                            <input type="checkbox" v-model="hook.isJSONResponse">
+                            Is JSON Response
+                        </i>
+                    </div>
+                </li>
+            </ul>
+
+
+        </div>
+    </div>
 
     <!--
     <input id="upload-input" type="file" name="uploads[]" multiple="multiple">

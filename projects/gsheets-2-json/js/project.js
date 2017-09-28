@@ -56,6 +56,54 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
                         $$$.fx.show($$$.popupAddSheet);
                         $$$.popupAddSheet.vue.setAnswers(sheet);
                     },
+                    editWebhooks: function (sheet) {
+                        this.currentSheet = sheet;
+                        if (!sheet.webhooks || !sheet.webhooks.hooks || _.isArray(sheet.webhooks)) {
+                            sheet.webhooks = { slackChannel: 'erdsbot-updates', hooks: [] };
+                        }
+                        TweenMax.to('#webhooks', 0.5, { alpha: 1 });
+                        TweenMax.to('#webhooks', 0.5, { y: 0 });
+                    },
+                    onCloseWebhooks: function () {
+                        var _this = this;
+                        TweenMax.to('#webhooks', 0.5, { y: -10 });
+                        TweenMax.to('#webhooks', 0.5, { alpha: 0, onComplete: function () {
+                                _this.currentSheet = null;
+                            } });
+                    },
+                    onAddWebhook: function (sheet) {
+                        var hooks = sheet.webhooks.hooks;
+                        trace("hooks...");
+                        trace(hooks);
+                        hooks.push({
+                            guid: guid(),
+                            isPostData: false,
+                            isJSONResponse: false,
+                            name: "Webhook " + (hooks.length + 1),
+                            url: "http://www.google.com"
+                        });
+                        __VUE.$forceUpdate();
+                    },
+                    onRemoveWebhook: function (sheet, webhook) {
+                        sheet.webhooks.hooks.remove(webhook);
+                    },
+                    onSaveWebhooks: function (sheet) {
+                        sendSave(sheet);
+                    },
+                    onTestWebhooks: function (sheet, webhook) {
+                        postAuthJSON({
+                            url: '/g2j/test-hooks',
+                            json: _.merge({ webhook: webhook }, sheet),
+                            success: function (data) {
+                                $$$.boxInfo.showBox('Webhook OK! :thumbsup twn twn-bounce:');
+                                trace(data);
+                            },
+                            error: function (err) {
+                                $$$.boxError.showBox("Error running the Webhook (Are the POST / JSON checkboxes correct?)");
+                                trace(err.responseText);
+                            }
+                        });
+                    },
                     removeSheet: function (sheet) {
                         sendRemoveSpreadsheet(sheet);
                     },
@@ -103,6 +151,7 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
                     traceError(err);
                 }
             });
+            TweenMax.set('#webhooks', { alpha: 0, y: -10 });
         }
     });
     function sendAddSpreadsheet(sheet, oldSheet) {
@@ -123,7 +172,6 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
                 trace("found: " + found);
                 return new Error("Could not find a matching Sheet to overwrite changes!");
             }
-            sheet.guid = oldSheet.guid;
         }
         var isValid = true;
         _.keys(sheet).forEach(function (prop) {
@@ -132,6 +180,15 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
         });
         if (!isValid)
             return new Error("Some fields are missing / are invalid!");
+        sendSave(sheet);
+        return true;
+    }
+    function sendSave(sheet) {
+        if (!sheet) {
+            traceError("sheet is null!");
+            return;
+        }
+        trace(sheet);
         __SPINNER.startBusy(0.8, 0.5, function (done) {
             postAuthJSON({
                 url: "/g2j/add",
@@ -148,7 +205,6 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
                 }
             });
         });
-        return true;
     }
     function sendRemoveSpreadsheet(sheet) {
         var cb = function () { return __SPINNER.startBusy(0.8, 0.5, function (done) {

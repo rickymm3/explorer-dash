@@ -153,6 +153,7 @@ function initializeUI() {
                 return;
             _this._queueBusy = true;
             var obj = String(_this._queueObj.shift().obj);
+            trace(obj);
             //Replace with Emojis? Why not!
             obj = toIcon(toEmoji(obj));
             function notBusy() {

@@ -12,6 +12,7 @@ module.exports = function($$$) {
 	var messageParams = {icon_emoji: ':burrito:'};
 
 	bot.on('start', function() {
+		if($$$.isDev) return;
 		$$$.slack.sayUser('chamberlainpi', 'I started! :)');
 	});
 
@@ -26,6 +27,7 @@ module.exports = function($$$) {
 
 	$$$.slack = {
 		sayChannel(channel, msg) {
+			if(_.isNullOrEmpty(channel)) channel = process.env.SLACK_CHANNEL;
 			bot.postMessageToChannel(channel, msg, messageParams);
 		},
 		sayUser(user, msg) {

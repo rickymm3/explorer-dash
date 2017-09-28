@@ -66,7 +66,13 @@ module.exports = function($$$) {
 		if($$$.fileExists(proj.__json)) {
 			$$$.fileRead(proj.__json, (err, content) => {
 				if(err) responseData.json = null;
-				else responseData.json = JSON.parse(content);
+				else {
+					try{
+						responseData.json = JSON.parse(content);
+					} catch(err) {
+						return $$$.sendServerError(client, 'JSON error in: ' + proj.__json);
+					}
+				}
 
 				client.emit('project-fetch', responseData);
 			});

@@ -29,18 +29,23 @@ module.exports = function(PROJ) {
 
 	if(!jsonData.sheets) jsonData.sheets = [];
 	sheets = jsonData.sheets;
+	sheets.forEach(sheet => {
+		sheet.__sheetJSON = getPathSheetJSON(sheet.urlAlias);
+	});
 
 	function rewriteJSON() {
-		$$$.fileWrite(__json, _.jsonPretty(jsonData));
+		$$$.fileWrite(__json, JSON.stringify(jsonData, null, '  '));
 
 		PROJ.jsonData = jsonData;
 	}
 
 	$$$.rewriteJSON = rewriteJSON;
 
-	$$$.getPathSheetJSON = function(str) {
+	function getPathSheetJSON(str) {
 		return PROJ.__sheets + `/${str}.json`;
 	};
+
+	$$$.getPathSheetJSON = getPathSheetJSON;
 
 	function status500(res, msg) {
 		return res.status(500).send("GSheet-2-JSON Error: " + msg);
@@ -90,20 +95,20 @@ module.exports = function(PROJ) {
 
 	///////////////////////////////////////////// ROUTES:
 
-	const REGEX_VALID_URL_ALIAS = /^[a-z0-9]([a-z0-9\-\_]*)[a-z0-9]$/gi;
+	const REGEX_VALID_URL_ALIAS = /^[a-z0-9]([a-z0-9\-\_]*)[a-z0-9]$/i;
 
 	route('/g2j/add', (body, res) => {
 		body.urlAlias = body.urlAlias.toLowerCase();
 
 		if(!REGEX_VALID_URL_ALIAS.test(body.urlAlias)) {
-			return status500(res, "Invalid URL Alias name! Must start with [a-z, 0-9], then [a-z, 0-9, - or _] and end with [a-z, 0-9]");
+			return status500(res, "Invalid URL Alias name! Must start with [a-z, 0-9], then [a-z, 0-9, - or _] and end with [a-z, 0-9]: " + body.urlAlias);
 		}
 
 		var existingSheet = sheets.find(sheet => sheet.guid===body.guid);
 		if(existingSheet) {
 			_.extend(existingSheet, body);
 			trace("Overwrite sheet: " + existingSheet.guid);
-			trace(existingSheet);
+			//trace(existingSheet);
 		} else {
 			sheets.push(body);
 		}
@@ -116,6 +121,27 @@ module.exports = function(PROJ) {
 		}
 
 		sheets.remove(existingSheet);
+	});
+
+	route('/g2j/test-hooks', (body, res) => {
+		var sheet = sheets.find(sheet => sheet.guid===body.guid);
+		if(!sheet) {
+			return status500(res, "Sheet does not exists.");
+		}
+
+		$$$.fileRead(sheet.__sheetJSON, (err, content) => {
+			sheet.data = JSON.parse(content);
+
+			$$$.notifyWebhooks(sheet, body.webhook)
+				.then(hookResponses => {
+					res.json(hookResponses);
+				})
+				.catch(err => {
+					status500(res, "Error running the webhook: " + (err.message || err));
+				});
+		});
+
+		return '';
 	});
 
 	route('/g2j/status', {}, (req, res, next) => {

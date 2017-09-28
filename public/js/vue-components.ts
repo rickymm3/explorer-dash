@@ -9,7 +9,7 @@
                 props: ['obj', 'label', 'emoji', 'icon'],
                 methods: { click(e) { this.$emit('click', e); } },
                 template:
-                    `<div class="btn" v-on:click.capture.stop.prevent="click">
+                    `<div :class="'btn ' + icon" v-on:click.capture.stop.prevent="click">
 					<i v-if="emoji" :class="\'v-align-mid em em-\'+emoji" aria-hidden="true"></i>
 					<i v-if="icon" :class="\'v-align-mid icon fa fa-\'+icon" aria-hidden="true"></i>
 					<i v-html="label"></i>

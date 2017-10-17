@@ -66,6 +66,10 @@ p.insert = (function() {
 
 p = String.prototype;
 
+p.padLeft = function (paddingValue) {
+	return String(paddingValue + this).slice(-paddingValue.length);
+};
+
 p.has = function has(str) {
 	return this.indexOf(str)>-1;
 };

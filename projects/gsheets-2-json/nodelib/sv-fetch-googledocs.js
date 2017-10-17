@@ -8,13 +8,11 @@ const dateFormat = require('dateformat');
 const changeCase = require('change-case');
 const needleRequest = require('needle');
 
-
 const STATUS = { IDLE: 0, READY: 1, BUSY: 2 };
 
 module.exports = function(PROJ) {
 
 	var $$$ = PROJ.$$$;
-	var app = $$$.app;
 	var intervals = [5000, 5000, 5000];
 
 	var current = null;
@@ -26,31 +24,28 @@ module.exports = function(PROJ) {
 
 		PROJ.forceUpdate = forceUpdate;
 
-		//trace(("Starting Server..." + (forceUpdate ? ' (FORCED)' : '')).green);
 		current = { sheet: null, id: -1, status: 0 };
 
 		PROJ._status = _.loop(fetch);
-		sendRefresh();
+
+		$$$.sendRefresh();
 	};
 
 	$$$.stopFetching = function() {
 		if(!PROJ._status) return;
-		//trace("Stopping Server...".green);
+
 		clearTimeout(PROJ._status.id);
 		PROJ._status = null;
-		sendRefresh();
+
+		$$$.sendRefresh();
 	};
 
-	//setTimeout(() => $$$.startFetching(true), 2000);
-
-	function sendRefresh(isRewritingJSON) {
+	$$$.sendRefresh = (isRewritingJSON) => {
 		var refreshData = _.extend({status: !!PROJ._status}, PROJ.jsonData);
 		$$$.io.emit('g2j-refresh', refreshData);
 
 		isRewritingJSON && $$$.rewriteJSON();
-	}
-
-	$$$.sendRefresh = sendRefresh;
+	};
 
 	function fetch() {
 		if(!PROJ.jsonData) return 2500;
@@ -70,10 +65,10 @@ module.exports = function(PROJ) {
 			fileCount: fileCount
 		};
 
-		sendRefresh(true);
+		$$$.sendRefresh(true);
 	}
 
-	function notifyWebhooks(sheet, hookToTest) {
+	$$$.notifyWebhooks = (sheet, hookToTest) => {
 		const webhooks = sheet.webhooks;
 		const data = sheet.data;
 
@@ -83,19 +78,18 @@ module.exports = function(PROJ) {
 
 			hooks.forEach(hook => {
 				if(hookToTest && hook.guid!==hookToTest.guid) return;
-				// hook.name;
-				// hook.url;
-				// hook.isPostData;
 
+				//Fill-in URL parameters: Merge the Hook & Sheet properties:
 				var url = hook.url.rep(_.merge({}, hook, sheet));
 
 				try {
-					promises[promises.length] = needleRequest(
-						hook.isPostData ? 'post' : 'get',
-						url,
-						hook.isPostData ? data : null,
-						{json: hook.isJSONResponse})
-						.then(response => response.body);
+					const urlMethod = hook.isPostData ? 'post' : 'get';
+					const urlData = hook.isPostData ? data : null;
+					const urlParams = {json: hook.isJSONResponse};
+
+					promises[promises.length] =
+						needleRequest(urlMethod, url, urlData, urlParams)
+							.then(response => response.body);
 				} catch(err) {
 					reject(err);
 				}
@@ -103,9 +97,7 @@ module.exports = function(PROJ) {
 
 			resolve(Promise.all(promises));
 		});
-	}
-
-	$$$.notifyWebhooks = notifyWebhooks;
+	};
 
 	function processSheet() {
 		if(!current.sheet) {
@@ -122,11 +114,8 @@ module.exports = function(PROJ) {
 		}
 
 		if(current.status===STATUS.BUSY) {
-			//trace("   busy ...");
 			return current.status = STATUS.BUSY;
 		}
-
-		//trace(`Started sheet (${current.id+1}/${sheets.length}) ${current.sheet.urlAlias}`.green);
 
 		current.status = STATUS.BUSY;
 
@@ -150,9 +139,7 @@ module.exports = function(PROJ) {
 				}
 			}
 
-			sendRefresh(true);
-
-			//trace("Done!".yellow);
+			$$$.sendRefresh(true);
 
 			current.status = STATUS.READY;
 			current.sheet = null;
@@ -165,16 +152,11 @@ module.exports = function(PROJ) {
 
 		var gDoc = new GoogleSheet(id);
 		var currentInfo = sheet.info;
-		var rows, cols;
 
 		var allData = {
 			info: _.extend({lastFetched: sheet.lastFetched}, sheet.info),
 			sheets: {}
 		};
-
-		/////////////////////////////////////////////////////////////////// ^^^^^^^^^^^^^^^^^^
-
-		gDoc.useServiceAccountAuth(PROJ.creds, getInfoAndWorksheets);
 
 		function crash(err, step) {
 			traceError(err);
@@ -191,18 +173,14 @@ module.exports = function(PROJ) {
 		}
 
 		function writeSheetToJSON() {
-			//trace(` ... Writing JSON file: ` + `./${sheet.urlAlias}.json`.green);
-
-			var __sheetJSON = sheet.__sheetJSON;
-			const webhooks = sheet.webhooks;
+			const __sheetJSON = sheet.__sheetJSON;
+			const webhooks = sheet.webhooks = sheet.webhooks || {};
 			const hooks = webhooks.hooks;
-			const data = sheet.data;
 
 			$$$.fileWrite(__sheetJSON, JSON.stringify(allData, null, '  '), (err, filename) => {
 				if(err) return cbOnDone(err);
 
-				if($$$.slack) {
-					//$$$.slack.sayUser("chamberlainpi", `\`Google-2-JSON\` Updated JSON of project *${current.sheet.projectName}*`);
+				if($$$.slack && webhooks.slackChannel) {
 					$$$.slack.sayChannel(webhooks.slackChannel, `*Google-2-JSON*: Updated JSON of project \`${current.sheet.projectName}\``);
 				}
 
@@ -210,132 +188,148 @@ module.exports = function(PROJ) {
 					return cbOnDone(null);
 				}
 
-				sheet.data = allData;
+				var hookData = _.extend({data: allData}, sheet);
 
-				notifyWebhooks(sheet)
-					.then(hookResponses => {
-						cbOnDone(null);
-					})
-					.catch(err => {
-						cbOnDone("Failed to notify webhooks: " + err.message || err);
-					});
+				$$$.notifyWebhooks(hookData)
+					.then(hookResponses => cbOnDone(null))
+					.catch(err => cbOnDone("Failed to notify webhooks: " + err.message || err));
 			});
 		}
 
-		function getInfoAndWorksheets() {
-			gDoc.getInfo((err, info) => {
-				if(err) {
-					if(err.has('403')) {
-						return cbOnDone('Error: HTTP error 403 (Forbidden).<br/>Make sure you granted access to your Google Service Email address.');
-					}
+		/////////////////////////////////////////////////////////////////// ^^^^^^^^^^^^^^^^^^
 
-					return cbOnDone(err);
+		gDoc.useServiceAccountAuth(PROJ.creds, () => {
+			gDoc.getInfo(onWorksheetInfo);
+		});
+
+		function onWorksheetInfo(err, info) {
+			if(err) {
+				if(err.has('403')) {
+					return cbOnDone('Error: HTTP error 403 (Forbidden).<br/>Make sure you granted access to your Google Service Email address.');
 				}
 
-				if(!PROJ.forceUpdate && currentInfo && currentInfo.updated===info.updated) {
-					return cbOnDone(null);
+				return cbOnDone(err);
+			}
+
+			if(!PROJ.forceUpdate && currentInfo && currentInfo.updated===info.updated) {
+				return cbOnDone(null);
+			}
+
+			var totalSheets = info.worksheets.length, progress = 0, rows, cols,
+				dataEntries, headers, headersType = [], headersIndicesIgnored;
+
+			current.sheet.info = currentInfo = {
+				id: info.id,
+				title: info.title,
+				updated: info.updated,
+				author: info.author,
+				numWorksheets: totalSheets
+			};
+
+			function doCount(step) {
+				progress++;
+
+				if(progress<totalSheets) {
+					sendProcessing(progress + '/' + totalSheets);
+				} else {
+					writeSheetToJSON();
 				}
 
-				var totalSheets = info.worksheets.length;
-				current.sheet.info = currentInfo = {
-					id: info.id,
-					title: info.title,
-					updated: info.updated,
-					author: info.author,
-					numWorksheets: totalSheets
-				};
+				step();
+			}
 
-				var sheetData, headers, headersType, headersIndicesIgnored, dataEntries;
+			var sheetData = {
+				_headersRaw: [],
+				_headersIndicesIgnored: headersIndicesIgnored = [],
+				headers: headers = [],
+				data: dataEntries = []
+			};
 
-				//Process each worksheets:
-				AsyncEach.make(info.worksheets, [
-					(step, worksheet, id) => {
-						sendProcessing((id+1) + '/' + totalSheets);
-						rows = Math.min(PROJ.creds.maxRows, worksheet.rowCount);
-						cols = Math.min(PROJ.creds.maxCols, worksheet.colCount);
+			//Process Multiple Sheet-Tabs simultaneously! :)
+			info.worksheets.forEach((worksheet, id) => {
+				function countCols(step) {
+					rows = Math.min(PROJ.creds.maxRows, worksheet.rowCount);
+					cols = Math.min(PROJ.creds.maxCols, worksheet.colCount);
 
-						headersType = [];
-						sheetData = {
-							_headersRaw: [],
-							_headersIndicesIgnored: headersIndicesIgnored = [],
-							headers: headers = [],
-							data: dataEntries = []
-						};
+					//First, only query the first row (to determine the max-columns)...
+					queryWorksheet(worksheet, 1, 1, cols, 1, (err, cells) => {
+						if(err) return crash(err, step);
 
-						//First, only query the first row (to determine the max-columns)...
-						queryWorksheet(worksheet, 1, 1, cols, 1, (err, cells) => {
-							if(err) return crash(err, step);
+						reduceCells(cells, c => cols = c);
 
-							reduceCells(cells, c => cols = c);
+						processHeaders(cells);
 
-							var regex_invalid_chars = /[^\w \-_]*/g;
+						step();
+					});
+				}
 
-							sheetData._headersRaw = cells.slice(0, cols);
-							sheetData._headersRaw.forEach((header, id) => {
-								if(header.startsWith('//')) {
-									return headersIndicesIgnored.push(id);
-								}
+				function countRows(step) {
+					//Second, query only the first COLUMN to reduce the number of rows...
+					queryWorksheet(worksheet, 1, 1, 1, rows, (err, cells) => {
+						if(err) return crash(err, step);
 
-								if(header.has('[]')) {
-									headersType.push('array');
-								} else {
-									headersType.push('string');
-								}
+						reduceCells(cells, r => rows = r);
 
-								var headerClean = header.replace(regex_invalid_chars, '').trim();
-								headerClean = changeCase.paramCase(headerClean);
-								headers.push(headerClean);
-							});
+						step();
+					});
+				}
 
-							step();
+				function processHeaders(cells) {
+					var regex_invalid_chars = /[^\w \-_]*/g;
+
+					sheetData._headersRaw = cells.slice(0, cols);
+					sheetData._headersRaw.forEach((header, id) => {
+						if(header.startsWith('//')) {
+							return headersIndicesIgnored.push(id);
+						}
+
+						if(header.has('[]')) {
+							headersType.push('array');
+						} else {
+							headersType.push('string');
+						}
+
+						var headerClean = header.replace(regex_invalid_chars, '').trim();
+						headerClean = changeCase.paramCase(headerClean);
+						headers.push(headerClean);
+					});
+				}
+
+				const title = changeCase.paramCase(worksheet.title);
+
+				function processNecessaryCells(step) {
+					queryWorksheet(worksheet, 1, 2, cols, rows, (err, cells) => {
+						if(err) return crash(err, step);
+
+						var entry, headerID = 0;
+
+						cells.forEach((value, cellID) => {
+							var x = cellID % cols;
+							//var y = (cellID / cols) >> 0;
+
+							//Skip to next cell!
+							if(headersIndicesIgnored.has(x)) return;
+
+							if(x===0) {
+								headerID = 0;
+								entry = {};
+								dataEntries.push(entry);
+							}
+
+							var field = headers[headerID];
+
+							entry[field] = encodeURIComponent(value);
+
+							headerID++;
 						});
-					},
 
-					(step, worksheet) => {
-						//Second, query only the first COLUMN to reduce the number of rows...
-						queryWorksheet(worksheet, 1, 1, 1, rows, (err, cells) => {
-							if(err) return crash(err, step);
+						allData.sheets[title] = _.omit(sheetData);
 
-							reduceCells(cells, r => rows = r);
+						step();
+					});
+				}
 
-							step();
-						});
-					},
-
-					(step, worksheet) => {
-						//trace(` ... Fetching: ` + `"${worksheet.title}" (${cols}x${rows})`.cyan);
-
-						queryWorksheet(worksheet, 1, 2, cols, rows, (err, cells) => {
-							if(err) return crash(err, step);
-
-							var entry, headerID = 0;
-
-							cells.forEach((value, cellID) => {
-								var x = cellID % cols;
-								var y = (cellID / cols) >> 0;
-
-								//Skip to next cell!
-								if(headersIndicesIgnored.has(x)) return;
-
-								if(x===0) {
-									headerID = 0;
-									entry = {};
-									dataEntries.push(entry);
-								}
-
-								var field = headers[headerID];
-
-								entry[field] = encodeURIComponent(value);
-
-								headerID++;
-							});
-
-							allData.sheets[changeCase.paramCase(worksheet.title)] = _.omit(sheetData);
-
-							step();
-						});
-					}
-				], writeSheetToJSON);
+				async.series([countCols, countRows, processNecessaryCells, doCount]);
 			});
 		}
 
@@ -349,13 +343,6 @@ module.exports = function(PROJ) {
 				'max-row': rowEnd,
 				'return-empty': true
 			};
-
-			// var cols = colEnd - colStart + 1;
-			// var rows = rowEnd - rowStart + 1;
-			//
-			// var total = cols * rows;
-
-			//trace(`Fetching ${cols}x${rows} cells (total: ${total})...`.cyan);
 
 			worksheet.getCells( queryRange, (err, cells) => {
 				if(err) return cb(err);

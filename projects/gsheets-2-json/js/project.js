@@ -88,7 +88,14 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
                         sheet.webhooks.hooks.remove(webhook);
                     },
                     onSaveWebhooks: function (sheet) {
-                        sendSave(sheet);
+                        sendSave(sheet)
+                            .then(function () {
+                            $$$.boxInfo.showBox("Successfully saved Webhook(s) to sheet: \"" + sheet.projectName + " / " + sheet.urlAlias + "\"");
+                        })["catch"](function (err) {
+                            var msg = err.responseText || err;
+                            traceError("Could not save Webhook: " + msg);
+                            $$$.boxError.showBox(msg);
+                        });
                     },
                     onTestWebhooks: function (sheet, webhook) {
                         postAuthJSON({
@@ -106,6 +113,22 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
                     },
                     removeSheet: function (sheet) {
                         sendRemoveSpreadsheet(sheet);
+                    },
+                    makeStableVersion: function (sheet) {
+                        trace("????????");
+                        postAuthJSON({
+                            url: '/g2j/mark-stable',
+                            json: sheet,
+                            success: function (data) {
+                                $$$.boxInfo.showBox('Marked new Stable Version! :thumbsup twn twn-bounce: ' + data);
+                                trace(data);
+                            },
+                            error: function (err) {
+                                var msg = err.responseText || JSON.stringify(err);
+                                $$$.boxError.showBox("Error running Stable Version: " + msg);
+                                trace(msg);
+                            }
+                        });
                     },
                     showMessage: function (title, content) {
                         $.alert({ title: title, content: content });
@@ -180,29 +203,35 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
         });
         if (!isValid)
             return new Error("Some fields are missing / are invalid!");
-        sendSave(sheet);
+        sendSave(sheet)
+            .then(function () {
+            $$$.boxInfo.showBox("Successfully added sheet: \"" + sheet.projectName + " / " + sheet.urlAlias + "\"");
+        })["catch"](function (err) {
+            var msg = err.responseText || err;
+            traceError(msg);
+            $$$.boxError.showBox(msg);
+        });
         return true;
     }
     function sendSave(sheet) {
-        if (!sheet) {
-            traceError("sheet is null!");
-            return;
-        }
-        trace(sheet);
-        __SPINNER.startBusy(0.8, 0.5, function (done) {
-            postAuthJSON({
-                url: "/g2j/add",
-                json: sheet,
-                success: function (jsonResult) {
-                    $$$.boxInfo.showBox("Successfully added sheet: \"" + sheet.projectName + " / " + sheet.urlAlias + "\"");
-                    done();
-                    __VUE.json = jsonResult;
-                },
-                error: function (err) {
-                    $$$.boxError.showBox(err.responseText);
-                    done();
-                    lastFailedSheet = sheet;
-                }
+        return new Promise(function (resolve, reject) {
+            if (!sheet)
+                return reject("sheet is null!");
+            __SPINNER.startBusy(0.8, 0.5, function (done) {
+                postAuthJSON({
+                    url: "/g2j/add",
+                    json: sheet,
+                    success: function (jsonResult) {
+                        done();
+                        __VUE.json = jsonResult;
+                        resolve();
+                    },
+                    error: function (err) {
+                        done();
+                        lastFailedSheet = sheet;
+                        reject(err);
+                    }
+                });
             });
         });
     }

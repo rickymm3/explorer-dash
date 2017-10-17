@@ -2,50 +2,54 @@
 const path = require('path');
 const mkdirp = require('mkdirp');
 const fs = require('fs-extra');
-const JSZip = require("jszip");
+//const JSZip = require("jszip");
 
 module.exports = function(PROJ) {
 
-	var $$$ = PROJ.$$$;
-	var app = $$$.app;
+	const $$$ = PROJ.$$$;
+	const app = $$$.app;
 
-	var __creds = PROJ.__data + "/erds-2017-google-api.json";
+	const __creds = PROJ.__data + "/erds-2017-google-api.json";
+	const __sheets = PROJ.__data + '/sheets';
+	const __json = PROJ.__json; //.replace('.json', '.js');
 	const creds = PROJ.creds = require(__creds);
 
-	var __sheets = PROJ.__sheets = PROJ.__data + '/sheets';
+	PROJ.__sheets = __sheets;
+
 	mkdirp(__sheets);
 
 	var sheets;
-	var __json = PROJ.__json; 		//.replace('.json', '.js');
-	var jsonData = {};
 
-	if(!$$$.fileExists(__json)) {
-		$$$.makeDir(__json, () => {
-			rewriteJSON();
-		});
-	} else {
-		jsonData = PROJ.jsonData = require(__json);
-	}
+	$$$.loadSheetJSON = () => {
+		var jsonStr = $$$.fileRead(__json);
+		PROJ.jsonData = JSON.parse(jsonStr);
 
-	if(!jsonData.sheets) jsonData.sheets = [];
-	sheets = jsonData.sheets;
-	sheets.forEach(sheet => {
-		sheet.__sheetJSON = getPathSheetJSON(sheet.urlAlias);
-	});
-
-	function rewriteJSON() {
-		$$$.fileWrite(__json, JSON.stringify(jsonData, null, '  '));
-
-		PROJ.jsonData = jsonData;
-	}
-
-	$$$.rewriteJSON = rewriteJSON;
-
-	function getPathSheetJSON(str) {
-		return PROJ.__sheets + `/${str}.json`;
+		$$$.updateSheetReferences();
 	};
 
-	$$$.getPathSheetJSON = getPathSheetJSON;
+	$$$.getPathSheetJSON = str => PROJ.__sheets + `/${str}.json`;
+
+	$$$.rewriteJSON = () => {
+		$$$.fileWrite(__json, JSON.stringify(PROJ.jsonData, null, '  '));
+
+		$$$.updateSheetReferences();
+	};
+
+	$$$.updateSheetReferences = () => {
+		sheets = PROJ.jsonData.sheets;
+		sheets.forEach(sheet => sheet.__sheetJSON = $$$.getPathSheetJSON(sheet.urlAlias));
+	};
+
+	if(!$$$.fileExists(__json)) {
+		$$$.makeDir(__json, $$$.rewriteJSON);
+		PROJ.jsonData = {sheets: []};
+	} else {
+		$$$.loadSheetJSON();
+	}
+
+	if(!PROJ.jsonData.sheets) PROJ.jsonData.sheets = [];
+
+	$$$.updateSheetReferences();
 
 	function status500(res, msg) {
 		return res.status(500).send("GSheet-2-JSON Error: " + msg);
@@ -86,8 +90,8 @@ module.exports = function(PROJ) {
 				return;
 			}
 
-			opts.rewriteJSON && rewriteJSON();
-			opts.sendJSON && res.json(jsonData);
+			opts.rewriteJSON && $$$.rewriteJSON();
+			opts.sendJSON && res.json(PROJ.jsonData);
 
 			return result;
 		});
@@ -108,7 +112,6 @@ module.exports = function(PROJ) {
 		if(existingSheet) {
 			_.extend(existingSheet, body);
 			trace("Overwrite sheet: " + existingSheet.guid);
-			//trace(existingSheet);
 		} else {
 			sheets.push(body);
 		}
@@ -123,6 +126,32 @@ module.exports = function(PROJ) {
 		sheets.remove(existingSheet);
 	});
 
+	route('/g2j/mark-stable', {rewriteJSON: true}, (body, res) => {
+		$$$.loadSheetJSON();
+
+		var existingSheet = sheets.find(sheet => sheet.guid===body.guid);
+		if(!existingSheet) {
+			return status500(res, "Sheet does not exists.");
+		}
+
+		if(!existingSheet.stableVersion) {
+			existingSheet.stableVersion = 0;
+		}
+
+		existingSheet.stableVersion++;
+
+		var __stableJSON = $$$.getStableVersion(existingSheet.__sheetJSON, existingSheet.stableVersion);
+
+		$$$.fileCopy(existingSheet.__sheetJSON, __stableJSON, (err) => {
+			if(err) {
+				var msg = err.message || err;
+				return status500(res, 'Could not make a stable-version copy: ' + msg);
+			}
+
+			res.send(__stableJSON.split('/').pop());
+		});
+	});
+
 	route('/g2j/test-hooks', (body, res) => {
 		var sheet = sheets.find(sheet => sheet.guid===body.guid);
 		if(!sheet) {
@@ -130,9 +159,9 @@ module.exports = function(PROJ) {
 		}
 
 		$$$.fileRead(sheet.__sheetJSON, (err, content) => {
-			sheet.data = JSON.parse(content);
+			var hookData = _.extend({data: JSON.parse(content)}, sheet);
 
-			$$$.notifyWebhooks(sheet, body.webhook)
+			$$$.notifyWebhooks(hookData, body.webhook)
 				.then(hookResponses => {
 					res.json(hookResponses);
 				})
@@ -145,7 +174,6 @@ module.exports = function(PROJ) {
 	});
 
 	route('/g2j/status', {}, (req, res, next) => {
-
 		switch(req.method) {
 			case 'POST':
 				var isActive = _.isTruthy(req.body.status);
@@ -172,20 +200,53 @@ module.exports = function(PROJ) {
 		$$$.sendRefresh();
 	});
 
-	app.use('/g2j/json/*', (req, res, next) => {
-		var urlAlias = req.params[0];
+	const routeJSON = $$$.express.Router();
 
-		var __sheetJSON = $$$.getPathSheetJSON(urlAlias);
+	routeJSON.use('/*', (req, res, next) => {
+		res.type('json');
+		next();
+	});
 
-		if(!$$$.fileExists(__sheetJSON)) {
+	routeJSON.use('/:urlAlias', (req, res, next) => {
+		var urlAlias = req.params.urlAlias;
+
+		req.__sheetJSON = $$$.getPathSheetJSON(urlAlias);
+
+		if(!$$$.fileExists(req.__sheetJSON)) {
 			return status500(res, `JSON data not found for "${urlAlias}". May need to fetch and parse the sheet first.`);
 		}
 
-		$$$.fileRead(__sheetJSON, (err, content) => {
-			if(err) return status500(res, `Trouble reading the JSON file: ${__sheetJSON}`);
+		if(req.url==='/') {
+			$$$.fileRead(req.__sheetJSON, (err, content) => {
+				if(err) return status500(res, `Trouble reading the JSON file: ${__sheetJSON}`);
 
-			res.type('json');
+				res.send(content);
+			});
+			return;
+		}
+
+		next();
+	});
+
+	$$$.getStableVersion = (path, version) => path.replace('.json', '.v' + (version+'').padLeft('0000') + '.json');
+
+	routeJSON.use('/:urlAlias/stable/:stableVersion', (req, res, next) => {
+		const urlAlias = req.params.urlAlias;
+		const versionStr = req.params.stableVersion;
+		const version = parseFloat(versionStr);
+		if(isNaN(versionStr) || version!==(version|0)) return status500(res, `URL /${req.params.urlAlias}/stable/:stableVersion/ must be an integer.`);
+
+		const __stableJSON = $$$.getStableVersion(req.__sheetJSON, versionStr);
+
+		if(!$$$.fileExists(__stableJSON)) {
+			trace("No stable file: " + __stableJSON);
+			return status500(res, `URL alias /${urlAlias}/ does not contain any file under stable-version #${version}.`);
+		}
+
+		$$$.fileRead(__stableJSON, (err, content) => {
 			res.send(content);
 		});
 	});
+
+	app.use('/g2j/json', routeJSON);
 };

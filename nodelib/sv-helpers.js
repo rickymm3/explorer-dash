@@ -68,14 +68,19 @@ module.exports = function($$$) {
 	$$$.fileRename = function(path, path2, cb) {
 		fs.move(path, path2,  {overwrite: true}, cb);
 	};
-	
+
 	$$$.fileCopyNow = function(path, cb) {
 		var pathinfo = path.toPath();
 		var pathCopy = pathinfo.path +
-						pathinfo.filename +
-						dateFormat(new Date(), ".yy-mm-dd.HH_MM").replace('_','h') + //-ss
-						pathinfo.ext;
+			pathinfo.filename +
+			dateFormat(new Date(), ".yy-mm-dd.HH_MM").replace('_','h') + //-ss
+			pathinfo.ext;
 		fs.copy(path, pathCopy, cb);
+	};
+
+	$$$.fileCopy = function(path, pathNew, cb) {
+		var pathinfo = path.toPath();
+		fs.copy(path, pathNew, cb);
 	};
 
 	$$$.fileExists = function(dirOrFile) {

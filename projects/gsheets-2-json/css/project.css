@@ -65,6 +65,9 @@ a.btn {
   box-shadow: 0px 1px 1px #000;
   white-space: nowrap;
 }
+.popup {
+  z-index: 100;
+}
 .popup .label {
   display: inline-block;
   text-align: right;
@@ -116,7 +119,7 @@ a.btn {
 }
 .btn-yellow,
 .btn-yellow:hover {
-  background: #fa0;
+  background: #fc0;
 }
 .btn-green,
 .btn-green:hover {

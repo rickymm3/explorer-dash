@@ -40,6 +40,7 @@
                 <btn v-if="ctrlKey" icon="trash" @click="removeSheet(sheet)" class="btn-red"></btn>
                 <btn v-if="!ctrlKey" icon="cog" @click="editSheet(sheet)"></btn>
                 <btn icon="anchor" @click="editWebhooks(sheet)"></btn>
+                <btn icon="code-fork" title="Create Stable Version" class="btn-yellow" @click="makeStableVersion(sheet)"></btn>
 
                 <a :href="sheet.urlSource" target="blank">Google Doc</a> |
                 <a :href="toG2JLink(sheet.urlAlias)" target="blank">Json-Data ({{toG2JLink(sheet.urlAlias)}})</a>

@@ -42,9 +42,13 @@
                 <btn icon="anchor" @click="editWebhooks(sheet)"></btn>
                 <btn icon="code-fork" title="Create Stable Version" class="btn-yellow" @click="makeStableVersion(sheet)"></btn>
 
-                <a :href="sheet.urlSource" target="blank">Google Doc</a> |
-                <a :href="toG2JLink(sheet.urlAlias)" target="blank">Json-Data ({{toG2JLink(sheet.urlAlias)}})</a>
-                {{sheet.projectName}}
+                <i class="nowrap inline-block v-align-bottom">
+                    <b>{{sheet.projectName}}</b><br/>
+                    <i style="font-size: 90%;">
+                    <a :href="sheet.urlSource" target="blank"><i class="fa fa-table"></i> Google Doc</a> |
+                    <a :href="toG2JLink(sheet.urlAlias)" target="blank">Json-Data ({{toG2JLink(sheet.urlAlias)}})</a>
+                    </i>
+                </i>
             </i>
 
             <i class="col-2 timestamp">{{toTimestamp(sheet.lastFetched)}}</i>

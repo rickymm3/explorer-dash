@@ -138,9 +138,9 @@ module.exports = function(PROJ) {
 			existingSheet.stableVersion = 0;
 		}
 
-		existingSheet.stableVersion++;
+		const version = ++existingSheet.stableVersion;
 
-		var __stableJSON = $$$.getStableVersion(existingSheet.__sheetJSON, existingSheet.stableVersion);
+		const __stableJSON = $$$.getStableVersion(existingSheet.__sheetJSON, version);
 
 		$$$.fileCopy(existingSheet.__sheetJSON, __stableJSON, (err) => {
 			if(err) {
@@ -148,7 +148,7 @@ module.exports = function(PROJ) {
 				return status500(res, 'Could not make a stable-version copy: ' + msg);
 			}
 
-			res.send(__stableJSON.split('/').pop());
+			res.send(existingSheet.urlAlias + "/stable/" + version);
 		});
 	});
 

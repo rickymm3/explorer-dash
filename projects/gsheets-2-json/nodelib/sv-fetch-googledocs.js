@@ -215,8 +215,7 @@ module.exports = function(PROJ) {
 				return cbOnDone(null);
 			}
 
-			var totalSheets = info.worksheets.length, progress = 0, rows, cols,
-				dataEntries, headers, headersType = [], headersIndicesIgnored;
+			var totalSheets = info.worksheets.length, progress = 0;
 
 			current.sheet.info = currentInfo = {
 				id: info.id,
@@ -238,15 +237,23 @@ module.exports = function(PROJ) {
 				step();
 			}
 
-			var sheetData = {
-				_headersRaw: [],
-				_headersIndicesIgnored: headersIndicesIgnored = [],
-				headers: headers = [],
-				data: dataEntries = []
-			};
-
 			//Process Multiple Sheet-Tabs simultaneously! :)
 			info.worksheets.forEach((worksheet, id) => {
+				var rows, cols, dataEntries, headers, headersType = [], headersIndicesIgnored;
+
+				var sheetData = {
+					_headersRaw: [],
+					_headersIndicesIgnored: headersIndicesIgnored = [],
+					headers: headers = [],
+					data: dataEntries = []
+				};
+
+				function prepareSheet(step) {
+					worksheet.sheetData = sheetData;
+
+					step();
+				}
+
 				function countCols(step) {
 					rows = Math.min(PROJ.creds.maxRows, worksheet.rowCount);
 					cols = Math.min(PROJ.creds.maxCols, worksheet.colCount);
@@ -329,7 +336,7 @@ module.exports = function(PROJ) {
 					});
 				}
 
-				async.series([countCols, countRows, processNecessaryCells, doCount]);
+				async.series([prepareSheet, countCols, countRows, processNecessaryCells, doCount]);
 			});
 		}
 

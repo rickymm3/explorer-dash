@@ -239,27 +239,29 @@ module.exports = function(PROJ) {
 
 			//Process Multiple Sheet-Tabs simultaneously! :)
 			info.worksheets.forEach((worksheet, id) => {
-				if(worksheet.title.startsWith('//')) return doCount();
+				if(worksheet.title.startsWith('//')) {
+					currentInfo.numWorksheets--;
+					return doCount();
+				}
 
 				var rows, cols, dataEntries, headers, headersType = [], headersIndicesIgnored;
 				const title = changeCase.paramCase(worksheet.title);
 
-				var sheetData = {
+				var sheetData = worksheet.sheetData = {
 					_headersRaw: [],
 					_headersIndicesIgnored: headersIndicesIgnored = [],
 					headers: headers = [],
 					data: dataEntries = []
 				};
 
-				function prepareSheet(step) {
-					worksheet.sheetData = sheetData;
-
-					step();
-				}
-
 				function countCols(step) {
 					rows = Math.min(PROJ.creds.maxRows, worksheet.rowCount);
 					cols = Math.min(PROJ.creds.maxCols, worksheet.colCount);
+
+					if(rows===0 || cols===0) {
+						currentInfo.numWorksheets--;
+						return doCount();
+					}
 
 					//First, only query the first row (to determine the max-columns)...
 					queryWorksheet(worksheet, 1, 1, cols, 1, (err, cells) => {
@@ -337,7 +339,7 @@ module.exports = function(PROJ) {
 					});
 				}
 
-				async.series([prepareSheet, countCols, countRows, processNecessaryCells, doCount]);
+				async.series([countCols, countRows, processNecessaryCells, doCount]);
 			});
 		}
 

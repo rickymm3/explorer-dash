@@ -240,6 +240,7 @@ module.exports = function(PROJ) {
 			//Process Multiple Sheet-Tabs simultaneously! :)
 			info.worksheets.forEach((worksheet, id) => {
 				if(worksheet.title.startsWith('//')) {
+					trace("Commented-out sheet found: " + worksheet.title.green);
 					currentInfo.numWorksheets--;
 					return doCount();
 				}
@@ -259,6 +260,7 @@ module.exports = function(PROJ) {
 					cols = Math.min(PROJ.creds.maxCols, worksheet.colCount);
 
 					if(rows===0 || cols===0) {
+						trace("Empty sheet found: " + worksheet.title.green);
 						currentInfo.numWorksheets--;
 						return doCount();
 					}

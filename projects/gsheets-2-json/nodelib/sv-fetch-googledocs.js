@@ -234,12 +234,15 @@ module.exports = function(PROJ) {
 					writeSheetToJSON();
 				}
 
-				step();
+				step && step();
 			}
 
 			//Process Multiple Sheet-Tabs simultaneously! :)
 			info.worksheets.forEach((worksheet, id) => {
+				if(worksheet.title.startsWith('//')) return doCount();
+
 				var rows, cols, dataEntries, headers, headersType = [], headersIndicesIgnored;
+				const title = changeCase.paramCase(worksheet.title);
 
 				var sheetData = {
 					_headersRaw: [],
@@ -301,8 +304,6 @@ module.exports = function(PROJ) {
 						headers.push(headerClean);
 					});
 				}
-
-				const title = changeCase.paramCase(worksheet.title);
 
 				function processNecessaryCells(step) {
 					queryWorksheet(worksheet, 1, 2, cols, rows, (err, cells) => {

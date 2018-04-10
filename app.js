@@ -28,5 +28,5 @@ if ($$$.isTest && $$$.fileExists('./nodelib/test.js')) {
 
 server.listen($$$.port, function (err) {
 	if(err) throw err;
-	trace("Started Express on '$0' (or '$1')".rep([$$$.__host, $$$.__localhost]).yellow);
+	trace("- Started Express on '$0' (or '$1')".rep([$$$.__host, $$$.__localhost]).yellow);
 });

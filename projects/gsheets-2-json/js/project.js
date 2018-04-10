@@ -195,6 +195,7 @@ var __VUE, __UPLOAD, __SPINNER, __JSON, __SPINNER;
                 trace("found: " + found);
                 return new Error("Could not find a matching Sheet to overwrite changes!");
             }
+            //sheet.guid = oldSheet.guid;
         }
         var isValid = true;
         _.keys(sheet).forEach(function (prop) {

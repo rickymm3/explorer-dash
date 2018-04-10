@@ -37,6 +37,7 @@ function onProjectFetch(projectData) {
             message: 'Test VueJS Message!',
             errors: '',
             infos: '' //,
+            //proj: proj
         },
         methods: {}
     };
@@ -341,7 +342,7 @@ $$$.fx = {
         TweenMax.fromTo($el, 0.3, { alpha: 1 }, { alpha: 0, onComplete: function () { return $el.hide(); } });
     }
 };
-var Spinner = (function () {
+var Spinner = /** @class */ (function () {
     function Spinner() {
         this._el = null;
         this._twn = null;
